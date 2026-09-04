@@ -6,6 +6,7 @@ import { api } from '../services/api';
 import { shareContent } from '../utils/share';
 import { SkeletonRow, EmptyState } from '../components/ui';
 import { compressImage } from '../utils/imageCompressor';
+import { useTheme, THEME_OPTIONS } from '../providers/ThemeProvider';
 
 interface Category {
   id: string;
@@ -64,6 +65,7 @@ interface SettingsPageProps {
 
 export function SettingsPage({ initialTab }: SettingsPageProps) {
   const { user, signOut } = useAuth();
+  const { theme: currentTheme, setTheme } = useTheme();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
@@ -520,6 +522,13 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
             </button>
             <button
               type="button"
+              onClick={() => scrollToSection('settings-appearance')}
+              className="px-sm py-1 rounded-md text-xs font-medium text-secondary hover:text-primary hover:bg-surface-variant transition-colors cursor-pointer"
+            >
+              Appearance
+            </button>
+            <button
+              type="button"
               onClick={() => scrollToSection('settings-privacy')}
               className="px-sm py-1 rounded-md text-xs font-medium text-secondary hover:text-primary hover:bg-surface-variant transition-colors cursor-pointer"
             >
@@ -795,6 +804,87 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* SECTION: SANCTUARY THEMES / APPEARANCE */}
+      <section id="settings-appearance" className="space-y-md">
+        <h2 className="font-headline-md text-headline-md text-primary border-b border-tertiary/25 pb-xs mb-md">
+          Sanctuary Theme & Appearance
+        </h2>
+        
+        <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg space-y-md shadow-xs">
+          <div>
+            <div className="font-body-lg text-body-lg text-on-surface mb-xs font-medium">
+              Choose Sanctuary Palette
+            </div>
+            <div className="font-body-md text-body-md text-secondary">
+              Deony embraces warm archival aesthetics. Switch between daytime parchment, pure midnight contrast, or calm forest hues.
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-md pt-xs">
+            {THEME_OPTIONS.map((t) => {
+              const isActive = currentTheme === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  data-theme-id={t.id}
+                  onClick={() => {
+                    setTheme(t.id);
+                    showToast(`Switched theme to ${t.name}`);
+                  }}
+                  className={`relative text-left p-md rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-md group ${
+                    isActive
+                      ? 'border-primary bg-primary-container/10 ring-2 ring-primary/20 shadow-xs'
+                      : 'border-tertiary/30 bg-surface hover:border-tertiary/60 hover:bg-surface-variant/40'
+                  }`}
+                >
+                  <div className="space-y-xs w-full">
+                    <div className="flex items-center justify-between">
+                      <span className="font-headline-sm text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">
+                        {t.name}
+                      </span>
+                      {isActive && (
+                        <span className="flex items-center gap-0.5 text-[11px] font-bold text-primary uppercase tracking-wider bg-primary-container/30 px-2 py-0.5 rounded-full">
+                          <span className="material-symbols-outlined text-xs">check</span>
+                          Active
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-secondary line-clamp-2 leading-relaxed">
+                      {t.description}
+                    </p>
+                  </div>
+
+                  {/* Palette Preview Swatches */}
+                  <div className="flex items-center gap-1.5 pt-xs border-t border-tertiary/20">
+                    <div
+                      className="w-5 h-5 rounded-full border border-black/10 shadow-xs"
+                      style={{ backgroundColor: t.previewColors.bg }}
+                      title="Background"
+                    />
+                    <div
+                      className="w-5 h-5 rounded-full border border-black/10 shadow-xs"
+                      style={{ backgroundColor: t.previewColors.surface }}
+                      title="Surface"
+                    />
+                    <div
+                      className="w-5 h-5 rounded-full border border-black/10 shadow-xs"
+                      style={{ backgroundColor: t.previewColors.primary }}
+                      title="Primary"
+                    />
+                    <div
+                      className="w-5 h-5 rounded-full border border-black/10 shadow-xs"
+                      style={{ backgroundColor: t.previewColors.accent }}
+                      title="Accent"
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 

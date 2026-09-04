@@ -1,0 +1,26 @@
+{
+  "name": "Deony — Personal Media Sanctuary",
+  "short_name": "Deony",
+  "description": "A calm, personal media-experience archive for intentional reflection.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fff8f5",
+  "theme_color": "#114349",
+  "categories": ["lifestyle", "entertainment", "books"],
+  "icons": [
+    {
+      "src": "/icon.jpg?v=3",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

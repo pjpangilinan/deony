@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider';
+import { useTheme } from '../../providers/ThemeProvider';
 
 export function AppLayout() {
   const { user, signOut } = useAuth();
+  const { theme, cycleTheme, themeMeta } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,6 +23,8 @@ export function AppLayout() {
   if (isPublicRoute || !user) {
     return <Outlet />; // Public pages or unauthenticated visitors handle their own layout
   }
+
+  const themeIcon = theme === 'midnight' ? 'dark_mode' : theme === 'forest' ? 'forest' : 'light_mode';
 
   return (
     <div className="bg-background text-on-surface font-body-md min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
@@ -51,6 +55,20 @@ export function AppLayout() {
             </Link>
           </li>
           <li>
+            <button 
+              onClick={cycleTheme} 
+              aria-label="Switch sanctuary theme"
+              title={`Current theme: ${themeMeta.name} (Click to switch)`}
+              className="flex w-full items-center justify-between px-md py-sm rounded-lg text-secondary hover:bg-primary-container/10 hover:text-primary transition-all group cursor-pointer"
+            >
+              <div className="flex items-center gap-md">
+                <span className="material-symbols-outlined">{themeIcon}</span>
+                <span className="font-label-md text-label-md">{themeMeta.name}</span>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-tertiary/20 text-secondary font-mono">Theme</span>
+            </button>
+          </li>
+          <li>
             <button onClick={handleSignOut} className="flex w-full items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-error-container hover:text-error transition-all group cursor-pointer">
               <span className="material-symbols-outlined">logout</span>
               <span className="font-label-md text-label-md">Sign Out</span>
@@ -71,9 +89,19 @@ export function AppLayout() {
         {/* TopAppBar (Mobile Only) */}
         <header className="md:hidden w-full sticky top-0 bg-background/90 backdrop-blur-md z-40 border-b border-tertiary flex justify-between items-center px-gutter h-16">
           <h1 className="font-display text-headline-md text-primary tracking-tight">Deony</h1>
-          <button className="text-primary hover:opacity-70 transition-opacity" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <span className="material-symbols-outlined">menu</span>
-          </button>
+          <div className="flex items-center gap-sm">
+            <button 
+              onClick={cycleTheme} 
+              aria-label="Switch sanctuary theme"
+              title={`Switch theme (current: ${themeMeta.name})`}
+              className="p-2 text-primary hover:opacity-70 transition-opacity flex items-center justify-center rounded-full hover:bg-primary-container/10"
+            >
+              <span className="material-symbols-outlined text-xl">{themeIcon}</span>
+            </button>
+            <button className="text-primary hover:opacity-70 transition-opacity" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+          </div>
         </header>
 
         {isMobileMenuOpen && (
@@ -88,6 +116,15 @@ export function AppLayout() {
               <li><Link to="/library" onClick={closeMenu} className="text-headline-md font-headline-md">Library</Link></li>
               <li><Link to="/timeline" onClick={closeMenu} className="text-headline-md font-headline-md">Timeline</Link></li>
               <li><Link to="/settings" onClick={closeMenu} className="text-headline-md font-headline-md">Settings</Link></li>
+              <li>
+                <button 
+                  onClick={cycleTheme} 
+                  className="text-headline-md font-headline-md text-secondary flex items-center gap-sm"
+                >
+                  <span className="material-symbols-outlined">{themeIcon}</span>
+                  <span>{themeMeta.name}</span>
+                </button>
+              </li>
               <li><Link to="/log" onClick={closeMenu} className="text-headline-md font-headline-md text-primary">+ New Entry</Link></li>
               <li><button onClick={handleSignOut} className="text-headline-md font-headline-md text-error">Sign Out</button></li>
             </ul>
