@@ -7,6 +7,12 @@ vi.mock('../../lib/db', () => ({
   docClient: {
     send: vi.fn(),
   },
+  TABLES: {
+    USER: 'User',
+    CATEGORY: 'Category',
+    MEDIA: 'Media',
+    EXPERIENCE: 'Experience',
+  },
 }));
 
 describe('Media Handler — Uniqueness & Invariants (TICK-001)', () => {

@@ -2,16 +2,18 @@ import { Request, Response } from 'express';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const isDev = process.env.NODE_ENV === 'development' || process.env.S3_ENDPOINT;
-const s3Client = new S3Client({
-    region: 'local-env',
-    endpoint: process.env.S3_ENDPOINT || 'http://localhost:4569',
-    forcePathStyle: true,
-    credentials: {
-        accessKeyId: 'fakeMyKeyId',
-        secretAccessKey: 'fakeSecretAccessKey'
-    }
-});
+const isDev = process.env.NODE_ENV === 'development' || !!process.env.S3_ENDPOINT;
+const s3Client = isDev 
+    ? new S3Client({
+        region: 'local-env',
+        endpoint: process.env.S3_ENDPOINT || 'http://localhost:4569',
+        forcePathStyle: true,
+        credentials: {
+            accessKeyId: 'fakeMyKeyId',
+            secretAccessKey: 'fakeSecretAccessKey'
+        }
+    })
+    : new S3Client({});
 
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'deony-assets';
 

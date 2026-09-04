@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { docClient } from '../lib/db';
+import { docClient, TABLES } from '../lib/db';
 import { GetCommand, PutCommand, UpdateCommand, QueryCommand, DeleteCommand, ScanCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,7 +8,7 @@ export const createUser = async (req: Request, res: Response) => {
         const { username, display_name } = req.body;
         // Check if username exists using GSI
         const queryResult = await docClient.send(new QueryCommand({
-            TableName: 'User',
+            TableName: TABLES.USER,
             IndexName: 'UsernameIndex',
             KeyConditionExpression: 'username = :username',
             ExpressionAttributeValues: {
@@ -34,7 +34,7 @@ export const createUser = async (req: Request, res: Response) => {
         };
 
         await docClient.send(new PutCommand({
-            TableName: 'User',
+            TableName: TABLES.USER,
             Item: user
         }));
 
@@ -56,7 +56,7 @@ export const getUser = async (req: Request, res: Response) => {
         }
 
         const result = await docClient.send(new GetCommand({
-            TableName: 'User',
+            TableName: TABLES.USER,
             Key: { id }
         }));
 
@@ -74,7 +74,7 @@ export const getUser = async (req: Request, res: Response) => {
                     updated_at: now
                 };
                 await docClient.send(new PutCommand({
-                    TableName: 'User',
+                    TableName: TABLES.USER,
                     Item: newUser
                 }));
                 return res.json(newUser);
@@ -92,7 +92,7 @@ export const getUserByUsername = async (req: Request, res: Response) => {
     try {
         const { username } = req.params;
         const result = await docClient.send(new QueryCommand({
-            TableName: 'User',
+            TableName: TABLES.USER,
             IndexName: 'UsernameIndex',
             KeyConditionExpression: 'username = :username',
             ExpressionAttributeValues: {
@@ -104,7 +104,7 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 
         if (!user) {
             const expCheck = await docClient.send(new QueryCommand({
-                TableName: 'Experience',
+                TableName: TABLES.EXPERIENCE,
                 KeyConditionExpression: 'PK = :pk',
                 ExpressionAttributeValues: {
                     ':pk': `USER#${username}`
@@ -124,7 +124,7 @@ export const getUserByUsername = async (req: Request, res: Response) => {
                     updated_at: now
                 };
                 await docClient.send(new PutCommand({
-                    TableName: 'User',
+                    TableName: TABLES.USER,
                     Item: user
                 }));
             } else {
@@ -149,7 +149,7 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 
         // Fetch public experiences
         const expResult = await docClient.send(new QueryCommand({
-            TableName: 'Experience',
+            TableName: TABLES.EXPERIENCE,
             KeyConditionExpression: 'PK = :pk',
             ExpressionAttributeValues: {
                 ':pk': `USER#${user.id}`
@@ -252,7 +252,7 @@ export const updateUser = async (req: Request, res: Response) => {
         }
 
         const result = await docClient.send(new UpdateCommand({
-            TableName: 'User',
+            TableName: TABLES.USER,
             Key: { id },
             UpdateExpression: `SET ${updateExpr.join(', ')}, #updated_at = :updated_at`,
             ExpressionAttributeValues: exprVals,
@@ -279,7 +279,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
         // Delete user's experiences
         const expResult = await docClient.send(new QueryCommand({
-            TableName: 'Experience',
+            TableName: TABLES.EXPERIENCE,
             KeyConditionExpression: 'PK = :pk',
             ExpressionAttributeValues: {
                 ':pk': `USER#${id}`
@@ -288,14 +288,14 @@ export const deleteUser = async (req: Request, res: Response) => {
 
         for (const exp of expResult.Items || []) {
             await docClient.send(new DeleteCommand({
-                TableName: 'Experience',
+                TableName: TABLES.EXPERIENCE,
                 Key: { PK: exp.PK, SK: exp.SK }
             }));
         }
 
         // Soft-delete user's custom categories
         const catResult = await docClient.send(new ScanCommand({
-            TableName: 'Category',
+            TableName: TABLES.CATEGORY,
             FilterExpression: 'user_id = :userId',
             ExpressionAttributeValues: {
                 ':userId': id
@@ -305,7 +305,7 @@ export const deleteUser = async (req: Request, res: Response) => {
         const now = new Date().toISOString();
         for (const cat of catResult.Items || []) {
             await docClient.send(new UpdateCommand({
-                TableName: 'Category',
+                TableName: TABLES.CATEGORY,
                 Key: { id: cat.id },
                 UpdateExpression: 'SET deleted_at = :now, updated_at = :now',
                 ExpressionAttributeValues: { ':now': now }
@@ -314,7 +314,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
         // Delete user row
         await docClient.send(new DeleteCommand({
-            TableName: 'User',
+            TableName: TABLES.USER,
             Key: { id }
         }));
 

@@ -13,6 +13,13 @@ const clientParams = isDev ? {
     }
 } : {};
 
+export const TABLES = {
+  USER: process.env.USER_TABLE || 'User',
+  CATEGORY: process.env.CATEGORY_TABLE || 'Category',
+  MEDIA: process.env.MEDIA_TABLE || 'Media',
+  EXPERIENCE: process.env.EXPERIENCE_TABLE || 'Experience',
+};
+
 export const client = new DynamoDBClient(clientParams);
 export const docClient = DynamoDBDocumentClient.from(client, {
   marshallOptions: {

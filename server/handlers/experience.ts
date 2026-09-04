@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { docClient } from '../lib/db';
+import { docClient, TABLES } from '../lib/db';
 import { PutCommand, GetCommand, UpdateCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 
 
@@ -24,7 +24,7 @@ export const createExperience = async (req: Request, res: Response) => {
 
         // Fetch media for denormalization
         const mediaRes = await docClient.send(new GetCommand({
-            TableName: 'Media',
+            TableName: TABLES.MEDIA,
             Key: { id: media_id }
         }));
         if (!mediaRes.Item) {
@@ -74,7 +74,7 @@ export const createExperience = async (req: Request, res: Response) => {
 
         try {
             await docClient.send(new PutCommand({
-                TableName: 'Experience',
+                TableName: TABLES.EXPERIENCE,
                 Item: experience,
                 ConditionExpression: 'attribute_not_exists(SK)'
             }));
@@ -83,7 +83,7 @@ export const createExperience = async (req: Request, res: Response) => {
             if (err.name === 'ConditionalCheckFailedException') {
                 // Idempotent return
                 const existing = await docClient.send(new GetCommand({
-                    TableName: 'Experience',
+                    TableName: TABLES.EXPERIENCE,
                     Key: { PK, SK }
                 }));
                 return res.json(existing.Item);
@@ -120,7 +120,7 @@ export const updateExperience = async (req: Request, res: Response) => {
         
         // We need the existing item to calculate new sort_date if fields change
         const getRes = await docClient.send(new GetCommand({
-            TableName: 'Experience',
+            TableName: TABLES.EXPERIENCE,
             Key: { PK, SK }
         }));
         
@@ -189,7 +189,7 @@ export const updateExperience = async (req: Request, res: Response) => {
 
         try {
             const result = await docClient.send(new UpdateCommand({
-                TableName: 'Experience',
+                TableName: TABLES.EXPERIENCE,
                 Key: { PK, SK },
                 UpdateExpression: updateExprStr,
                 ConditionExpression: '#version = :expected_version',
@@ -216,7 +216,7 @@ export const getExperience = async (req: Request, res: Response) => {
         const userId = (req as any).user.sub;
         const { id } = req.params;
         const result = await docClient.send(new GetCommand({
-            TableName: 'Experience',
+            TableName: TABLES.EXPERIENCE,
             Key: { PK: `USER#${userId}`, SK: `EXP#${id}` }
         }));
         
@@ -234,7 +234,7 @@ export const deleteExperience = async (req: Request, res: Response) => {
         const userId = (req as any).user.sub;
         const { id } = req.params;
         await docClient.send(new DeleteCommand({
-            TableName: 'Experience',
+            TableName: TABLES.EXPERIENCE,
             Key: { PK: `USER#${userId}`, SK: `EXP#${id}` }
         }));
         res.status(204).send();
@@ -248,7 +248,7 @@ export const listExperiences = async (req: Request, res: Response) => {
         const userId = (req as any).user.sub;
         // Simple query for MVP using RecentlyAddedIndex if no params, or just PK.
         const result = await docClient.send(new QueryCommand({
-            TableName: 'Experience',
+            TableName: TABLES.EXPERIENCE,
             KeyConditionExpression: 'PK = :pk',
             ExpressionAttributeValues: { ':pk': `USER#${userId}` }
         }));
