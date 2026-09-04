@@ -300,13 +300,14 @@ Deony is a personal media-experience archive. Unlike trackers (Letterboxd, Goodr
 
 ## 6. Utilities
 
-### [U1] Account/Profile Settings (`/settings`)
-*   **Purpose:** Answers "How do I manage my identity and privacy?"
+### [U1] Account, Category & Profile Settings (`/settings`)
+*   **Purpose:** Answers "How do I manage my identity, categories, and privacy?"
 *   **Layout:**
     *   Section 1: Profile (Name, Bio, Username).
-    *   Section 2: Privacy (Archive Visibility: Private/Public).
-    *   Section 3: Account (Email, Change Password, Export Data).
-*   **Actions:** Save Settings, Logout.
+    *   Section 2: Categories (Full Category Management: create custom categories, assign icons, reorder, delete).
+    *   Section 3: Privacy (Archive Visibility: Private/Public, Share Profile).
+    *   Section 4: Account (Email, Change Password, Export Data, Delete Account).
+*   **Actions:** Save Settings, Create Category, Reorder Categories, Export Data, Logout.
 
 ### [X1] Error States (`/404`)
 *   **Purpose:** Answers "Where am I?"
@@ -315,10 +316,11 @@ Deony is a personal media-experience archive. Unlike trackers (Letterboxd, Goodr
 
 ---
 
-## Total Page Count: 15
+## Total Page Count: 14
 
 ## Sitemap
-- **Nav (Logged In):** Home, Library, Timeline, Stats, [Search/Log Button], Profile Dropdown.
+- **Nav (Logged In):** Home, Library (includes Catalog & Statistics/Insights), Timeline, Settings (includes Profile, Categories, Privacy, Account), [New Entry Button].
 - **Nav (Logged Out):** Landing, Login/Signup.
-- **Modals:** Log Experience (often triggered from multiple points).
-- **Sub-pages:** Edit Experience (from Detail), Category Management (from Settings or Library).
+- **Deep Links & Compatibility:** `/stats` redirects to `/library?view=stats`, `/categories` redirects to `/settings?tab=categories`.
+- **Modals:** Log Experience (often triggered from multiple points), Create Category (within Settings).
+- **Sub-pages:** Edit Experience (from Detail).

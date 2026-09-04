@@ -87,11 +87,19 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
     - `src/pages/AuthPage.tsx` & `src/styles/index.css`:
       - Eliminated ugly browser focus rectangle outlines on click across all inputs, tab buttons, submit buttons, and social login buttons using `:focus:not(:focus-visible)` and Tailwind `outline-none focus:outline-none focus-visible:*`.
       - Added interactive password visibility toggle with Material Symbols eye icons (`visibility` / `visibility_off`) on both Log In and Sign Up forms.
-- **Verification & Test Suite Results**:
-  - Vitest unit tests: **24/24 passing** (`npx vitest run`).
-  - Playwright E2E tests: **13/13 passing** (`npx playwright test`), including dedicated `tests/auth.spec.ts` password toggle and focus verification.
-  - First-time user end-to-end audit spec: `tests/first-time-user-audit.spec.ts` (16 stages verified).
-  - 23 audit screenshots captured and documented in `walkthrough.md`.
+  - **Consolidation & Visual Tightening (User Request Implemented)**:
+    - **Categories within Settings**: Consolidated category taxonomy management directly into `src/pages/SettingsPage.tsx` under a dedicated Category Management section featuring modal creation, drag-and-drop reordering, item counts, and category deletion. `ManageCategoriesPage.tsx` cleanly delegates to `<SettingsPage initialTab="categories" />` for backward route compatibility.
+    - **Statistics within Library**: Consolidated retrospective insights and analytics directly into `src/pages/LibraryPage.tsx` with an integrated view switcher (`Catalog` vs `Insights & Statistics`). Includes 4 KPI cards (Total Entries, Words Written, Media Curated, Streak), monthly distribution chart, Top Categories percentage bars, "Your Year in Deony" banner, Share Summary, and Download PDF (`jsPDF`). `StatisticsPage.tsx` cleanly delegates to `<LibraryPage initialView="stats" />`.
+    - **Spacing Tightening & Visibility Enhancement**:
+      - Eliminated oversized 120px desktop side margins and 80px vertical dead spaces across `HomeDashboardPage` and `LibraryPage`, replacing with responsive `px-gutter md:px-8 lg:px-12`.
+      - Balanced font sizes and badge hierarchy: upgraded tiny `text-[10px]` status badges to readable `text-xs font-medium` chips with backdrop blur, and aligned header scales across screens.
+      - Supported tokenized search matching on both internal status enums and user-facing status chip labels (`In Progress`, `Completed`, etc.).
+  - **Verification & Test Suite Results**:
+    - Vitest unit tests: **24/24 passing** (`npm test`).
+    - Playwright E2E tests: **13/13 passing** (`npx playwright test`).
+    - TypeScript compilation: **0 errors** (`npx tsc --noEmit`).
+    - First-time user end-to-end audit spec: `tests/first-time-user-audit.spec.ts` (16 stages verified).
+    - 23 audit screenshots captured and documented in `walkthrough.md`.
 
 ## Current Task
 - **TICK-004**: AWS Infrastructure as Code (IaC) Deployment Baseline
