@@ -1,0 +1,58 @@
+.text-display {
+  font-family: var(--deony-typography-display-font-family);
+  font-size: var(--deony-typography-display-font-size);
+  font-weight: var(--deony-typography-display-font-weight);
+  line-height: var(--deony-typography-display-line-height);
+  letter-spacing: var(--deony-typography-display-letter-spacing);
+}
+
+.text-headline-lg {
+  font-family: var(--deony-typography-headline-lg-font-family);
+  font-size: var(--deony-typography-headline-lg-font-size);
+  font-weight: var(--deony-typography-headline-lg-font-weight);
+  line-height: var(--deony-typography-headline-lg-line-height);
+}
+
+.text-headline-lg-mobile {
+  font-family: var(--deony-typography-headline-lg-mobile-font-family);
+  font-size: var(--deony-typography-headline-lg-mobile-font-size);
+  font-weight: var(--deony-typography-headline-lg-mobile-font-weight);
+  line-height: var(--deony-typography-headline-lg-mobile-line-height);
+}
+
+.text-headline-md {
+  font-family: var(--deony-typography-headline-md-font-family);
+  font-size: var(--deony-typography-headline-md-font-size);
+  font-weight: var(--deony-typography-headline-md-font-weight);
+  line-height: var(--deony-typography-headline-md-line-height);
+}
+
+.text-body-lg {
+  font-family: var(--deony-typography-body-lg-font-family);
+  font-size: var(--deony-typography-body-lg-font-size);
+  font-weight: var(--deony-typography-body-lg-font-weight);
+  line-height: var(--deony-typography-body-lg-line-height);
+}
+
+.text-body-md {
+  font-family: var(--deony-typography-body-md-font-family);
+  font-size: var(--deony-typography-body-md-font-size);
+  font-weight: var(--deony-typography-body-md-font-weight);
+  line-height: var(--deony-typography-body-md-line-height);
+}
+
+.text-label-md {
+  font-family: var(--deony-typography-label-md-font-family);
+  font-size: var(--deony-typography-label-md-font-size);
+  font-weight: var(--deony-typography-label-md-font-weight);
+  line-height: var(--deony-typography-label-md-line-height);
+  letter-spacing: var(--deony-typography-label-md-letter-spacing);
+  text-transform: uppercase;
+}
+
+.text-caption {
+  font-family: var(--deony-typography-caption-font-family);
+  font-size: var(--deony-typography-caption-font-size);
+  font-weight: var(--deony-typography-caption-font-weight);
+  line-height: var(--deony-typography-caption-line-height);
+}

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Log Experience - Deony</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#3d3c39",
+                      "on-tertiary-container": "#c9c7c2",
+                      "background": "#fff8f5",
+                      "outline-variant": "#c0c8c9",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#404849",
+                      "on-primary-container": "#a2d0d8",
+                      "surface-bright": "#fff8f5",
+                      "surface-container-high": "#efe6e2",
+                      "surface-container": "#f5ece8",
+                      "primary-container": "#2d5a61",
+                      "surface-dim": "#e1d8d4",
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f8efea",
+                      "primary": "#114349",
+                      "on-primary-fixed-variant": "#1f4d54",
+                      "on-primary-fixed": "#001f24",
+                      "inverse-surface": "#34302d",
+                      "primary-fixed-dim": "#a1ced6",
+                      "on-tertiary": "#ffffff",
+                      "secondary": "#5e5e5d",
+                      "surface-container-low": "#fbf2ed",
+                      "on-secondary-container": "#626361",
+                      "surface-container-lowest": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#1f1b18",
+                      "surface-tint": "#39656c",
+                      "secondary-container": "#e0dfde",
+                      "on-secondary-fixed-variant": "#464746",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed": "#e5e2dd",
+                      "surface-variant": "#eae1dc",
+                      "on-background": "#1f1b18",
+                      "tertiary-fixed-dim": "#c9c6c1",
+                      "surface": "#fff8f5",
+                      "on-error-container": "#93000a",
+                      "tertiary-container": "#54534f",
+                      "on-tertiary-fixed-variant": "#474743",
+                      "on-tertiary-fixed": "#1c1c19",
+                      "primary-fixed": "#bcebf3",
+                      "inverse-primary": "#a1ced6",
+                      "secondary-fixed-dim": "#c7c6c5",
+                      "outline": "#71787a",
+                      "on-secondary-fixed": "#1a1c1b",
+                      "surface-container-highest": "#eae1dc",
+                      "secondary-fixed": "#e3e2e0"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "xs": "4px",
+                      "gutter": "24px",
+                      "xl": "48px",
+                      "margin-mobile": "20px",
+                      "md": "16px",
+                      "xxl": "80px",
+                      "sm": "8px",
+                      "margin-desktop": "120px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "EB Garamond"
+                      ],
+                      "caption": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "EB Garamond"
+                      ],
+                      "headline-lg-mobile": [
+                              "EB Garamond"
+                      ],
+                      "display": [
+                              "EB Garamond"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "caption": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.secondary-fixed');
+            color: theme('colors.on-surface');
+        }
+        
+        .modal-overlay {
+            background-color: rgba(31, 27, 24, 0.4);
+            backdrop-filter: blur(2px);
+        }
+
+        /* Custom scrollbar for minimalist feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant');
+            border-radius: theme('borderRadius.full');
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline');
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md h-screen flex flex-col items-center justify-center relative overflow-hidden">
+<!-- Background Context (Blurred out for focus on modal) -->
+<div class="absolute inset-0 z-0 opacity-30 pointer-events-none" data-alt="A softly blurred, high-key light mode background showing subtle textures of artisanal paper and faint geometric shadows. The palette is dominated by warm off-whites, pale sand, and extremely muted hints of deep cyan. The overall mood is calm, uncluttered, and introspective, serving as a non-distracting canvas for a digital sanctuary interface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBysuTsYt1oX3iSRu6IKgalEZYesh6W-mIC90glR8yRmEQVZcLlYshvqXPNtVw6HGHVrxJBJzRCDWQVy6vigTEiFntm8YNENRzLyDr3M33vAsYDUV2zKxJ7olWO7qF4OdznpzyHyUMghNk72odR5RIQxdYOBZ2DD9RREbjL2a9ZWhBYc_mZEyjop2qvdbbwmzNuNSxu6CD7c6dGain2eD6Pfnvb-Z9OWKdzyJzPwU58eOySXRfKOiaW'); background-size: cover; background-position: center;"></div>
+<!-- Top Navigation (Hidden on transactional/modal screen based on logic) -->
+<!-- Nav is suppressed here as this is a focused "Log" task -->
+<!-- Modal Container -->
+<main class="z-10 w-full max-w-[800px] bg-surface rounded-xl border border-tertiary mx-gutter flex flex-col max-h-[90vh] overflow-hidden shadow-sm relative">
+<!-- Header -->
+<header class="flex justify-between items-center px-lg py-md border-b border-tertiary shrink-0 bg-surface">
+<div>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">Log an Experience</h1>
+<p class="font-caption text-caption text-secondary mt-xs">Step 2: Reflect &amp; Record</p>
+</div>
+<button aria-label="Close modal" class="text-secondary hover:text-primary transition-colors flex items-center justify-center rounded-full p-sm hover:bg-surface-variant focus:outline-none focus:ring-1 focus:ring-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">close</span>
+</button>
+</header>
+<!-- Content Area -->
+<div class="flex-1 overflow-y-auto p-lg flex flex-col md:flex-row gap-xl bg-surface-bright">
+<!-- Left Column: Item Preview -->
+<div class="md:w-1/3 flex flex-col shrink-0">
+<div class="rounded-lg border border-tertiary overflow-hidden bg-white mb-md aspect-[2/3] relative group">
+<img class="w-full h-full object-cover" data-alt="A minimalist, high-quality poster design for a classic science fiction film. The artwork features a clean, white background with a striking, abstract geometric representation of a spaceship in deep teal and charcoal. The typography is elegant Garamond, placed sparingly. The overall aesthetic is editorial, refined, and evokes a sense of thoughtful cinema." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3VekgB-nPWmqkFccIik2lDNuWiIDmuvUQXL8afZW1lfFD_zfQF662wbg_LakM0TEmXcGWaODreluX55RlVT96xVy0GdG4lokUgOxS9LAN8ghh1f-IL7GU0ZwabjxnPaYmWl5c9NkzSpnhw4y_8k5rJKAoSZQCSBEWd0QddtYU1aLQTWUoF3A9DJsuGV3EXKbVHs20hpmvNQVCvrUCilazNUJtWoPFIu50nqH4dOUZ7HDqWKTYplsM"/>
+<!-- Subtle gradient overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-md">
+<button class="text-white text-caption font-caption hover:underline">Change Media</button>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<span class="inline-block px-sm py-xs bg-surface-variant text-on-surface-variant font-label-md text-label-md uppercase rounded-full self-start tracking-widest text-[10px]">Film</span>
+<h2 class="font-headline-md text-headline-md text-on-surface leading-tight">Solaris</h2>
+<p class="font-body-md text-body-md text-secondary">Andrei Tarkovsky, 1972</p>
+</div>
+</div>
+<!-- Right Column: Form -->
+<form class="md:w-2/3 flex flex-col gap-lg">
+<!-- Rating -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Rating</label>
+<div class="flex gap-sm items-center">
+<!-- Simulated Star Rating -->
+<div class="flex gap-xs text-primary cursor-pointer">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[28px] text-tertiary-fixed-dim" style="font-variation-settings: 'FILL' 0;">star</span>
+</div>
+<span class="font-body-md text-body-md text-secondary ml-sm">4.0</span>
+</div>
+</div>
+<!-- Status & Dates -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide" for="status">Status</label>
+<div class="relative">
+<select class="w-full appearance-none bg-transparent border-0 border-b border-tertiary rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-pointer" id="status">
+<option>Completed</option>
+<option>In Progress</option>
+<option>Abandoned</option>
+</select>
+<span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Date Completed</label>
+<div class="relative">
+<input class="w-full bg-transparent border-0 border-b border-tertiary rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-text" type="date" value="2023-10-27"/>
+</div>
+</div>
+</div>
+<!-- Tags -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Themes / Tags</label>
+<div class="flex flex-wrap gap-sm items-center">
+<span class="px-md py-sm bg-surface-variant text-on-surface-variant font-label-md text-label-md rounded-full flex items-center gap-xs cursor-pointer hover:bg-surface-dim transition-colors">
+                            Philosophy <span class="material-symbols-outlined text-[16px]">close</span>
+</span>
+<span class="px-md py-sm bg-surface-variant text-on-surface-variant font-label-md text-label-md rounded-full flex items-center gap-xs cursor-pointer hover:bg-surface-dim transition-colors">
+                            Isolation <span class="material-symbols-outlined text-[16px]">close</span>
+</span>
+<input class="bg-transparent border-0 border-b border-transparent hover:border-tertiary focus:border-primary focus:ring-0 py-sm px-sm font-body-md text-body-md text-on-surface w-32 placeholder:text-outline-variant transition-colors" placeholder="Add tag..." type="text"/>
+</div>
+</div>
+<!-- Thoughts -->
+<div class="flex flex-col gap-sm flex-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide" for="thoughts">Personal Thoughts</label>
+<div class="border border-tertiary rounded-md p-md bg-white flex-1 flex flex-col min-h-[200px] focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-shadow">
+<!-- Fake Rich Text Toolbar -->
+<div class="flex gap-md border-b border-surface-variant pb-sm mb-sm text-secondary">
+<button class="hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
+<button class="hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
+<button class="hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
+<button class="hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">format_quote</span></button>
+</div>
+<textarea class="w-full flex-1 resize-none bg-transparent border-0 p-0 font-body-lg text-body-lg text-on-surface focus:ring-0 placeholder:text-outline-variant leading-relaxed" id="thoughts" placeholder="Begin introspection..."></textarea>
+</div>
+</div>
+</form>
+</div>
+<!-- Footer Actions -->
+<footer class="flex justify-between items-center px-lg py-md border-t border-tertiary shrink-0 bg-surface">
+<button class="font-label-md text-label-md text-secondary hover:text-primary transition-colors px-md py-sm rounded-md hover:bg-surface-variant focus:outline-none focus:ring-1 focus:ring-primary" type="button">
+                Back
+            </button>
+<div class="flex gap-md">
+<button class="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary hover:bg-surface-variant transition-colors focus:outline-none focus:ring-1 focus:ring-primary" type="button">
+                    Draft
+                </button>
+<button class="font-label-md text-label-md bg-primary text-white px-xl py-sm rounded-md border border-primary hover:bg-primary-container hover:text-on-primary-container transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-surface" type="button">
+                    Save Experience
+                </button>
+</div>
+</footer>
+</main>
+<script>
+        // Simple auto-resize for textarea if needed later, though flex-1 handles it well here
+        const textarea = document.getElementById('thoughts');
+        textarea.addEventListener('input', function() {
+            // Optional: minimal interaction logic could go here
+        });
+    </script>
+</body></html>

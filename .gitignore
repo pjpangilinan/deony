@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env.local
+.env
+local-data
+tools/dynamodb_local
+dynamodb-local-metadata.json
+.cognito
+test-results
+playwright-report
+*.tsbuildinfo
+screenshots/
+*.png
+.DS_Store

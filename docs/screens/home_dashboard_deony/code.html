@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deony - User Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#3d3c39",
+                      "on-tertiary-container": "#c9c7c2",
+                      "background": "#fff8f5",
+                      "outline-variant": "#c0c8c9",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#404849",
+                      "on-primary-container": "#a2d0d8",
+                      "surface-bright": "#fff8f5",
+                      "surface-container-high": "#efe6e2",
+                      "surface-container": "#f5ece8",
+                      "primary-container": "#2d5a61",
+                      "surface-dim": "#e1d8d4",
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f8efea",
+                      "primary": "#114349",
+                      "on-primary-fixed-variant": "#1f4d54",
+                      "on-primary-fixed": "#001f24",
+                      "inverse-surface": "#34302d",
+                      "primary-fixed-dim": "#a1ced6",
+                      "on-tertiary": "#ffffff",
+                      "secondary": "#5e5e5d",
+                      "surface-container-low": "#fbf2ed",
+                      "on-secondary-container": "#626361",
+                      "surface-container-lowest": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#1f1b18",
+                      "surface-tint": "#39656c",
+                      "secondary-container": "#e0dfde",
+                      "on-secondary-fixed-variant": "#464746",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed": "#e5e2dd",
+                      "surface-variant": "#eae1dc",
+                      "on-background": "#1f1b18",
+                      "tertiary-fixed-dim": "#c9c6c1",
+                      "surface": "#fff8f5",
+                      "on-error-container": "#93000a",
+                      "tertiary-container": "#54534f",
+                      "on-tertiary-fixed-variant": "#474743",
+                      "on-tertiary-fixed": "#1c1c19",
+                      "primary-fixed": "#bcebf3",
+                      "inverse-primary": "#a1ced6",
+                      "secondary-fixed-dim": "#c7c6c5",
+                      "outline": "#71787a",
+                      "on-secondary-fixed": "#1a1c1b",
+                      "surface-container-highest": "#eae1dc",
+                      "secondary-fixed": "#e3e2e0"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "xs": "4px",
+                      "gutter": "24px",
+                      "xl": "48px",
+                      "margin-mobile": "20px",
+                      "md": "16px",
+                      "xxl": "80px",
+                      "sm": "8px",
+                      "margin-desktop": "120px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "EB Garamond"
+                      ],
+                      "caption": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "EB Garamond"
+                      ],
+                      "headline-lg-mobile": [
+                              "EB Garamond"
+                      ],
+                      "display": [
+                              "EB Garamond"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "caption": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (Hidden on Mobile) -->
+<nav class="hidden md:flex h-screen w-64 fixed left-0 top-0 border-r border-tertiary bg-surface flex-col py-xl px-md space-y-md z-50">
+<div class="mb-xl px-sm">
+<h1 class="font-display text-headline-md text-primary tracking-tight">Deony</h1>
+<p class="font-caption text-caption text-secondary mt-xs">Digital Sanctuary</p>
+</div>
+<ul class="flex-1 space-y-sm w-full">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold bg-primary-container/10 focus:outline-none focus:ring-1 focus:ring-primary transition-all group" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<span class="font-label-md text-label-md">Journal</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-primary-container/10 hover:text-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all group" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">Timeline</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-primary-container/10 hover:text-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all group" href="#">
+<span class="material-symbols-outlined">perm_media</span>
+<span class="font-label-md text-label-md">Media</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-primary-container/10 hover:text-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all group" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-label-md text-label-md">Statistics</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-primary-container/10 hover:text-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto px-sm pt-xl border-t border-tertiary">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200 flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined">add</span>
+                New Entry
+            </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 w-full">
+<!-- TopAppBar (Mobile Only - Simplified for Dashboard) -->
+<header class="md:hidden w-full sticky top-0 bg-background/90 backdrop-blur-md z-40 border-b border-tertiary flex justify-between items-center px-gutter h-16">
+<h1 class="font-display text-headline-md text-primary tracking-tight">Deony</h1>
+<button class="text-primary hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</header>
+<div class="max-w-[1100px] mx-auto px-gutter md:px-margin-desktop py-xl lg:py-xxl space-y-xl">
+<!-- Quick Log Widget -->
+<section class="bg-surface-container-lowest border border-tertiary rounded-xl p-lg md:p-xl transition-all focus-within:ring-1 focus-within:ring-primary">
+<h2 class="font-headline-md text-headline-md text-primary mb-md">Quick Log</h2>
+<div class="flex flex-col md:flex-row gap-md items-start md:items-center">
+<input class="flex-1 w-full bg-transparent border-b border-outline-variant focus:border-primary pb-sm text-body-lg font-body-lg text-on-surface placeholder:text-secondary focus:outline-none focus:ring-0 transition-colors" placeholder="What are you experiencing right now?" type="text"/>
+<div class="flex gap-sm w-full md:w-auto">
+<button class="p-sm text-secondary hover:text-primary hover:bg-surface-variant rounded-full transition-colors" title="Add Media">
+<span class="material-symbols-outlined">image</span>
+</button>
+<button class="p-sm text-secondary hover:text-primary hover:bg-surface-variant rounded-full transition-colors" title="Tag Location">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+<button class="px-lg py-sm bg-primary text-on-primary font-label-md text-label-md rounded-lg ml-auto md:ml-sm hover:opacity-90 transition-opacity">
+                            Log
+                        </button>
+</div>
+</div>
+</section>
+<!-- Grid Layout for Main Content -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+<!-- Main Column (Left/Center) -->
+<div class="lg:col-span-2 space-y-xl">
+<!-- Currently Experiencing (Horizontal Scroll) -->
+<section>
+<div class="flex items-center justify-between mb-lg">
+<h2 class="font-headline-md text-headline-md text-primary">Currently Experiencing</h2>
+<button class="text-secondary hover:text-primary font-label-md text-label-md transition-colors">View All</button>
+</div>
+<div class="flex overflow-x-auto hide-scrollbar gap-lg pb-sm -mx-gutter px-gutter md:mx-0 md:px-0">
+<!-- Item 1 -->
+<div class="min-w-[160px] md:min-w-[200px] flex-shrink-0 group cursor-pointer">
+<div class="aspect-[2/3] rounded-lg border border-tertiary overflow-hidden mb-sm relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A vintage, minimalist book cover design in a calm digital sanctuary style. High-key lighting, soft whites, deep deep green primary color accents. Tactile paper texture aesthetic, evoking a sense of introspection and permanence. Editorial layout style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG3b7lNo9J8H7y6ui2m_MKPZmoYnlNkjBOyo7A3tVHDS0-W5oAUOy1W724inhmmecYZD6nHVp5_kG4hXWMBVtK2oOyD4Y3bM8Rm5no1WvtmkrlndxJ5kMT1tnbOckwgn7GeTVwh8cXi3KN4xfXgW1jqpt2Q4Mbqn3ntleGbvt8xBQqVnHynXf5IFWMXAu2-ulgmIIfeGR6S4go8QVQ95HDAc_LBG2_hx1EPAhBnlX4MhZG4pn87skJ"/>
+</div>
+<h3 class="font-label-md text-label-md text-on-surface truncate">The Architecture of Happiness</h3>
+<p class="font-caption text-caption text-secondary truncate">Alain de Botton</p>
+<span class="inline-block mt-xs px-2 py-1 bg-surface-variant text-on-surface-variant font-caption text-[10px] uppercase rounded-full tracking-wide">Reading</span>
+</div>
+<!-- Item 2 -->
+<div class="min-w-[160px] md:min-w-[200px] flex-shrink-0 group cursor-pointer">
+<div class="aspect-[2/3] rounded-lg border border-tertiary overflow-hidden mb-sm relative">
+<div class="w-full h-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-display text-secondary/30">movie</span>
+</div>
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-overlay opacity-80" data-alt="A minimalist movie poster design reflecting a quiet, introspective cinematic experience. Cool, muted tones with a subtle film grain texture. High-end editorial aesthetic, perfectly aligned with a calm digital sanctuary theme. Serene and focused." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ_urlqSZrSz6u5x2QQgrVoR3xGjY-IS_XXt5Tb01TDUVqQ0kqQLkKxul-2icg1w0uo_ds9TP5iS5r1zolIA2krkjCNa4d0cI5jc80F7HuhlVrqKZsjR_hktDlXHIna_ml4za6oZ3GpPoABgPDB5X_MQQ8PpljYQquVb52xzQ8EtrPBnVsXh2zVpmQH9zcibkdjqhiHv34yHQ4eut-B9PzQS3tv1HVckFNxwdcIhOMnD9ROh8qqWhS"/>
+</div>
+<h3 class="font-label-md text-label-md text-on-surface truncate">Perfect Days</h3>
+<p class="font-caption text-caption text-secondary truncate">Wim Wenders</p>
+<span class="inline-block mt-xs px-2 py-1 bg-surface-variant text-on-surface-variant font-caption text-[10px] uppercase rounded-full tracking-wide">Watching</span>
+</div>
+<!-- Item 3 -->
+<div class="min-w-[160px] md:min-w-[200px] flex-shrink-0 group cursor-pointer">
+<div class="aspect-[2/3] rounded-lg border border-tertiary overflow-hidden mb-sm relative">
+<div class="w-full h-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-display text-secondary/30">album</span>
+</div>
+</div>
+<h3 class="font-label-md text-label-md text-on-surface truncate">Selected Ambient Works</h3>
+<p class="font-caption text-caption text-secondary truncate">Aphex Twin</p>
+<span class="inline-block mt-xs px-2 py-1 bg-surface-variant text-on-surface-variant font-caption text-[10px] uppercase rounded-full tracking-wide">Listening</span>
+</div>
+</div>
+</section>
+<!-- Recent Highlights -->
+<section>
+<h2 class="font-headline-md text-headline-md text-primary mb-lg">Recent Highlights</h2>
+<div class="space-y-lg relative">
+<!-- Timeline line -->
+<div class="absolute left-[11px] top-4 bottom-4 w-px bg-tertiary/30 hidden md:block"></div>
+<!-- Highlight Card 1 -->
+<div class="pl-0 md:pl-xl relative group">
+<div class="absolute left-2 top-4 w-2 h-2 rounded-full bg-primary hidden md:block shadow-[0_0_0_4px_theme(colors.background)]"></div>
+<div class="bg-surface-container-lowest border border-tertiary rounded-xl p-md md:p-lg hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary text-sm">restaurant</span>
+<span class="font-label-md text-label-md text-secondary">Ate at</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">Osteria Francescana</span>
+</div>
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star_half</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md leading-relaxed">
+                                        An incredible culinary journey. The five ages of Parmigiano Reggiano was a revelation in texture and temperature. The ambiance was surprisingly relaxed despite the accolades.
+                                    </p>
+<div class="flex items-center justify-between text-caption text-secondary">
+<span class="font-caption">Oct 24, 2023 • Modena, Italy</span>
+<div class="flex gap-xs">
+<span class="px-2 py-0.5 bg-surface-variant rounded-full text-[10px] uppercase">Dining</span>
+<span class="px-2 py-0.5 bg-surface-variant rounded-full text-[10px] uppercase">Travel</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Highlight Card 2 -->
+<div class="pl-0 md:pl-xl relative group">
+<div class="absolute left-2 top-4 w-2 h-2 rounded-full bg-tertiary hidden md:block shadow-[0_0_0_4px_theme(colors.background)]"></div>
+<div class="bg-surface-container-lowest border border-tertiary rounded-xl p-md md:p-lg hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary text-sm">menu_book</span>
+<span class="font-label-md text-label-md text-secondary">Finished reading</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">Dune</span>
+</div>
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md leading-relaxed">
+                                        Finally tackled this classic. The ecological themes resonate more than ever. Herbert's world-building is dense but rewarding, establishing a truly alien yet familiar political landscape.
+                                    </p>
+<div class="flex items-center justify-between text-caption text-secondary">
+<span class="font-caption">Oct 12, 2023</span>
+<div class="flex gap-xs">
+<span class="px-2 py-0.5 bg-surface-variant rounded-full text-[10px] uppercase">Sci-Fi</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (Sidebar Widgets) -->
+<div class="space-y-xl">
+<!-- Stat Snack Widget -->
+<div class="bg-surface-container-lowest border border-tertiary rounded-xl p-lg flex flex-col items-center justify-center text-center">
+<h3 class="font-label-md text-label-md text-secondary mb-sm uppercase tracking-widest">Logs This Month</h3>
+<div class="font-display text-display text-primary mb-md">42</div>
+<div class="w-full flex justify-between items-end h-16 border-b border-tertiary/20 pb-sm mb-sm px-md">
+<!-- Simple minimal bar chart -->
+<div class="w-2 bg-primary/20 rounded-t h-4"></div>
+<div class="w-2 bg-primary/40 rounded-t h-8"></div>
+<div class="w-2 bg-primary/60 rounded-t h-6"></div>
+<div class="w-2 bg-primary/80 rounded-t h-12"></div>
+<div class="w-2 bg-primary rounded-t h-16"></div>
+<div class="w-2 bg-primary/40 rounded-t h-10"></div>
+<div class="w-2 bg-primary/20 rounded-t h-5"></div>
+</div>
+<p class="font-caption text-caption text-secondary">+12% from last month</p>
+</div>
+<!-- Ambient Space / Decoration -->
+<div class="hidden lg:block relative h-64 border border-tertiary rounded-xl overflow-hidden bg-surface-variant">
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<span class="material-symbols-outlined text-[120px]">spa</span>
+</div>
+<div class="absolute inset-0 p-lg flex flex-col justify-end bg-gradient-to-t from-surface to-transparent">
+<p class="font-headline-md text-headline-md text-primary font-bold">"Introspection through permanence."</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,16 @@
+.deony-card {
+  background-color: var(--deony-color-surface-container-lowest);
+  border: 1px solid var(--deony-color-tertiary);
+  border-radius: var(--deony-rounded-lg);
+  padding: var(--deony-spacing-lg);
+  box-shadow: none;
+  transition: background-color 0.2s ease;
+}
+
+.deony-card--clickable {
+  cursor: pointer;
+}
+
+.deony-card--clickable:hover {
+  background-color: var(--deony-color-primary-fixed);
+}

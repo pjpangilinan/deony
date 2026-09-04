@@ -1,0 +1,120 @@
+:root {
+  /* Colors */
+  --deony-color-surface: #fff8f5;
+  --deony-color-surface-dim: #e1d8d4;
+  --deony-color-surface-bright: #fff8f5;
+  --deony-color-surface-container-lowest: #ffffff;
+  --deony-color-surface-container-low: #fbf2ed;
+  --deony-color-surface-container: #f5ece8;
+  --deony-color-surface-container-high: #efe6e2;
+  --deony-color-surface-container-highest: #eae1dc;
+  --deony-color-on-surface: #1f1b18;
+  --deony-color-on-surface-variant: #404849;
+  --deony-color-inverse-surface: #34302d;
+  --deony-color-inverse-on-surface: #f8efea;
+  --deony-color-outline: #71787a;
+  --deony-color-outline-variant: #c0c8c9;
+  --deony-color-surface-tint: #39656c;
+  --deony-color-primary: #114349;
+  --deony-color-on-primary: #ffffff;
+  --deony-color-primary-container: #2d5a61;
+  --deony-color-on-primary-container: #a2d0d8;
+  --deony-color-inverse-primary: #a1ced6;
+  --deony-color-secondary: #5e5e5d;
+  --deony-color-on-secondary: #ffffff;
+  --deony-color-secondary-container: #e0dfde;
+  --deony-color-on-secondary-container: #626361;
+  --deony-color-tertiary: #3d3c39;
+  --deony-color-on-tertiary: #ffffff;
+  --deony-color-tertiary-container: #54534f;
+  --deony-color-on-tertiary-container: #c9c7c2;
+  --deony-color-error: #ba1a1a;
+  --deony-color-on-error: #ffffff;
+  --deony-color-error-container: #ffdad6;
+  --deony-color-on-error-container: #93000a;
+  --deony-color-primary-fixed: #bcebf3;
+  --deony-color-primary-fixed-dim: #a1ced6;
+  --deony-color-on-primary-fixed: #001f24;
+  --deony-color-on-primary-fixed-variant: #1f4d54;
+  --deony-color-secondary-fixed: #e3e2e0;
+  --deony-color-secondary-fixed-dim: #c7c6c5;
+  --deony-color-on-secondary-fixed: #1a1c1b;
+  --deony-color-on-secondary-fixed-variant: #464746;
+  --deony-color-tertiary-fixed: #e5e2dd;
+  --deony-color-tertiary-fixed-dim: #c9c6c1;
+  --deony-color-on-tertiary-fixed: #1c1c19;
+  --deony-color-on-tertiary-fixed-variant: #474743;
+  --deony-color-background: #fff8f5;
+  --deony-color-on-background: #1f1b18;
+  --deony-color-surface-variant: #eae1dc;
+
+  /* Typography: display */
+  --deony-typography-display-font-family: "EB Garamond", serif;
+  --deony-typography-display-font-size: 48px;
+  --deony-typography-display-font-weight: 500;
+  --deony-typography-display-line-height: 1.1;
+  --deony-typography-display-letter-spacing: -0.02em;
+
+  /* Typography: headline-lg */
+  --deony-typography-headline-lg-font-family: "EB Garamond", serif;
+  --deony-typography-headline-lg-font-size: 32px;
+  --deony-typography-headline-lg-font-weight: 500;
+  --deony-typography-headline-lg-line-height: 1.2;
+
+  /* Typography: headline-lg-mobile */
+  --deony-typography-headline-lg-mobile-font-family: "EB Garamond", serif;
+  --deony-typography-headline-lg-mobile-font-size: 28px;
+  --deony-typography-headline-lg-mobile-font-weight: 500;
+  --deony-typography-headline-lg-mobile-line-height: 1.2;
+
+  /* Typography: headline-md */
+  --deony-typography-headline-md-font-family: "EB Garamond", serif;
+  --deony-typography-headline-md-font-size: 24px;
+  --deony-typography-headline-md-font-weight: 500;
+  --deony-typography-headline-md-line-height: 1.3;
+
+  /* Typography: body-lg */
+  --deony-typography-body-lg-font-family: "Hanken Grotesk", sans-serif;
+  --deony-typography-body-lg-font-size: 18px;
+  --deony-typography-body-lg-font-weight: 400;
+  --deony-typography-body-lg-line-height: 1.6;
+
+  /* Typography: body-md */
+  --deony-typography-body-md-font-family: "Hanken Grotesk", sans-serif;
+  --deony-typography-body-md-font-size: 16px;
+  --deony-typography-body-md-font-weight: 400;
+  --deony-typography-body-md-line-height: 1.6;
+
+  /* Typography: label-md */
+  --deony-typography-label-md-font-family: "Hanken Grotesk", sans-serif;
+  --deony-typography-label-md-font-size: 14px;
+  --deony-typography-label-md-font-weight: 500;
+  --deony-typography-label-md-line-height: 1.0;
+  --deony-typography-label-md-letter-spacing: 0.05em;
+
+  /* Typography: caption */
+  --deony-typography-caption-font-family: "Hanken Grotesk", sans-serif;
+  --deony-typography-caption-font-size: 12px;
+  --deony-typography-caption-font-weight: 400;
+  --deony-typography-caption-line-height: 1.4;
+
+  /* Rounded */
+  --deony-rounded-sm: 0.25rem;
+  --deony-rounded-default: 0.5rem;
+  --deony-rounded-md: 0.75rem;
+  --deony-rounded-lg: 1rem;
+  --deony-rounded-xl: 1.5rem;
+  --deony-rounded-full: 9999px;
+
+  /* Spacing */
+  --deony-spacing-unit: 4px;
+  --deony-spacing-xs: 4px;
+  --deony-spacing-sm: 8px;
+  --deony-spacing-md: 16px;
+  --deony-spacing-lg: 24px;
+  --deony-spacing-xl: 48px;
+  --deony-spacing-xxl: 80px;
+  --deony-spacing-gutter: 24px;
+  --deony-spacing-margin-mobile: 20px;
+  --deony-spacing-margin-desktop: 120px;
+}
