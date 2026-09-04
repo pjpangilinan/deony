@@ -2,14 +2,14 @@ import { test, expect } from '@playwright/test';
 import { mockCognitoAuth } from '../playwright/mockAuth';
 
 test.describe('Sanctuary Themes (Parchment, Midnight, Forest)', () => {
-  test('cycling themes in sidebar updates data-theme attribute and persists', async ({ page }) => {
+  test('sidebar remains focused on core navigation without theme switcher', async ({ page }) => {
     await mockCognitoAuth(page);
 
     const timestamp = Date.now();
-    const email = `theme-user-${timestamp}@deony.local`;
+    const email = `clean-sidebar-${timestamp}@deony.local`;
     await page.goto('/auth');
     await page.click('#tab-signup');
-    await page.fill('input#signup-username', `themeuser${timestamp}`);
+    await page.fill('input#signup-username', `cleansb${timestamp}`);
     await page.fill('input#signup-email', email);
     await page.fill('input#signup-password', 'TestPassword123!');
     await page.click('form#form-signup button[type="submit"]');
@@ -19,28 +19,17 @@ test.describe('Sanctuary Themes (Parchment, Midnight, Forest)', () => {
     await page.click('button:has-text("Confirm and Enter")');
     await expect(page).toHaveURL(/\/library/);
 
-    // Initial theme should be parchment
-    const htmlEl = page.locator('html');
-    await expect(htmlEl).toHaveAttribute('data-theme', 'parchment');
+    // Sidebar should have Library, Timeline, Settings, Sign Out, New Entry
+    await expect(page.locator('nav a:has-text("Library")')).toBeVisible();
+    await expect(page.locator('nav a:has-text("Timeline")')).toBeVisible();
+    await expect(page.locator('nav a:has-text("Settings")')).toBeVisible();
+    await expect(page.locator('nav button:has-text("Sign Out")')).toBeVisible();
 
-    // Find the theme switcher button in the desktop sidebar
-    const themeBtn = page.locator('button[aria-label="Switch sanctuary theme"]').first();
-    await expect(themeBtn).toBeVisible();
-
-    // Cycle 1: parchment -> midnight
-    await themeBtn.click();
-    await expect(htmlEl).toHaveAttribute('data-theme', 'midnight');
-
-    // Cycle 2: midnight -> forest
-    await themeBtn.click();
-    await expect(htmlEl).toHaveAttribute('data-theme', 'forest');
-
-    // Cycle 3: forest -> parchment
-    await themeBtn.click();
-    await expect(htmlEl).toHaveAttribute('data-theme', 'parchment');
+    // Theme switcher should NOT be in the sidebar
+    await expect(page.locator('button[aria-label="Switch sanctuary theme"]')).not.toBeVisible();
   });
 
-  test('selecting themes in Settings page updates theme immediately and shows toast', async ({ page }) => {
+  test('selecting themes in Settings page updates theme immediately and persists', async ({ page }) => {
     await mockCognitoAuth(page);
 
     const timestamp = Date.now();
@@ -66,12 +55,15 @@ test.describe('Sanctuary Themes (Parchment, Midnight, Forest)', () => {
     await expect(appearanceSection).toBeVisible();
     await expect(page.locator('h2:has-text("Sanctuary Theme & Appearance")')).toBeVisible();
 
+    // Initial theme should be parchment
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'parchment');
+
     // Select Midnight OLED card
     const midnightCard = page.locator('button[data-theme-id="midnight"]');
     await expect(midnightCard).toBeVisible();
     await midnightCard.click();
 
-    // Toast confirmation
+    // Toast confirmation & attribute update
     await expect(page.locator('text=Switched theme to Midnight OLED')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'midnight');
 
@@ -86,5 +78,13 @@ test.describe('Sanctuary Themes (Parchment, Midnight, Forest)', () => {
 
     await expect(page.locator('text=Switched theme to Dark Forest')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'forest');
+
+    // Select Warm Parchment card
+    const parchmentCard = page.locator('button[data-theme-id="parchment"]');
+    await expect(parchmentCard).toBeVisible();
+    await parchmentCard.click();
+
+    await expect(page.locator('text=Switched theme to Warm Parchment')).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'parchment');
   });
 });
