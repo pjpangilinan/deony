@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="128" fill="#114349"/>
+  <!-- Archival Book & Media Leaf Emblem -->
+  <path d="M140 140 C140 140 220 120 256 180 C292 120 372 140 372 140 L372 340 C372 340 292 320 256 365 C220 320 140 340 140 340 Z" fill="#fff8f5" opacity="0.95"/>
+  <path d="M256 180 L256 365" stroke="#114349" stroke-width="8" stroke-linecap="round"/>
+  <!-- Luminous Star / Compass Accent -->
+  <circle cx="256" cy="140" r="14" fill="#2dd4bf"/>
+  <path d="M256 115 L256 165 M231 140 L281 140" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -17,14 +17,16 @@ import { TimelinePage } from './pages/TimelinePage';
 import { StatisticsPage } from './pages/StatisticsPage';
 import { PublicProfilePage } from './pages/PublicProfilePage';
 import { ToastProvider } from './components/ui/useToast';
+import { ThemeProvider } from './providers/ThemeProvider';
 import { SettingsPage } from './pages/SettingsPage';
 
 export default function App() {
   return (
     <ErrorBoundary>
-      <ToastProvider>
-        <AuthProvider>
-          <Router>
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <Router>
           <Routes>
             <Route element={<AppLayout />}>
               {/* Public Routes */}
@@ -53,8 +55,9 @@ export default function App() {
             </Route>
           </Routes>
         </Router>
-      </AuthProvider>
-      </ToastProvider>
+        </AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

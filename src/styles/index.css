@@ -8,6 +8,82 @@ html {
     scroll-behavior: smooth;
 }
 
+:root,
+[data-theme="parchment"] {
+    --color-background: 255 248 245;
+    --color-surface: 255 248 245;
+    --color-surface-container-lowest: 255 255 255;
+    --color-surface-container-low: 251 242 237;
+    --color-surface-container: 245 236 232;
+    --color-surface-container-high: 239 230 226;
+    --color-surface-container-highest: 234 225 220;
+    --color-surface-variant: 234 225 220;
+    --color-primary: 17 67 73;
+    --color-primary-container: 45 90 97;
+    --color-on-primary: 255 255 255;
+    --color-on-surface: 31 27 24;
+    --color-on-surface-variant: 64 72 73;
+    --color-secondary: 94 94 93;
+    --color-secondary-container: 224 223 222;
+    --color-on-secondary-container: 98 99 97;
+    --color-tertiary: 61 60 57;
+    --color-outline: 113 120 122;
+    --color-outline-variant: 192 200 201;
+    --color-on-background: 31 27 24;
+}
+
+[data-theme="midnight"] {
+    --color-background: 10 12 16;
+    --color-surface: 15 18 24;
+    --color-surface-container-lowest: 18 22 30;
+    --color-surface-container-low: 22 27 36;
+    --color-surface-container: 26 32 44;
+    --color-surface-container-high: 33 41 56;
+    --color-surface-container-highest: 42 52 70;
+    --color-surface-variant: 30 37 48;
+    --color-primary: 45 212 191;
+    --color-primary-container: 19 78 74;
+    --color-on-primary: 10 12 16;
+    --color-on-surface: 241 245 249;
+    --color-on-surface-variant: 148 163 184;
+    --color-secondary: 148 163 184;
+    --color-secondary-container: 30 41 59;
+    --color-on-secondary-container: 203 213 225;
+    --color-tertiary: 71 85 105;
+    --color-outline: 71 85 105;
+    --color-outline-variant: 51 65 85;
+    --color-on-background: 241 245 249;
+}
+
+[data-theme="forest"] {
+    --color-background: 8 18 14;
+    --color-surface: 12 26 20;
+    --color-surface-container-lowest: 16 33 26;
+    --color-surface-container-low: 20 40 32;
+    --color-surface-container: 24 48 38;
+    --color-surface-container-high: 30 58 46;
+    --color-surface-container-highest: 38 72 57;
+    --color-surface-variant: 28 54 43;
+    --color-primary: 110 231 183;
+    --color-primary-container: 22 68 52;
+    --color-on-primary: 8 18 14;
+    --color-on-surface: 240 253 244;
+    --color-on-surface-variant: 167 243 208;
+    --color-secondary: 134 163 150;
+    --color-secondary-container: 22 51 40;
+    --color-on-secondary-container: 187 222 206;
+    --color-tertiary: 58 96 80;
+    --color-outline: 64 105 87;
+    --color-outline-variant: 45 78 64;
+    --color-on-background: 240 253 244;
+}
+
+body {
+    background-color: rgb(var(--color-background));
+    color: rgb(var(--color-on-background));
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
 /* Keep our minimal overrides here if needed */
 .hide-scrollbar::-webkit-scrollbar {
     display: none;

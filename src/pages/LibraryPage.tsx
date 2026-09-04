@@ -7,6 +7,7 @@ import { useAuth } from '../providers/AuthProvider';
 import { useToast } from '../components/ui/useToast';
 import { generateStatisticsPdf } from '../utils/pdfExport';
 import { shareContent } from '../utils/share';
+import { GoalRing } from '../components/insights/GoalRing';
 
 interface Experience {
   id: string;
@@ -1070,6 +1071,9 @@ export function LibraryPage({ initialView }: LibraryPageProps = {}) {
             <h2 className="font-headline-md text-headline-md text-primary mb-xs">Statistics & Retrospectives</h2>
             <p className="font-body-md text-body-md text-secondary">A reflection on your journey, measured in moments and categories.</p>
           </div>
+
+          {/* Annual Challenge / Goal Ring */}
+          <GoalRing experiences={experiences} categories={categories} />
 
           {/* 4 KPI Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-md">
