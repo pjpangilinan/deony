@@ -11,6 +11,8 @@ dynamodb-local-metadata.json
 test-results
 playwright-report
 *.tsbuildinfo
-screenshots/
+/screenshots/
+/screenshots-new-user-audit/
 *.png
+!docs/screenshots/*.png
 .DS_Store

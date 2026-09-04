@@ -132,23 +132,27 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
       - Playwright End-to-End Tests (`npx playwright test`): 15/15 test suites passed cleanly with 0 page errors and 0 console errors.
 
 ## Current Phase
-All Development, Invariant Testing, UI Polish, and AWS Production Deployment Complete.
+All Development, Invariant Testing, UI Polish, AWS Production Deployment, Live Smoke Testing, and Documentation Complete.
 
 ## Current Task
-- TICK-004: AWS Infrastructure as Code (IaC) Deployment Baseline — **COMPLETED & LIVE IN AWS**
+- **Live AWS Production Testing & Visual Capture** — **COMPLETED**
   - **Live URL**: `https://d1cdomhzh1pe4j.cloudfront.net`
-  - **API Gateway**: `https://9i4pe5nh7d.execute-api.ap-southeast-1.amazonaws.com/`
-  - **Cognito User Pool**: `ap-southeast-1_Tj0a3lf5F`
-  - **Cognito Client**: `7s68msdl6gaukpjt6drtue5jg4`
-  - **DynamoDB Tables**: `deony-users`, `deony-categories`, `deony-media`, `deony-experiences`
-  - **S3 Buckets**: `deonystack-frontendbucketefe2e19c-xidikzenbqoy`, `deonystack-mediabucketbcbb02ba-v8tobxr33up4`
-  - **CloudFront Distribution**: `E2FBFV25USKQU1`
-  - **Runbook**: `docs/deployment-guide.md`
+  - Automated smoke test completed on live AWS stack (`scripts/smoke-aws.mjs`, `scripts/capture-detail.mjs`).
+  - High-DPI screenshots captured and saved to `docs/screenshots/`:
+    - `01-auth-login.png`
+    - `03-library-empty.png`
+    - `04-search-tmdb.png`
+    - `05-log-experience.png`
+    - `06-library-populated.png`
+    - `07-statistics.png`
+    - `08-timeline.png`
+    - `09-settings.png`
+    - `10-experience-detail.png`
+  - Professional `README.md` created with system architecture Mermaid diagram, visual tour, invariants table, tech stack, and setup guides.
 
 ## What's Next
-- Live smoke testing of user flows on production URL (`https://d1cdomhzh1pe4j.cloudfront.net`).
-- Optional custom domain setup if desired in the future.
+- Ready for remote GitHub repository link from user to push everything.
 
 ## Blockers
-None. Stack is live and healthy.
+None. Ready to push.
 
