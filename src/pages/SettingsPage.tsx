@@ -541,52 +541,65 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
           Profile
         </h2>
         
-        <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg flex flex-col sm:flex-row gap-lg shadow-xs">
-          <div className="shrink-0 flex flex-col items-center sm:items-start gap-sm">
-            <div className="relative group w-[96px] h-[96px] rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border-2 border-tertiary/40 shadow-xs">
-              <img 
-                src={avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${displayName || username || 'User'}`} 
-                alt="Avatar" 
-                className="w-full h-full object-cover" 
-              />
-              <button
-                type="button"
-                onClick={() => setIsAvatarModalOpen(true)}
-                className="absolute inset-0 bg-black/45 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-medium backdrop-blur-[2px]"
-                aria-label="Change profile picture"
-              >
-                <span className="material-symbols-outlined text-[22px]">photo_camera</span>
-                <span>Change</span>
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-xs w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => setIsAvatarModalOpen(true)}
-                className="inline-flex items-center justify-center gap-xs text-xs font-medium text-primary border border-tertiary/40 bg-surface hover:bg-surface-variant rounded-lg px-sm py-1 transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">palette</span>
-                Choose Preset
-              </button>
-              <button
-                type="button"
-                onClick={() => avatarFileInputRef.current?.click()}
-                disabled={isUploadingAvatar}
-                className="inline-flex items-center justify-center gap-xs text-xs font-medium text-secondary hover:text-primary border border-tertiary/40 bg-surface hover:bg-surface-variant rounded-lg px-sm py-1 transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">upload</span>
-                {isUploadingAvatar ? 'Uploading...' : 'Upload Image'}
-              </button>
-              {avatarUrl && (
+        <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg shadow-xs space-y-md">
+          {/* Avatar & Identity Header Row */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md pb-md border-b border-tertiary/20">
+            <div className="flex items-center gap-md sm:gap-lg">
+              <div className="relative group shrink-0">
+                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-primary/30 bg-surface-variant shadow-xs">
+                  <img 
+                    src={avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${displayName || username || 'User'}`} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
                 <button
                   type="button"
-                  onClick={handleRemoveAvatar}
-                  className="text-[11px] text-secondary hover:text-error transition-colors text-center cursor-pointer pt-0.5"
+                  onClick={() => setIsAvatarModalOpen(true)}
+                  className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer border-2 border-surface"
+                  aria-label="Change profile picture"
+                  title="Change profile picture"
                 >
-                  Reset to default
+                  <span className="material-symbols-outlined text-[15px]">photo_camera</span>
                 </button>
-              )}
+              </div>
+
+              <div className="min-w-0">
+                <h3 className="font-headline-sm text-lg sm:text-xl text-primary truncate font-serif">
+                  {displayName || username || 'Curator'}
+                </h3>
+                <p className="font-mono text-xs text-secondary mb-2 truncate">
+                  @{username || 'username'}
+                </p>
+                <div className="flex flex-wrap items-center gap-xs sm:gap-sm">
+                  <button
+                    type="button"
+                    onClick={() => setIsAvatarModalOpen(true)}
+                    className="inline-flex items-center gap-xs px-sm py-1 rounded-lg text-xs font-medium bg-surface text-primary border border-tertiary/40 hover:bg-surface-variant transition-colors cursor-pointer shadow-xs"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">palette</span>
+                    <span>Choose Preset</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => avatarFileInputRef.current?.click()}
+                    disabled={isUploadingAvatar}
+                    className="inline-flex items-center gap-xs px-sm py-1 rounded-lg text-xs font-medium bg-surface text-secondary hover:text-primary border border-tertiary/40 hover:bg-surface-variant transition-colors cursor-pointer shadow-xs"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">upload</span>
+                    <span>{isUploadingAvatar ? 'Uploading...' : 'Upload Image'}</span>
+                  </button>
+                  {avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="text-xs text-secondary hover:text-error transition-colors px-xs py-1 cursor-pointer font-medium"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
             <input
@@ -598,8 +611,9 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
             />
           </div>
           
-          <div className="flex-1 flex flex-col">
-            <div className="mb-md">
+          {/* Profile Form Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-md pt-xs">
+            <div>
               <label className="block font-label-md text-xs text-secondary mb-xs uppercase font-medium">
                 DISPLAY NAME
               </label>
@@ -607,45 +621,57 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
                 type="text" 
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full py-sm border-b border-tertiary/30 focus:border-primary bg-transparent outline-none font-body-md text-body-md text-on-surface transition-colors"
+                className="w-full px-md py-2 bg-surface border border-tertiary/30 focus:border-primary rounded-lg outline-none font-body-md text-body-md text-on-surface transition-all focus:ring-1 focus:ring-primary/20"
                 placeholder="Your display name"
               />
             </div>
             
-            <div className="mb-md">
+            <div>
               <label className="block font-label-md text-xs text-secondary mb-xs uppercase font-medium">
                 USERNAME
               </label>
-              <input 
-                type="text" 
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full py-sm border-b border-tertiary/30 focus:border-primary bg-transparent outline-none font-body-md text-body-md text-on-surface transition-colors"
-                placeholder="@username"
-              />
+              <div className="flex items-center bg-surface border border-tertiary/30 focus-within:border-primary rounded-lg px-md py-2 transition-all focus-within:ring-1 focus-within:ring-primary/20">
+                <span className="text-secondary font-mono text-sm mr-1 select-none">@</span>
+                <input 
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-transparent outline-none font-body-md text-body-md text-on-surface"
+                  placeholder="@username"
+                />
+              </div>
             </div>
             
-            <div className="mb-md">
-              <label className="block font-label-md text-xs text-secondary mb-xs uppercase font-medium">
-                BIO
-              </label>
+            <div className="sm:col-span-2">
+              <div className="flex justify-between items-center mb-xs">
+                <label className="block font-label-md text-xs text-secondary uppercase font-medium">
+                  BIO
+                </label>
+                <span className="text-[11px] text-secondary font-mono">
+                  {bio.length}/500
+                </span>
+              </div>
               <textarea 
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                rows={2}
-                className="w-full py-sm border-b border-tertiary/30 focus:border-primary bg-transparent outline-none resize-y font-body-md text-body-md text-on-surface transition-colors"
-                placeholder="Tell us about yourself..."
+                rows={3}
+                maxLength={500}
+                className="w-full px-md py-2 bg-surface border border-tertiary/30 focus:border-primary rounded-lg outline-none resize-y font-body-md text-body-md text-on-surface transition-all focus:ring-1 focus:ring-primary/20"
+                placeholder="Tell us about your reading, watching, and gaming tastes..."
               />
             </div>
-            
-            <div className="flex justify-end">
-              <button 
-                onClick={handleSaveProfile}
-                className="bg-primary text-on-primary font-label-md text-label-md rounded-lg px-lg py-sm hover:opacity-90 transition-opacity cursor-pointer shadow-xs"
-              >
-                Save Profile
-              </button>
-            </div>
+          </div>
+          
+          {/* Save Profile Button */}
+          <div className="flex justify-end pt-xs">
+            <button 
+              type="button"
+              onClick={handleSaveProfile}
+              className="bg-primary text-on-primary font-label-md text-label-md rounded-lg px-lg py-2 hover:opacity-90 transition-all cursor-pointer shadow-xs flex items-center gap-xs"
+            >
+              <span className="material-symbols-outlined text-[18px]">check</span>
+              <span>Save Profile</span>
+            </button>
           </div>
         </div>
       </section>
