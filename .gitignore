@@ -16,3 +16,13 @@ playwright-report
 *.png
 !docs/screenshots/*.png
 .DS_Store
+
+# Agent and workflow artifacts
+.agents/
+agents.md
+AGENTS.md
+workflow_state.md
+skills-lock.json
+.claude/
+CLAUDE.md
+.gemini/

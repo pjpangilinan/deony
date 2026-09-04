@@ -1,6 +1,6 @@
 # Engineering Tickets Roadmap — Deony
 
-This document defines self-contained, sequentially actionable engineering tickets for the Deony codebase. Any engineer or AI agent picking up a ticket has full context, requirements, target files, and acceptance criteria without needing prior session memory.
+This document defines self-contained, sequentially actionable engineering tickets for the Deony codebase. Any engineer picking up a ticket has full context, requirements, target files, and acceptance criteria without needing prior session memory.
 
 ---
 
@@ -23,7 +23,7 @@ This document defines self-contained, sequentially actionable engineering ticket
 - **Dependencies**: None
 
 ### Context & Motivation
-`AGENTS.md` and `docs/deony-product-vision.md` define strict, non-negotiable architectural invariants (e.g. `sort_date` absence on wishlist items, `rating: null` distinct from `0`, optimistic concurrency control). While E2E Playwright tests cover user-facing journeys, isolated unit/integration tests with Vitest are required to prevent regressions in backend handlers and DynamoDB expression construction.
+`docs/deony-product-vision.md` defines strict, non-negotiable architectural invariants (e.g. `sort_date` absence on wishlist items, `rating: null` distinct from `0`, optimistic concurrency control). While E2E Playwright tests cover user-facing journeys, isolated unit/integration tests with Vitest are required to prevent regressions in backend handlers and DynamoDB expression construction.
 
 ### Requirements & Scope
 1. **`sort_date` Rules**:
