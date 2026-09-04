@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useToast } from '../components/ui/useToast';
 import { normalizeRatingTo5, formatRating5 } from '../utils/rating';
 import { shareContent } from '../utils/share';
+import { JournalViewer } from '../components/editor/JournalViewer';
 
 interface Experience {
   id: string;
@@ -226,9 +227,7 @@ export function ExperienceDetailPage() {
               <span className="material-symbols-outlined">menu_book</span>
               Thoughts
             </h3>
-            <div className="font-body-md text-body-md text-on-surface whitespace-pre-wrap leading-relaxed">
-              {experience.thoughts}
-            </div>
+            <JournalViewer content={experience.thoughts} />
           </div>
         )}
       </div>
