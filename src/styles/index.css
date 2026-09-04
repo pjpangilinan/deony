@@ -16,3 +16,11 @@ html {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Prevent ugly default browser focus outlines on click while preserving keyboard accessibility */
+input:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) {
+    outline: none;
+}

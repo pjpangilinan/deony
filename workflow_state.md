@@ -84,10 +84,13 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
     - `src/pages/LandingPage.tsx`: Replaced dead footer `#` links with real anchors (`#features`, `#philosophy`, `/auth`) and dynamic current year copyright.
     - `src/pages/LogExperiencePage.tsx`: Mapped provider search fields (`source`, `external_id`, `release_date`) properly into `/media/resolve`, strictly honoring the `PROVIDER#{source}#{external_id}` deduplication invariant instead of creating random UUIDs.
     - `src/components/editor/JournalViewer.tsx` & `src/pages/ExperienceDetailPage.tsx`: Created read-only Tiptap Markdown viewer so archival thoughts render rich typography (headings, lists, quotes, emphasis) instead of raw markdown text.
+    - `src/pages/AuthPage.tsx` & `src/styles/index.css`:
+      - Eliminated ugly browser focus rectangle outlines on click across all inputs, tab buttons, submit buttons, and social login buttons using `:focus:not(:focus-visible)` and Tailwind `outline-none focus:outline-none focus-visible:*`.
+      - Added interactive password visibility toggle with Material Symbols eye icons (`visibility` / `visibility_off`) on both Log In and Sign Up forms.
 - **Verification & Test Suite Results**:
   - Vitest unit tests: **24/24 passing** (`npx vitest run`).
-  - Playwright E2E tests: **12/12 passing** (`npx playwright test`).
-  - First-time user end-to-end audit spec: `tests/first-time-user-audit.spec.ts` (16 stages verified, 0 page errors, 0 console errors).
+  - Playwright E2E tests: **13/13 passing** (`npx playwright test`), including dedicated `tests/auth.spec.ts` password toggle and focus verification.
+  - First-time user end-to-end audit spec: `tests/first-time-user-audit.spec.ts` (16 stages verified).
   - 23 audit screenshots captured and documented in `walkthrough.md`.
 
 ## Current Task
