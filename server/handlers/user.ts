@@ -79,6 +79,8 @@ export const getUser = async (req: Request, res: Response) => {
                     display_name: username,
                     profile_visibility: 'public',
                     profile_version: 1,
+                    search_indexing: true,
+                    avatar_url: null,
                     created_at: now,
                     updated_at: now
                 };
@@ -150,6 +152,7 @@ export const getUserByUsername = async (req: Request, res: Response) => {
                 id: user.id,
                 username: user.username,
                 display_name: user.display_name,
+                avatar_url: user.avatar_url || null,
                 profile_visibility: 'private',
                 entries_count: 0,
                 experiences: []
@@ -204,6 +207,7 @@ export const getUserByUsername = async (req: Request, res: Response) => {
             username: user.username,
             display_name: user.display_name,
             bio: user.bio,
+            avatar_url: user.avatar_url || null,
             profile_visibility: user.profile_visibility || 'public',
             created_at: user.created_at,
             profile_version: user.profile_version || 1,
@@ -227,7 +231,7 @@ export const updateUser = async (req: Request, res: Response) => {
             return res.status(403).json({ error: 'Forbidden' });
         }
 
-        const { username, display_name, bio, profile_visibility } = req.body;
+        const { username, display_name, bio, profile_visibility, search_indexing, avatar_url } = req.body;
 
         if (username !== undefined) {
             if (typeof username !== 'string' || !/^[a-zA-Z0-9_-]{3,30}$/.test(username)) {
@@ -252,6 +256,24 @@ export const updateUser = async (req: Request, res: Response) => {
                 return res.status(400).json({ error: 'Profile visibility must be either "public" or "private"' });
             }
         }
+
+        if (search_indexing !== undefined) {
+            if (typeof search_indexing !== 'boolean') {
+                return res.status(400).json({ error: 'search_indexing must be a boolean' });
+            }
+        }
+
+        if (avatar_url !== undefined && avatar_url !== null && avatar_url !== '') {
+            if (typeof avatar_url !== 'string') {
+                return res.status(400).json({ error: 'avatar_url must be a string or null' });
+            }
+            if (!avatar_url.startsWith('https://') && !avatar_url.startsWith('http://') && !avatar_url.startsWith('data:image/')) {
+                return res.status(400).json({ error: 'avatar_url must start with https://, http://, or data:image/' });
+            }
+            if (avatar_url.length > 600000) {
+                return res.status(400).json({ error: 'avatar_url exceeds maximum allowed length' });
+            }
+        }
         
         const now = new Date().toISOString();
 
@@ -272,6 +294,16 @@ export const updateUser = async (req: Request, res: Response) => {
         if (bio !== undefined) {
             updateExpr.push('bio = :bio');
             exprVals[':bio'] = bio;
+        }
+
+        if (avatar_url !== undefined) {
+            updateExpr.push('avatar_url = :avatar_url');
+            exprVals[':avatar_url'] = avatar_url || null;
+        }
+
+        if (search_indexing !== undefined) {
+            updateExpr.push('search_indexing = :search_indexing');
+            exprVals[':search_indexing'] = search_indexing;
         }
 
         if (profile_visibility !== undefined) {

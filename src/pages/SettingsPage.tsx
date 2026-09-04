@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../providers/AuthProvider';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../components/ui/useToast';
 import { api } from '../services/api';
 import { shareContent } from '../utils/share';
 import { SkeletonRow, EmptyState } from '../components/ui';
+import { compressImage } from '../utils/imageCompressor';
 
 interface Category {
   id: string;
@@ -38,6 +39,25 @@ const MEDIA_TYPES = [
   { value: 'other', label: 'Other' },
 ];
 
+export const PRESET_AVATARS = [
+  { id: 'cinephile', label: 'Cinephile', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Cinephile' },
+  { id: 'bookworm', label: 'Bookworm', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Bibliophile' },
+  { id: 'gamer', label: 'Retro Gamer', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Gamer' },
+  { id: 'audiophile', label: 'Vinyl Collector', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Audiophile' },
+  { id: 'curator', label: 'Curator', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Curator' },
+  { id: 'midnight', label: 'Midnight Reader', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Midnight' },
+  { id: 'director', label: 'Director', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Director' },
+  { id: 'archivist', label: 'Archivist', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Archivist' },
+  { id: 'pixelbot', label: 'Pixel Bot', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=PixelBot' },
+  { id: 'synth', label: 'Retro Synth', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Synth' },
+  { id: 'cozy', label: 'Cozy Reader', url: 'https://api.dicebear.com/7.x/lorelei/svg?seed=Cozy' },
+  { id: 'explorer', label: 'Explorer', url: 'https://api.dicebear.com/7.x/lorelei/svg?seed=Wanderer' },
+  { id: 'stargazer', label: 'Stargazer', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Stargazer' },
+  { id: 'novelist', label: 'Novelist', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Novelist' },
+  { id: 'scholar', label: 'Scholar', url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=Scholar' },
+  { id: 'botanist', label: 'Botanist', url: 'https://api.dicebear.com/7.x/thumbs/svg?seed=Botanist' },
+];
+
 interface SettingsPageProps {
   initialTab?: string;
 }
@@ -52,8 +72,14 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [publicProfile, setPublicProfile] = useState(false);
   const [searchIndexing, setSearchIndexing] = useState(true);
+
+  // Avatar Picker & Upload State
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   // Categories State
   const [categories, setCategories] = useState<Category[]>([]);
@@ -64,6 +90,13 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
   const [newCatIcon, setNewCatIcon] = useState('movie');
   const [isCatSubmitting, setIsCatSubmitting] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  // Category Management & Edit Modal State
+  const [isManageCatModalOpen, setIsManageCatModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editCatName, setEditCatName] = useState('');
+  const [editCatIcon, setEditCatIcon] = useState('movie');
+  const [isEditCatSubmitting, setIsEditCatSubmitting] = useState(false);
 
   // Account State
   const [isExporting, setIsExporting] = useState(false);
@@ -80,7 +113,9 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
             if (profile.display_name) setDisplayName(profile.display_name);
             if (profile.username) setUsername(profile.username);
             if (profile.bio) setBio(profile.bio);
+            if (profile.avatar_url) setAvatarUrl(profile.avatar_url);
             if (profile.profile_visibility) setPublicProfile(profile.profile_visibility === 'public');
+            if (profile.search_indexing !== undefined) setSearchIndexing(profile.search_indexing);
           }
         })
         .catch(() => {
@@ -227,12 +262,123 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
     }
   };
 
+  const handleAvatarFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Only image files (JPEG, PNG, WebP, GIF) are allowed', 'error');
+      if (avatarFileInputRef.current) avatarFileInputRef.current.value = '';
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Image file must be under 10MB', 'error');
+      if (avatarFileInputRef.current) avatarFileInputRef.current.value = '';
+      return;
+    }
+
+    try {
+      setIsUploadingAvatar(true);
+      const compressedDataUrl = await compressImage(file, 400, 0.85);
+      setAvatarUrl(compressedDataUrl);
+      await api.patch('/users/me', { avatar_url: compressedDataUrl });
+      showToast('Profile picture updated successfully!', 'success');
+      setIsAvatarModalOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      showToast(err?.message || 'Failed to process image upload', 'error');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (avatarFileInputRef.current) avatarFileInputRef.current.value = '';
+    }
+  };
+
+  const handleSelectPreset = async (url: string) => {
+    try {
+      setAvatarUrl(url);
+      await api.patch('/users/me', { avatar_url: url });
+      showToast('Profile picture updated!', 'success');
+      setIsAvatarModalOpen(false);
+    } catch (err) {
+      showToast('Failed to update profile picture', 'error');
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    try {
+      setAvatarUrl('');
+      await api.patch('/users/me', { avatar_url: null });
+      showToast('Profile picture reset to default', 'success');
+      setIsAvatarModalOpen(false);
+    } catch (err) {
+      showToast('Failed to reset profile picture', 'error');
+    }
+  };
+
+  const handleStartEditCategory = (cat: Category) => {
+    setEditingCategory(cat);
+    setEditCatName(cat.name);
+    setEditCatIcon(cat.icon || getCategoryIcon(cat));
+  };
+
+  const handleUpdateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory || !editCatName.trim()) return;
+
+    try {
+      setIsEditCatSubmitting(true);
+      await api.patch(`/categories/${editingCategory.id}`, {
+        name: editCatName.trim(),
+        icon: editCatIcon,
+      });
+      showToast('Category updated successfully', 'success');
+      setEditingCategory(null);
+      await fetchCategories();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update category', 'error');
+    } finally {
+      setIsEditCatSubmitting(false);
+    }
+  };
+
+  const handleMoveCategory = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= categories.length) return;
+
+    const reordered = [...categories];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(targetIndex, 0, moved);
+
+    const updated = reordered.map((cat, idx) => ({
+      ...cat,
+      sort_order: idx,
+    }));
+
+    setCategories(updated);
+
+    try {
+      await Promise.all(
+        updated.map(cat =>
+          api.patch(`/categories/${cat.id}`, { sort_order: cat.sort_order })
+        )
+      );
+      showToast('Category order updated', 'success');
+    } catch (err) {
+      console.error('Failed to save category order', err);
+      showToast('Failed to save category order', 'error');
+      fetchCategories();
+    }
+  };
+
   const handleSaveProfile = async () => {
     try {
       await api.patch('/users/me', {
         display_name: displayName,
         bio,
         profile_visibility: publicProfile ? 'public' : 'private',
+        avatar_url: avatarUrl || null,
       });
       showToast('Profile saved successfully', 'success');
     } catch (e) {
@@ -396,10 +542,60 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
         </h2>
         
         <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg flex flex-col sm:flex-row gap-lg shadow-xs">
-          <div className="shrink-0">
-            <div className="w-[90px] h-[90px] rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-tertiary/25">
-              <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${displayName || 'User'}`} alt="Avatar" className="w-full h-full object-cover" />
+          <div className="shrink-0 flex flex-col items-center sm:items-start gap-sm">
+            <div className="relative group w-[96px] h-[96px] rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border-2 border-tertiary/40 shadow-xs">
+              <img 
+                src={avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${displayName || username || 'User'}`} 
+                alt="Avatar" 
+                className="w-full h-full object-cover" 
+              />
+              <button
+                type="button"
+                onClick={() => setIsAvatarModalOpen(true)}
+                className="absolute inset-0 bg-black/45 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-medium backdrop-blur-[2px]"
+                aria-label="Change profile picture"
+              >
+                <span className="material-symbols-outlined text-[22px]">photo_camera</span>
+                <span>Change</span>
+              </button>
             </div>
+
+            <div className="flex flex-col gap-xs w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setIsAvatarModalOpen(true)}
+                className="inline-flex items-center justify-center gap-xs text-xs font-medium text-primary border border-tertiary/40 bg-surface hover:bg-surface-variant rounded-lg px-sm py-1 transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[16px]">palette</span>
+                Choose Preset
+              </button>
+              <button
+                type="button"
+                onClick={() => avatarFileInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                className="inline-flex items-center justify-center gap-xs text-xs font-medium text-secondary hover:text-primary border border-tertiary/40 bg-surface hover:bg-surface-variant rounded-lg px-sm py-1 transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[16px]">upload</span>
+                {isUploadingAvatar ? 'Uploading...' : 'Upload Image'}
+              </button>
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  className="text-[11px] text-secondary hover:text-error transition-colors text-center cursor-pointer pt-0.5"
+                >
+                  Reset to default
+                </button>
+              )}
+            </div>
+
+            <input
+              ref={avatarFileInputRef}
+              type="file"
+              accept="image/png, image/jpeg, image/webp, image/gif"
+              onChange={handleAvatarFileUpload}
+              className="hidden"
+            />
           </div>
           
           <div className="flex-1 flex flex-col">
@@ -464,13 +660,14 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
             </p>
           </div>
           <div className="flex items-center gap-sm">
-            <Link
-              to="/categories"
+            <button
+              type="button"
+              onClick={() => setIsManageCatModalOpen(true)}
               className="flex items-center gap-xs bg-surface text-primary border border-tertiary font-label-md text-label-md px-md py-xs rounded-lg hover:bg-surface-variant transition-colors shadow-xs shrink-0 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px]">category</span>
+              <span className="material-symbols-outlined text-[18px]">settings</span>
               Manage Categories
-            </Link>
+            </button>
             <button
               type="button"
               onClick={handleOpenCatModal}
@@ -542,14 +739,26 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
                       {cat.count !== undefined ? cat.count : 0}
                     </span>
                     {!cat.is_builtin && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteCategory(cat)}
-                        className="text-secondary hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 p-xs rounded cursor-pointer"
-                        aria-label={`Delete ${cat.name}`}
-                      >
-                        <span className="material-symbols-outlined text-[18px]">delete</span>
-                      </button>
+                      <div className="flex items-center gap-xs opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          onClick={() => handleStartEditCategory(cat)}
+                          className="text-secondary hover:text-primary transition-colors p-xs rounded cursor-pointer"
+                          aria-label={`Edit ${cat.name}`}
+                          title="Edit category"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCategory(cat)}
+                          className="text-secondary hover:text-error transition-colors p-xs rounded cursor-pointer"
+                          aria-label={`Delete ${cat.name}`}
+                          title="Delete category"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -769,6 +978,342 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
                   className="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   {isCatSubmitting ? 'Creating...' : 'Create Category'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Select Profile Picture Modal */}
+      {isAvatarModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-gutter">
+          <div className="bg-surface rounded-xl border border-tertiary max-w-[540px] w-full p-lg sm:p-xl shadow-xl animate-fade-in max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-md shrink-0">
+              <div className="flex items-center gap-sm">
+                <span className="material-symbols-outlined text-primary text-[24px]">account_circle</span>
+                <h2 className="font-headline-md text-headline-md text-primary">Select Profile Picture</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAvatarModalOpen(false)}
+                className="text-secondary hover:text-primary transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="overflow-y-auto space-y-lg pr-xs flex-1">
+              {/* Current Preview */}
+              <div className="flex items-center gap-md p-md bg-surface-variant/40 rounded-xl border border-tertiary/25">
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/40 bg-surface shrink-0">
+                  <img
+                    src={avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${displayName || username || 'User'}`}
+                    alt="Current Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="font-body-md text-sm font-medium text-on-surface">Active Avatar</div>
+                  <div className="text-xs text-secondary">
+                    {avatarUrl ? 'Customized avatar active' : 'Default generative avatar'}
+                  </div>
+                  {avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="text-xs text-error hover:underline cursor-pointer mt-1 font-medium inline-block"
+                    >
+                      Reset to default
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Preset Gallery */}
+              <div>
+                <label className="block font-label-md text-xs text-secondary uppercase font-medium mb-xs">
+                  Choose from Curated Archetypes
+                </label>
+                <div className="grid grid-cols-4 sm:grid-cols-4 gap-sm">
+                  {PRESET_AVATARS.map((preset) => {
+                    const isSelected = avatarUrl === preset.url;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => handleSelectPreset(preset.url)}
+                        className={`group relative flex flex-col items-center p-xs rounded-xl border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-primary bg-primary/10 shadow-xs ring-2 ring-primary/40'
+                            : 'border-tertiary/30 bg-surface hover:border-primary/60 hover:bg-surface-variant/50'
+                        }`}
+                      >
+                        <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-variant mb-1.5 border border-tertiary/30">
+                          <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-[11px] font-medium text-on-surface truncate w-full text-center">
+                          {preset.label}
+                        </span>
+                        {isSelected && (
+                          <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-on-primary rounded-full flex items-center justify-center text-[10px] font-bold">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Upload Custom Image */}
+              <div>
+                <label className="block font-label-md text-xs text-secondary uppercase font-medium mb-xs">
+                  Upload Image File
+                </label>
+                <div
+                  onClick={() => avatarFileInputRef.current?.click()}
+                  className="border-2 border-dashed border-tertiary/60 hover:border-primary rounded-xl p-md flex flex-col items-center justify-center gap-xs cursor-pointer hover:bg-surface-variant/30 transition-all text-center"
+                >
+                  <span className="material-symbols-outlined text-[28px] text-primary">add_photo_alternate</span>
+                  <span className="text-sm font-medium text-on-surface">
+                    {isUploadingAvatar ? 'Compressing and uploading...' : 'Choose an image file'}
+                  </span>
+                  <span className="text-xs text-secondary">
+                    Supports JPG, PNG, WebP, GIF (max 10MB, auto-optimized)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-md pt-md mt-md border-t border-tertiary/25 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsAvatarModalOpen(false)}
+                className="px-lg py-sm rounded-lg border border-tertiary text-secondary font-label-md text-label-md hover:bg-surface-variant transition-colors cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manage Categories Modal */}
+      {isManageCatModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-gutter">
+          <div className="bg-surface rounded-xl border border-tertiary max-w-[560px] w-full p-lg sm:p-xl shadow-xl animate-fade-in max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-sm shrink-0">
+              <div className="flex items-center gap-sm">
+                <span className="material-symbols-outlined text-primary text-[24px]">category</span>
+                <h2 className="font-headline-md text-headline-md text-primary">Manage Categories</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsManageCatModalOpen(false)}
+                className="text-secondary hover:text-primary transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <p className="text-sm text-secondary mb-md shrink-0">
+              Reorder your categories using the arrows, or customize names and icons for your custom categories.
+            </p>
+
+            <div className="overflow-y-auto space-y-xs pr-xs flex-1">
+              {categories.map((cat, idx) => (
+                <div
+                  key={cat.id}
+                  className="flex justify-between items-center p-sm rounded-lg bg-surface-container-lowest border border-tertiary/25 hover:border-tertiary/50 transition-colors"
+                >
+                  <div className="flex items-center gap-xs sm:gap-sm min-w-0">
+                    {/* Reorder Buttons */}
+                    <div className="flex flex-col gap-0.5 shrink-0">
+                      <button
+                        type="button"
+                        disabled={idx === 0}
+                        onClick={() => handleMoveCategory(idx, 'up')}
+                        className="w-6 h-5 flex items-center justify-center text-secondary hover:text-primary disabled:opacity-20 disabled:hover:text-secondary rounded cursor-pointer transition-colors"
+                        aria-label="Move category up"
+                        title="Move up"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">arrow_upward</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={idx === categories.length - 1}
+                        onClick={() => handleMoveCategory(idx, 'down')}
+                        className="w-6 h-5 flex items-center justify-center text-secondary hover:text-primary disabled:opacity-20 disabled:hover:text-secondary rounded cursor-pointer transition-colors"
+                        aria-label="Move category down"
+                        title="Move down"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">arrow_downward</span>
+                      </button>
+                    </div>
+
+                    <div className="w-8 h-8 bg-surface-variant flex items-center justify-center rounded text-primary shrink-0">
+                      <span className="material-symbols-outlined text-[18px]">
+                        {getCategoryIcon(cat)}
+                      </span>
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-xs">
+                        <span className="font-body-md text-sm font-medium text-on-surface truncate">
+                          {cat.name}
+                        </span>
+                        {!cat.is_builtin ? (
+                          <span className="font-caption text-[10px] bg-primary/10 text-primary px-1.5 py-[0.5px] rounded-full shrink-0">
+                            Custom
+                          </span>
+                        ) : (
+                          <span className="font-caption text-[10px] bg-surface-variant text-secondary px-1.5 py-[0.5px] rounded-full shrink-0">
+                            Built-in
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-secondary capitalize">
+                        {cat.media_type} • {cat.count ?? 0} item{cat.count === 1 ? '' : 's'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-xs shrink-0">
+                    {!cat.is_builtin ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleStartEditCategory(cat);
+                          }}
+                          className="p-1.5 text-secondary hover:text-primary hover:bg-surface-variant rounded-lg transition-colors cursor-pointer"
+                          aria-label={`Edit ${cat.name}`}
+                          title="Edit category"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCategory(cat)}
+                          className="p-1.5 text-secondary hover:text-error hover:bg-surface-variant rounded-lg transition-colors cursor-pointer"
+                          aria-label={`Delete ${cat.name}`}
+                          title="Delete category"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-xs text-secondary/60 px-2 py-1">Permanent</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-between items-center pt-md mt-md border-t border-tertiary/25 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  handleOpenCatModal();
+                }}
+                className="flex items-center gap-xs text-sm font-medium text-primary hover:underline cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">add</span>
+                Create New Category
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsManageCatModalOpen(false)}
+                className="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity cursor-pointer shadow-xs"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Category Modal */}
+      {editingCategory && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-gutter">
+          <div className="bg-surface rounded-xl border border-tertiary max-w-[480px] w-full p-lg sm:p-xl shadow-xl animate-fade-in">
+            <div className="flex justify-between items-center mb-lg">
+              <h2 className="font-headline-md text-headline-md text-primary">Edit Category</h2>
+              <button
+                type="button"
+                onClick={() => setEditingCategory(null)}
+                className="text-secondary hover:text-primary transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateCategory} className="flex flex-col gap-lg">
+              <div className="flex flex-col gap-xs">
+                <label htmlFor="edit-cat-name" className="font-label-md text-xs text-secondary uppercase font-medium">
+                  Category Name
+                </label>
+                <input
+                  id="edit-cat-name"
+                  type="text"
+                  required
+                  value={editCatName}
+                  onChange={(e) => setEditCatName(e.target.value)}
+                  className="w-full py-sm border-b border-tertiary focus:border-primary bg-transparent outline-none font-body-md text-body-md text-on-surface transition-colors"
+                />
+              </div>
+
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-xs text-secondary uppercase font-medium">
+                  Media Type
+                </label>
+                <div className="py-sm text-sm text-secondary capitalize flex items-center justify-between border-b border-tertiary/30">
+                  <span>{editingCategory.media_type}</span>
+                  <span className="text-[11px] text-secondary/70">Immutable once created</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-xs text-secondary uppercase font-medium mb-xs">
+                  Icon
+                </label>
+                <div className="grid grid-cols-5 gap-sm">
+                  {AVAILABLE_ICONS.map((icon) => (
+                    <button
+                      key={icon}
+                      type="button"
+                      onClick={() => setEditCatIcon(icon)}
+                      className={`h-10 rounded-lg flex items-center justify-center border transition-all cursor-pointer ${
+                        editCatIcon === icon
+                          ? 'border-primary bg-primary text-on-primary shadow-xs'
+                          : 'border-tertiary bg-surface-variant text-on-surface hover:border-primary'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">{icon}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-md mt-md">
+                <button
+                  type="button"
+                  onClick={() => setEditingCategory(null)}
+                  className="px-lg py-sm rounded-lg border border-tertiary text-secondary font-label-md text-label-md hover:bg-surface-variant transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isEditCatSubmitting || !editCatName.trim()}
+                  className="px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer shadow-xs"
+                >
+                  {isEditCatSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>

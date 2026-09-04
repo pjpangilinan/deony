@@ -26,6 +26,7 @@ type UserProfile = {
   display_name: string | null;
   bio: string | null;
   profile_visibility: 'public' | 'private';
+  avatar_url?: string | null;
   created_at?: string;
   entries_count: number;
   experiences?: PublicExperience[];
@@ -183,7 +184,7 @@ export function PublicProfilePage() {
             <div className="flex flex-col md:flex-row gap-xl items-center md:items-start mb-xl pb-xl border-b border-tertiary/30 text-center md:text-left">
               <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border border-tertiary bg-surface-variant shrink-0 shadow-sm">
                 <img
-                  src={`https://api.dicebear.com/7.x/notionists/svg?seed=${profile?.display_name || username}`}
+                  src={profile?.avatar_url || `https://api.dicebear.com/7.x/notionists/svg?seed=${profile?.display_name || username}`}
                   alt={profile?.display_name || username}
                   className="w-full h-full object-cover"
                 />
