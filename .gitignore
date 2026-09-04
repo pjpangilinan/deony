@@ -11,8 +11,7 @@ dynamodb-local-metadata.json
 test-results
 playwright-report
 *.tsbuildinfo
-/screenshots/
-/screenshots-new-user-audit/
+/screenshots*/
 *.png
 !docs/screenshots/*.png
 .DS_Store
@@ -26,3 +25,9 @@ skills-lock.json
 .claude/
 CLAUDE.md
 .gemini/
+
+# Scratch scripts and documentation not needed for code execution
+scripts/
+docs/*
+!docs/screenshots/
+!docs/screenshots/*
