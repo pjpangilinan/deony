@@ -750,19 +750,19 @@ export function LogExperiencePage() {
                 </div>
 
                 {/* Thoughts */}
-                <div className="flex flex-col gap-sm">
+                <div className="flex flex-col gap-xs">
                   <label
                     className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide flex items-center gap-xs"
                   >
                     <span className="material-symbols-outlined text-[18px]">menu_book</span>
                     Personal Thoughts
                   </label>
-                  <div className="border border-tertiary rounded-lg overflow-hidden focus-within:border-primary transition-colors bg-white">
-                    <JournalEditor
-                      initialContent={thoughts}
-                      onChange={setThoughts}
-                    />
-                  </div>
+                  <JournalEditor
+                    initialContent={thoughts}
+                    onChange={setThoughts}
+                    minHeightClass="min-h-[130px]"
+                    maxHeightClass="max-h-[220px]"
+                  />
                 </div>
               </form>
             </div>

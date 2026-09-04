@@ -161,11 +161,13 @@ test('first-time user end-to-end journey audit', async ({ page }) => {
   await page.screenshot({ path: path.join(screenshotDir, 'audit-18-timeline-with-entry.png') });
 
   console.log('=== Step 13: Category Navigation & Management ===');
-  // Check sidebar Categories link
-  const categoriesNav = page.locator('nav a:has-text("Categories")').first();
-  await expect(categoriesNav).toBeVisible();
-  await categoriesNav.click();
-  await page.waitForURL(/\/categories/);
+  // Navigate to Settings > Category Management
+  const settingsNav = page.locator('nav a:has-text("Settings")').first();
+  await expect(settingsNav).toBeVisible();
+  await settingsNav.click();
+  await page.waitForURL(/\/settings/);
+  await page.click('button:has-text("Categories")');
+  await expect(page.locator('text=Category Management')).toBeVisible();
   await page.screenshot({ path: path.join(screenshotDir, 'audit-19-categories.png') });
 
   // Add a new custom category
