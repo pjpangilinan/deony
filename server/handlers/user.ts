@@ -6,6 +6,15 @@ import { v4 as uuidv4 } from 'uuid';
 export const createUser = async (req: Request, res: Response) => {
     try {
         const { username, display_name } = req.body;
+
+        if (!username || typeof username !== 'string' || !/^[a-zA-Z0-9_-]{3,30}$/.test(username)) {
+            return res.status(400).json({ error: 'Username must be 3-30 characters containing only letters, numbers, underscores, or hyphens' });
+        }
+
+        if (display_name && (typeof display_name !== 'string' || display_name.length > 100)) {
+            return res.status(400).json({ error: 'Display name must not exceed 100 characters' });
+        }
+
         // Check if username exists using GSI
         const queryResult = await docClient.send(new QueryCommand({
             TableName: TABLES.USER,
@@ -219,6 +228,30 @@ export const updateUser = async (req: Request, res: Response) => {
         }
 
         const { username, display_name, bio, profile_visibility } = req.body;
+
+        if (username !== undefined) {
+            if (typeof username !== 'string' || !/^[a-zA-Z0-9_-]{3,30}$/.test(username)) {
+                return res.status(400).json({ error: 'Username must be 3-30 characters containing only letters, numbers, underscores, or hyphens' });
+            }
+        }
+
+        if (display_name !== undefined && display_name !== null) {
+            if (typeof display_name !== 'string' || display_name.length > 100) {
+                return res.status(400).json({ error: 'Display name must not exceed 100 characters' });
+            }
+        }
+
+        if (bio !== undefined && bio !== null) {
+            if (typeof bio !== 'string' || bio.length > 500) {
+                return res.status(400).json({ error: 'Bio must not exceed 500 characters' });
+            }
+        }
+
+        if (profile_visibility !== undefined) {
+            if (!['public', 'private'].includes(profile_visibility)) {
+                return res.status(400).json({ error: 'Profile visibility must be either "public" or "private"' });
+            }
+        }
         
         const now = new Date().toISOString();
 
