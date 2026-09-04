@@ -12,6 +12,7 @@ Build Complete. E2E Testing / Polish / UI & Rating Normalization Complete.
 - Editor: Tiptap + tiptap-markdown (WYSIWYG hybrid with source toggle)
 - Testing: Vitest + Playwright
 - Rating scale: Internal storage 0-10 or 0-5 is normalized everywhere to a clean 5-star scale in UI (`normalizeRatingTo5`, `formatRating5`).
+- Git repository initialized on `main` with baseline release tag `local-1.0` (`v1.0.0-local`).
 - No Docker, no AWS account for dev/test
 
 ## Stack
