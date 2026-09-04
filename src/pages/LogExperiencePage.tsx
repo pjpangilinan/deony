@@ -76,6 +76,86 @@ export function LogExperiencePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Custom Image Upload & URL state
+  const [isCustomImageOpen, setIsCustomImageOpen] = useState(false);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Upload image to S3 or data URL fallback
+  const uploadAndSetCover = async (coverUrl: string) => {
+    if (!selectedMediaId) return;
+    try {
+      await api.patch(`/media/${encodeURIComponent(selectedMediaId)}`, { cover_image: coverUrl });
+      setSelectedMedia((prev) => (prev ? { ...prev, cover_image: coverUrl, imageUrl: coverUrl } : null));
+      showToast('Cover picture updated!', 'success');
+      setIsCustomImageOpen(false);
+      setImageUrlInput('');
+    } catch (err) {
+      console.error('Failed to update cover image', err);
+      showToast('Failed to update cover image', 'error');
+    }
+  };
+
+  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Image must be under 5MB', 'error');
+      return;
+    }
+
+    try {
+      setIsUploadingImage(true);
+      // Attempt presigned S3 upload first
+      let uploadedUrl: string | null = null;
+      try {
+        const presigned = await api.post<{ uploadUrl: string; publicUrl: string }>('/upload-url', {
+          media_id: selectedMediaId.replace(/[^a-zA-Z0-9_-]/g, '_'),
+        });
+        if (presigned?.uploadUrl) {
+          await fetch(presigned.uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type || 'image/jpeg' },
+            body: file,
+          });
+          uploadedUrl = presigned.publicUrl;
+        }
+      } catch (uploadErr) {
+        console.warn('S3 upload unavailable, falling back to data URL', uploadErr);
+      }
+
+      if (!uploadedUrl) {
+        // Fallback to FileReader data URL
+        uploadedUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      await uploadAndSetCover(uploadedUrl);
+    } catch (err) {
+      console.error('Failed to process image file', err);
+      showToast('Could not process image file', 'error');
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleApplyImageUrl = async () => {
+    if (!imageUrlInput.trim()) return;
+    try {
+      setIsUploadingImage(true);
+      await uploadAndSetCover(imageUrlInput.trim());
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   // Fetch categories on mount
   useEffect(() => {
     api.get<{ items: Category[] }>('/categories')
@@ -282,12 +362,12 @@ export function LogExperiencePage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] md:min-h-screen flex items-center justify-center p-md md:p-gutter">
       {/* Modal Container */}
-      <main className="z-10 w-full max-w-[800px] bg-surface rounded-xl border border-tertiary mx-gutter flex flex-col max-h-[90vh] overflow-hidden shadow-sm relative">
+      <main className="z-10 w-full max-w-[800px] bg-surface rounded-xl border border-tertiary/25 mx-gutter flex flex-col max-h-[90vh] overflow-hidden shadow-sm relative">
         
         {errorMsg && (
           <div className="bg-error text-on-error px-lg py-sm flex justify-between items-center shrink-0">
             <span className="font-body-md text-body-md">{errorMsg}</span>
-            <button onClick={() => setErrorMsg(null)} className="opacity-80 hover:opacity-100 p-1">
+            <button onClick={() => setErrorMsg(null)} className="opacity-80 hover:opacity-100 p-1 cursor-pointer">
               <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
           </div>
@@ -296,7 +376,7 @@ export function LogExperiencePage() {
         {step === 1 && (
           <>
             {/* Header */}
-            <header className="flex justify-between items-center px-lg py-md border-b border-tertiary shrink-0 bg-surface">
+            <header className="flex justify-between items-center px-lg py-md border-b border-tertiary/25 shrink-0 bg-surface">
               <div>
                 <h1 className="font-headline-md text-headline-md text-primary tracking-tight">
                   Log an Experience
@@ -522,18 +602,18 @@ export function LogExperiencePage() {
             </div>
 
             {/* Footer Actions */}
-            <footer className="flex justify-between items-center px-lg py-md border-t border-tertiary shrink-0 bg-surface">
+            <footer className="flex justify-between items-center px-lg py-md border-t border-tertiary/25 shrink-0 bg-surface">
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="font-label-md text-label-md text-secondary hover:text-primary transition-colors px-md py-sm rounded-md hover:bg-surface-variant focus:outline-none focus:ring-1 focus:ring-primary"
+                className="font-label-md text-label-md text-secondary hover:text-primary transition-colors px-md py-sm rounded-md hover:bg-surface-variant focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleManualAdd}
-                className="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary hover:bg-surface-variant transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
+                className="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary/30 hover:bg-surface-variant transition-colors focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
               >
                 Add Manually
               </button>
@@ -544,7 +624,7 @@ export function LogExperiencePage() {
         {step === 2 && (
           <>
             {/* Header */}
-            <header className="flex justify-between items-center px-lg py-md border-b border-tertiary shrink-0 bg-surface">
+            <header className="flex justify-between items-center px-lg py-md border-b border-tertiary/25 shrink-0 bg-surface">
               <div>
                 <h1 className="font-headline-md text-headline-md text-primary tracking-tight">
                   Log an Experience
@@ -557,7 +637,7 @@ export function LogExperiencePage() {
                 type="button"
                 aria-label="Close modal"
                 onClick={() => navigate(-1)}
-                className="text-secondary hover:text-primary transition-colors flex items-center justify-center rounded-full p-sm hover:bg-surface-variant focus:outline-none focus:ring-1 focus:ring-primary"
+                className="text-secondary hover:text-primary transition-colors flex items-center justify-center rounded-full p-sm hover:bg-surface-variant focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
                   close
@@ -566,10 +646,10 @@ export function LogExperiencePage() {
             </header>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto p-lg flex flex-col md:flex-row gap-xl bg-surface-bright">
-              {/* Left Column: Item Preview */}
+            <div className="flex-1 overflow-y-auto p-md sm:p-lg flex flex-col md:flex-row gap-lg md:gap-xl bg-surface-bright">
+              {/* Left Column: Item Preview & Picture Controls */}
               <div className="md:w-1/3 flex flex-col shrink-0">
-                <div className="rounded-lg border border-tertiary overflow-hidden bg-white mb-md aspect-[2/3] relative group">
+                <div className="rounded-lg border border-tertiary/25 overflow-hidden bg-white mb-sm aspect-[2/3] relative group shadow-xs">
                   {selectedMedia?.imageUrl || selectedMedia?.cover_image ? (
                     <img
                       className="w-full h-full object-cover"
@@ -578,24 +658,110 @@ export function LogExperiencePage() {
                     />
                   ) : (
                     <div className="w-full h-full bg-surface-variant flex flex-col items-center justify-center text-secondary p-md text-center">
-                      <span className="material-symbols-outlined text-[48px] mb-sm">perm_media</span>
+                      <span className="material-symbols-outlined text-[42px] mb-xs">perm_media</span>
                       <span className="font-label-md text-label-md uppercase tracking-wider">
                         {selectedMedia?.type || currentCategory?.name || 'Media'}
                       </span>
                     </div>
                   )}
-                  {/* Subtle gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-md">
+
+                  {/* Hover Overlay to switch media */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-between p-sm">
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="text-white text-caption font-caption hover:underline cursor-pointer"
+                      className="text-white text-caption font-caption hover:underline cursor-pointer flex items-center gap-0.5"
                     >
-                      Change Media
+                      <span className="material-symbols-outlined text-[14px]">swap_horiz</span>
+                      Change
                     </button>
+                    {(selectedMedia?.imageUrl || selectedMedia?.cover_image) && (
+                      <button
+                        type="button"
+                        onClick={() => uploadAndSetCover('')}
+                        className="text-red-200 hover:text-white text-caption font-caption cursor-pointer flex items-center gap-0.5"
+                        title="Remove cover image"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">delete</span>
+                        Remove
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className="flex flex-col gap-sm">
+
+                {/* Picture Actions: Upload photo or paste URL */}
+                <div className="flex flex-col gap-xs mb-md">
+                  <div className="flex items-center gap-xs">
+                    <button
+                      type="button"
+                      disabled={isUploadingImage}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-label-md text-on-surface bg-surface-variant hover:bg-surface-container rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
+                      title="Upload an image from your computer or phone"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">upload</span>
+                      <span>Upload Photo</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isUploadingImage}
+                      onClick={() => setIsCustomImageOpen(!isCustomImageOpen)}
+                      className="flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-label-md text-on-surface bg-surface-variant hover:bg-surface-container rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
+                      title="Paste an image URL"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">link</span>
+                      <span>URL</span>
+                    </button>
+                  </div>
+
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageFileUpload}
+                  />
+
+                  {isUploadingImage && (
+                    <div className="flex items-center gap-xs text-xs text-primary font-caption py-1">
+                      <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>
+                      <span>Saving cover picture...</span>
+                    </div>
+                  )}
+
+                  {isCustomImageOpen && (
+                    <div className="flex items-center gap-xs p-1.5 bg-surface rounded border border-tertiary/25 animate-fade-in">
+                      <input
+                        type="url"
+                        placeholder="https://.../cover.jpg"
+                        value={imageUrlInput}
+                        onChange={(e) => setImageUrlInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleApplyImageUrl();
+                          }
+                        }}
+                        className="flex-1 text-xs py-1 px-1.5 border-b border-tertiary/30 focus:border-primary bg-transparent outline-none font-body-md text-on-surface min-w-0"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyImageUrl}
+                        className="px-2 py-1 bg-primary text-on-primary text-xs font-label-md rounded hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  )}
+
+                  {selectedMedia?.is_manual && (
+                    <p className="font-caption text-[11px] text-secondary m-0">
+                      Manual entry — upload a cover photo or paste an image URL.
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-xs">
                   <span className="inline-block px-sm py-xs bg-surface-variant text-on-surface-variant font-label-md text-label-md uppercase rounded-full self-start tracking-widest text-[10px]">
                     {selectedMedia?.type || currentCategory?.name || 'Media'}
                   </span>
@@ -614,14 +780,14 @@ export function LogExperiencePage() {
               </div>
 
               {/* Right Column: Form */}
-              <form className="md:w-2/3 flex flex-col gap-lg pb-xl" onSubmit={handleSubmit}>
+              <form className="md:w-2/3 flex flex-col gap-md pb-2" onSubmit={handleSubmit}>
                 {/* Rating */}
-                <div className="flex flex-col gap-sm">
+                <div className="flex flex-col gap-xs">
                   <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">
                     Rating
                   </label>
                   <div className="flex gap-sm items-center">
-                    {/* Simulated Star Rating */}
+                    {/* Star Rating */}
                     <div
                       className="flex gap-xs text-primary cursor-pointer"
                       onMouseLeave={() => setHoverRating(undefined)}
@@ -637,10 +803,10 @@ export function LogExperiencePage() {
                               setRating(rating === newScore ? undefined : newScore);
                             }}
                             onMouseEnter={() => setHoverRating(starIndex)}
-                            className="p-0 border-0 bg-transparent focus:outline-none transition-transform hover:scale-110 flex items-center"
+                            className="p-0 border-0 bg-transparent focus:outline-none transition-transform hover:scale-110 flex items-center cursor-pointer"
                           >
                             <span
-                              className={`material-symbols-outlined text-[28px] ${
+                              className={`material-symbols-outlined text-[26px] ${
                                 isFilled ? 'text-primary' : 'text-tertiary-fixed-dim'
                               }`}
                               style={{ fontVariationSettings: isFilled ? "'FILL' 1" : "'FILL' 0" }}
@@ -658,7 +824,7 @@ export function LogExperiencePage() {
                       <button
                         type="button"
                         onClick={() => setRating(undefined)}
-                        className="font-caption text-caption text-secondary hover:text-error ml-xs transition-colors"
+                        className="font-caption text-caption text-secondary hover:text-error ml-xs transition-colors cursor-pointer"
                       >
                         Clear
                       </button>
@@ -668,7 +834,7 @@ export function LogExperiencePage() {
 
                 {/* Status & Dates */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                  <div className="flex flex-col gap-sm">
+                  <div className="flex flex-col gap-xs">
                     <label
                       className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide"
                       htmlFor="status"
@@ -677,7 +843,7 @@ export function LogExperiencePage() {
                     </label>
                     <div className="relative">
                       <select
-                        className="w-full appearance-none bg-transparent border-0 border-b border-tertiary rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-pointer"
+                        className="w-full appearance-none bg-transparent border-0 border-b border-tertiary/30 rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-pointer"
                         id="status"
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
@@ -692,7 +858,7 @@ export function LogExperiencePage() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-sm">
+                  <div className="flex flex-col gap-xs">
                     <label
                       className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide"
                       htmlFor="date-field"
@@ -702,7 +868,7 @@ export function LogExperiencePage() {
                     <div className="relative">
                       <input
                         id="date-field"
-                        className="w-full bg-transparent border-0 border-b border-tertiary rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-text"
+                        className="w-full bg-transparent border-0 border-b border-tertiary/30 rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-text"
                         type="date"
                         value={status === 'Currently Experiencing' ? startedOn : endedOn}
                         onChange={(e) => {
@@ -718,7 +884,7 @@ export function LogExperiencePage() {
                 </div>
 
                 {/* Tags */}
-                <div className="flex flex-col gap-sm">
+                <div className="flex flex-col gap-xs">
                   <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">
                     Themes / Tags
                   </label>
@@ -726,20 +892,20 @@ export function LogExperiencePage() {
                     {tags.map((tag, idx) => (
                       <span
                         key={idx}
-                        className="px-md py-sm bg-surface-variant text-on-surface-variant font-label-md text-label-md rounded-full flex items-center gap-xs cursor-pointer hover:bg-surface-dim transition-colors"
+                        className="px-md py-xs bg-surface-variant text-on-surface-variant font-label-md text-label-md rounded-full flex items-center gap-xs cursor-pointer hover:bg-surface-dim transition-colors"
                       >
                         {tag}{' '}
                         <button
                           type="button"
                           onClick={() => handleTagRemove(idx)}
-                          className="hover:text-primary transition-colors flex items-center focus:outline-none"
+                          className="hover:text-primary transition-colors flex items-center focus:outline-none cursor-pointer"
                         >
                           <span className="material-symbols-outlined text-[16px]">close</span>
                         </button>
                       </span>
                     ))}
                     <input
-                      className="bg-transparent border-0 border-b border-transparent hover:border-tertiary focus:border-primary focus:ring-0 py-sm px-sm font-body-md text-body-md text-on-surface w-32 placeholder:text-outline-variant transition-colors outline-none"
+                      className="bg-transparent border-0 border-b border-transparent hover:border-tertiary/30 focus:border-primary focus:ring-0 py-xs px-xs font-body-md text-body-md text-on-surface w-32 placeholder:text-outline-variant transition-colors outline-none"
                       placeholder="Add tag..."
                       type="text"
                       value={tagInput}
@@ -760,17 +926,18 @@ export function LogExperiencePage() {
                   <JournalEditor
                     initialContent={thoughts}
                     onChange={setThoughts}
-                    minHeightClass="min-h-[130px]"
-                    maxHeightClass="max-h-[220px]"
+                    minHeightClass="min-h-[110px]"
+                    maxHeightClass="max-h-[170px]"
+                    placeholder="Record your personal reflections, quotes, or thoughts on this experience..."
                   />
                 </div>
               </form>
             </div>
 
             {/* Footer Actions */}
-            <footer className="flex justify-between items-center px-lg py-md border-t border-tertiary shrink-0 bg-surface">
+            <footer className="flex justify-between items-center px-lg py-md border-t border-tertiary/25 shrink-0 bg-surface">
               <button
-                className="font-label-md text-label-md text-secondary hover:text-primary transition-colors px-md py-sm rounded-md hover:bg-surface-variant focus:outline-none focus:ring-1 focus:ring-primary"
+                className="font-label-md text-label-md text-secondary hover:text-primary transition-colors px-md py-sm rounded-md hover:bg-surface-variant focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 type="button"
                 onClick={() => setStep(1)}
               >
@@ -778,7 +945,7 @@ export function LogExperiencePage() {
               </button>
               <div className="flex gap-md">
                 <button
-                  className="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary hover:bg-surface-variant transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary/30 hover:bg-surface-variant transition-colors focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                   type="button"
                   onClick={handleDraft}
                   disabled={isSubmitting}
@@ -786,7 +953,7 @@ export function LogExperiencePage() {
                   Draft
                 </button>
                 <button
-                  className="font-label-md text-label-md bg-primary text-white px-xl py-sm rounded-md border border-primary hover:bg-primary-container hover:text-on-primary-container transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-surface disabled:opacity-50"
+                  className="font-label-md text-label-md bg-primary text-white px-xl py-sm rounded-md border border-primary hover:bg-primary-container hover:text-on-primary-container transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-surface disabled:opacity-50 cursor-pointer shadow-xs"
                   type="button"
                   onClick={() => saveExperience()}
                   disabled={isSubmitting}

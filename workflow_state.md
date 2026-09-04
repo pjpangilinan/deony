@@ -97,13 +97,26 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
   - **Sidebar Cleanup & Editor Polish (User Request Implemented)**:
     - **Sidebar Streamlined**: Removed Categories item from desktop sidebar and mobile navigation drawer in `AppLayout.tsx` since Category Management is directly inside Settings.
     - **Log Experience Editor Sizing**: Reduced `JournalEditor` min-height from `min-h-[300px]` to compact `min-h-[130px]` with `max-h-[220px]` scroll container in `LogExperiencePage.tsx`, removing redundant outer border wrapper and preventing modal box clipping.
-    - **Toolbar Mark Retention Fix**: Added `onMouseDown={(e) => e.preventDefault()}` on all `JournalEditor` toolbar buttons to prevent contenteditable blur and ProseMirror `storedMarks` clearance. Clicking Bold now immediately highlights the active button and formats typing into `<strong>` text from the very first stroke. Added `onTransaction` listener for instant visual reactivity.
-  - **Verification & Test Suite Results**:
-    - Vitest unit tests: **24/24 passing** (`npm test`).
-    - Playwright E2E tests: **13/13 passing** (`npx playwright test`).
-    - TypeScript compilation: **0 errors** (`npx tsc --noEmit`).
-    - First-time user end-to-end audit spec: `tests/first-time-user-audit.spec.ts` (16 stages verified).
-    - 23 audit screenshots captured and documented in `walkthrough.md`.
+    - **Toolbar Mark Retention Fix**: Added `onMouseDown={(e) => e.preventDefault()}` on all `JournalEditor` toolbar buttons to prevent contenteditable blur and ProseMirror `storedMarks` clearance. Clicking Bold now immediately highlights the active button and formats typing into `strong` text from the very first stroke. Added `onTransaction` listener for instant visual reactivity.
+  - **Cover Picture Addition & Visual Audit Polish (User Request Implemented)**:
+    - **Cover Picture Upload & URL Support**:
+      - `server/handlers/media.ts` & `server/routes.ts`: Added `updateMedia` handler (`PATCH /media/:id` & `PUT /media/:id`) and updated `createManualMedia` to persist `cover_image`. Handled URI component decoding for composite partition keys (`MANUAL#user#id` and `PROVIDER#source#id`).
+      - `LogExperiencePage.tsx`: Added "Upload Photo" (local file input with FileReader/S3 fallback) and "URL" buttons directly under the media preview in Step 2. Users can now easily upload a photo or paste an image URL for manual entries or any media.
+      - `EditExperiencePage.tsx`: Added cover thumbnail preview and "Upload Photo" / "URL" controls to allow updating or removing cover pictures directly when editing experiences.
+    - **Editor Spacing & Non-Clipping Modal**:
+      - Installed `@tiptap/extension-placeholder` and added responsive placeholder styling in `JournalEditor.tsx`.
+      - Reduced form gaps (`gap-md`, `pb-2`) and right-sized editor to `min-h-[110px] max-h-[170px]` with ample bottom breathing room, eliminating modal footer clipping.
+    - **Design System Consistency & Top Line Alignment**:
+      - Aligned section header dividers across `SettingsPage.tsx`, `LibraryPage.tsx`, `LogExperiencePage.tsx`, `EditExperiencePage.tsx`, and `ExperienceDetailPage.tsx` to uniform `border-b border-tertiary/25 pb-xs mb-md` with `font-headline-md text-headline-md text-primary`.
+      - Standardized card borders and dividers to subtle `border-tertiary/25`.
+      - Fixed oversized desktop padding in `EditExperiencePage.tsx` and `ExperienceDetailPage.tsx`, standardizing to `max-w-[860px] mx-auto px-gutter md:px-8`.
+    - **Visual Audit & Screenshot Verification**:
+      - Captured and visually inspected full screenshots across all key user flows (`01` through `10` in `screenshots-audit/`).
+      - Verified modal layout, placeholder visibility, picture buttons, and section dividers.
+    - **Automated Verification**:
+      - TypeScript (`tsc --noEmit`): Clean, 0 errors.
+      - Unit Tests (`npm test`): 24/24 tests passed across 3 test suites.
+      - Playwright End-to-End Tests (`npx playwright test`): 14/14 test suites passed with 0 page errors and 0 console errors.
 
 ## Current Task
 - **TICK-004**: AWS Infrastructure as Code (IaC) Deployment Baseline

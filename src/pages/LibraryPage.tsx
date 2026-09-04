@@ -421,18 +421,18 @@ export function LibraryPage({ initialView }: LibraryPageProps = {}) {
   return (
     <div className="flex-1 w-full pt-16 md:pt-0 pb-xl px-gutter md:px-8 lg:px-12 max-w-[1300px] mx-auto min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container">
       {/* Top Header: Title & View Switcher (Catalog vs Statistics) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md pt-lg pb-sm border-b border-tertiary/20 mb-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md pt-lg pb-sm border-b border-tertiary/25 mb-lg">
         <div className="flex items-center gap-sm">
           <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
             {libraryTab === 'catalog' ? 'Personal Library' : 'Archive Statistics'}
           </h1>
-          <span className="font-caption text-caption text-secondary px-sm py-0.5 rounded-full bg-surface-variant/70 border border-tertiary/20 font-medium">
+          <span className="font-caption text-caption text-secondary px-sm py-0.5 rounded-full bg-surface-variant/70 border border-tertiary/25 font-medium">
             {experiences.length} total
           </span>
         </div>
 
         {/* View Switcher: Catalog vs Statistics */}
-        <div className="flex items-center gap-xs bg-surface-variant/70 p-1 rounded-lg border border-tertiary/20 self-start sm:self-auto">
+        <div className="flex items-center gap-xs bg-surface-variant/70 p-1 rounded-lg border border-tertiary/25 self-start sm:self-auto">
           <button
             type="button"
             id="tab-library-catalog"
@@ -467,7 +467,7 @@ export function LibraryPage({ initialView }: LibraryPageProps = {}) {
         <div className="flex-1 flex flex-col animate-fade-in">
           {/* Header & Filters Section */}
           <header
-            className="pb-md flex flex-col md:flex-row justify-between items-start md:items-center gap-md border-b border-tertiary/20 mb-md"
+            className="pb-md flex flex-col md:flex-row justify-between items-start md:items-center gap-md border-b border-tertiary/25 mb-md"
             ref={filterRef}
           >
             {/* Search Bar */}

@@ -56,14 +56,11 @@ export const resolveMedia = async (req: Request, res: Response) => {
 export const createManualMedia = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.sub;
-        const { title, media_type, description, release_date } = req.body;
+        const { title, media_type, description, release_date, cover_image } = req.body;
         
         const mediaId = uuidv4();
         const id = `MANUAL#${userId}#${mediaId}`;
         const now = new Date().toISOString();
-        
-        // Note: Cover image will be handled via presigned S3 upload 
-        // to users/{userId}/manual-media/{mediaId}/cover.jpg and updated separately.
 
         const mediaItem = {
             id,
@@ -74,7 +71,7 @@ export const createManualMedia = async (req: Request, res: Response) => {
             user_id: userId,
             title,
             description,
-            cover_image: null,
+            cover_image: cover_image || null,
             release_date,
             created_at: now,
             updated_at: now
@@ -88,6 +85,41 @@ export const createManualMedia = async (req: Request, res: Response) => {
         res.status(201).json(mediaItem);
     } catch (error) {
         console.error('Error creating manual media:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+export const updateMedia = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+        const { cover_image, title, description } = req.body;
+        const now = new Date().toISOString();
+
+        const existing = await docClient.send(new GetCommand({
+            TableName: 'Media',
+            Key: { id }
+        }));
+
+        if (!existing.Item) {
+            return res.status(404).json({ error: 'Media not found' });
+        }
+
+        const updated = {
+            ...existing.Item,
+            ...(cover_image !== undefined && { cover_image }),
+            ...(title !== undefined && { title }),
+            ...(description !== undefined && { description }),
+            updated_at: now
+        };
+
+        await docClient.send(new PutCommand({
+            TableName: 'Media',
+            Item: updated
+        }));
+
+        res.json(updated);
+    } catch (error) {
+        console.error('Error updating media:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };

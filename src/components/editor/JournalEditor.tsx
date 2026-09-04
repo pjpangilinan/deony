@@ -2,19 +2,22 @@ import React, { useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
+import Placeholder from '@tiptap/extension-placeholder';
 
 interface JournalEditorProps {
   initialContent?: string;
   onChange?: (markdown: string) => void;
   minHeightClass?: string;
   maxHeightClass?: string;
+  placeholder?: string;
 }
 
 export const JournalEditor: React.FC<JournalEditorProps> = ({
   initialContent = '',
   onChange,
-  minHeightClass = 'min-h-[140px]',
-  maxHeightClass = 'max-h-[240px]',
+  minHeightClass = 'min-h-[120px]',
+  maxHeightClass = 'max-h-[200px]',
+  placeholder = 'Record your personal reflections, quotes, or thoughts on this experience...',
 }) => {
   const [isSourceView, setIsSourceView] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(initialContent);
@@ -24,6 +27,10 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
     extensions: [
       StarterKit,
       Markdown,
+      Placeholder.configure({
+        placeholder,
+        emptyEditorClass: 'is-editor-empty',
+      }),
     ],
     content: initialContent,
     onTransaction: () => {
@@ -55,21 +62,21 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
   }
 
   return (
-    <div className="border border-tertiary rounded-lg overflow-hidden flex flex-col bg-surface-container-lowest focus-within:border-primary transition-colors">
-      {/* Toolbar */}
-      <div className="px-sm py-xs border-b border-tertiary/30 bg-surface-variant flex items-center gap-xs flex-wrap">
+    <div className="border border-tertiary/25 rounded-lg overflow-hidden flex flex-col bg-surface-container-lowest focus-within:border-primary/60 transition-colors shadow-xs">
+      {/* Minimalist Tactile Toolbar */}
+      <div className="px-sm py-1 border-b border-tertiary/20 bg-surface-container-low flex items-center gap-xs flex-wrap">
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={toggleView}
-          className="font-label-md text-xs text-secondary hover:text-primary px-sm py-1 rounded hover:bg-surface-container transition-colors cursor-pointer"
+          className="font-label-md text-[11px] text-secondary hover:text-primary px-2 py-0.5 rounded hover:bg-surface transition-colors cursor-pointer"
         >
           {isSourceView ? 'WYSIWYG' : 'Markdown'}
         </button>
 
         {!isSourceView && (
           <>
-            <div className="w-px h-3.5 bg-tertiary/40 mx-xs" />
+            <div className="w-px h-3 bg-tertiary/30 mx-0.5" />
             <button
               type="button"
               onMouseDown={(e) => e.preventDefault()}
@@ -77,12 +84,12 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
               className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
                 editor.isActive('bold')
                   ? 'text-primary bg-surface font-semibold shadow-xs'
-                  : 'text-secondary hover:text-primary hover:bg-surface-container'
+                  : 'text-secondary hover:text-primary hover:bg-surface'
               }`}
               aria-label="Bold"
               title="Bold (Ctrl+B)"
             >
-              <span className="material-symbols-outlined text-[18px]">format_bold</span>
+              <span className="material-symbols-outlined text-[17px]">format_bold</span>
             </button>
             <button
               type="button"
@@ -91,12 +98,12 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
               className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
                 editor.isActive('italic')
                   ? 'text-primary bg-surface font-semibold shadow-xs'
-                  : 'text-secondary hover:text-primary hover:bg-surface-container'
+                  : 'text-secondary hover:text-primary hover:bg-surface'
               }`}
               aria-label="Italic"
               title="Italic (Ctrl+I)"
             >
-              <span className="material-symbols-outlined text-[18px]">format_italic</span>
+              <span className="material-symbols-outlined text-[17px]">format_italic</span>
             </button>
             <button
               type="button"
@@ -105,12 +112,12 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
               className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
                 editor.isActive('heading', { level: 2 })
                   ? 'text-primary bg-surface font-semibold shadow-xs'
-                  : 'text-secondary hover:text-primary hover:bg-surface-container'
+                  : 'text-secondary hover:text-primary hover:bg-surface'
               }`}
               aria-label="Heading"
               title="Heading 2"
             >
-              <span className="material-symbols-outlined text-[18px]">title</span>
+              <span className="material-symbols-outlined text-[17px]">title</span>
             </button>
             <button
               type="button"
@@ -119,12 +126,12 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
               className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
                 editor.isActive('bulletList')
                   ? 'text-primary bg-surface font-semibold shadow-xs'
-                  : 'text-secondary hover:text-primary hover:bg-surface-container'
+                  : 'text-secondary hover:text-primary hover:bg-surface'
               }`}
               aria-label="Bullet List"
               title="Bullet List"
             >
-              <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+              <span className="material-symbols-outlined text-[17px]">format_list_bulleted</span>
             </button>
             <button
               type="button"
@@ -133,12 +140,12 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
               className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
                 editor.isActive('blockquote')
                   ? 'text-primary bg-surface font-semibold shadow-xs'
-                  : 'text-secondary hover:text-primary hover:bg-surface-container'
+                  : 'text-secondary hover:text-primary hover:bg-surface'
               }`}
               aria-label="Blockquote"
               title="Blockquote"
             >
-              <span className="material-symbols-outlined text-[18px]">format_quote</span>
+              <span className="material-symbols-outlined text-[17px]">format_quote</span>
             </button>
           </>
         )}
@@ -150,13 +157,13 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
           <textarea
             value={markdownContent}
             onChange={handleMarkdownChange}
-            placeholder="Write your personal thoughts, reflections, or favorite moments..."
-            className={`w-full ${minHeightClass} border-0 resize-none font-mono text-sm text-on-surface bg-transparent focus:ring-0 focus:outline-none leading-relaxed placeholder:text-secondary/50`}
+            placeholder={placeholder}
+            className={`w-full ${minHeightClass} border-0 resize-none font-mono text-sm text-on-surface bg-transparent focus:ring-0 focus:outline-none leading-relaxed placeholder:text-secondary/40`}
           />
         ) : (
           <EditorContent
             editor={editor}
-            className={`prose prose-sm max-w-none ${minHeightClass} text-on-surface [&_.ProseMirror]:outline-none [&_.ProseMirror]:${minHeightClass} [&_.ProseMirror_p]:my-1 leading-relaxed`}
+            className={`prose prose-sm max-w-none ${minHeightClass} text-on-surface [&_.ProseMirror]:outline-none [&_.ProseMirror]:${minHeightClass} [&_.ProseMirror_p]:my-0.5 leading-relaxed [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-secondary/40 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0`}
           />
         )}
       </div>

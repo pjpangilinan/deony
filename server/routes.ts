@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { createUser, getUser, getUserByUsername, updateUser, deleteUser } from './handlers/user';
 import { createCategory, listCategories, updateCategory, softDeleteCategory } from './handlers/category';
-import { resolveMedia, createManualMedia, batchGetMedia } from './handlers/media';
+import { resolveMedia, createManualMedia, updateMedia, batchGetMedia } from './handlers/media';
 import { createExperience, getExperience, updateExperience, deleteExperience, listExperiences } from './handlers/experience';
 import { getUploadUrl } from './handlers/upload';
 import { authMiddleware, optionalAuthMiddleware } from './middleware/auth';
+import { searchMedia } from './handlers/search';
 
 const router = Router();
 
@@ -24,11 +25,11 @@ router.put('/categories/:id', authMiddleware, updateCategory);
 router.delete('/categories/:id', authMiddleware, softDeleteCategory);
 
 // Media routes
-import { searchMedia } from './handlers/search';
-
 router.get('/media/search', authMiddleware, searchMedia);
 router.post('/media/resolve', authMiddleware, resolveMedia);
 router.post('/media/manual', authMiddleware, createManualMedia);
+router.patch('/media/:id', authMiddleware, updateMedia);
+router.put('/media/:id', authMiddleware, updateMedia);
 router.post('/media/batch-get', batchGetMedia);
 
 // Experience routes

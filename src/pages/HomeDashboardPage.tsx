@@ -284,7 +284,7 @@ export function HomeDashboardPage() {
       )}
 
       {/* Quick Log Widget */}
-      <section className="bg-surface-container-lowest border border-tertiary rounded-xl p-md sm:p-lg transition-all focus-within:ring-1 focus-within:ring-primary">
+      <section className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg transition-all focus-within:ring-1 focus-within:ring-primary shadow-xs">
         <h2 className="font-headline-md text-headline-md text-primary mb-md">Quick Log</h2>
         <div className="flex flex-col md:flex-row gap-md items-start md:items-center">
           <input
@@ -366,7 +366,7 @@ export function HomeDashboardPage() {
                       onClick={() => navigate(`/experience/${exp.id}`)}
                       className="min-w-[160px] md:min-w-[200px] flex-shrink-0 group cursor-pointer"
                     >
-                      <div className="aspect-[2/3] rounded-lg border border-tertiary overflow-hidden mb-sm relative">
+                      <div className="aspect-[2/3] rounded-lg border border-tertiary/25 overflow-hidden mb-sm relative shadow-xs">
                         {media?.cover_image ? (
                           <img
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -431,7 +431,7 @@ export function HomeDashboardPage() {
                       ></div>
                       <div
                         onClick={() => navigate(`/experience/${exp.id}`)}
-                        className="bg-surface-container-lowest border border-tertiary rounded-xl p-md md:p-lg hover:bg-surface-container-low transition-colors cursor-pointer"
+                        className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md md:p-lg hover:bg-surface-container-low transition-colors cursor-pointer shadow-xs"
                       >
                         <div className="flex justify-between items-start mb-md">
                           <div className="flex items-center gap-sm">
@@ -483,12 +483,12 @@ export function HomeDashboardPage() {
         {/* Right Column (Sidebar Widgets) */}
         <div className="space-y-xl">
           {/* Stat Snack Widget */}
-          <div className="bg-surface-container-lowest border border-tertiary rounded-xl p-lg flex flex-col items-center justify-center text-center">
+          <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-lg flex flex-col items-center justify-center text-center shadow-xs">
             <h3 className="font-label-md text-label-md text-secondary mb-sm uppercase tracking-widest">
               Logs This Month
             </h3>
             <div className="font-display text-display text-primary mb-md">{logsThisMonth}</div>
-            <div className="w-full flex justify-between items-end h-16 border-b border-tertiary/20 pb-sm mb-sm px-md">
+            <div className="w-full flex justify-between items-end h-16 border-b border-tertiary/25 pb-sm mb-sm px-md">
               {/* Simple minimal bar chart */}
               <div className="w-2 bg-primary/20 rounded-t h-4"></div>
               <div className="w-2 bg-primary/40 rounded-t h-8"></div>
@@ -502,7 +502,7 @@ export function HomeDashboardPage() {
           </div>
 
           {/* Ambient Space / Decoration */}
-          <div className="hidden lg:block relative h-64 border border-tertiary rounded-xl overflow-hidden bg-surface-variant">
+          <div className="hidden lg:block relative h-64 border border-tertiary/25 rounded-xl overflow-hidden bg-surface-variant shadow-xs">
             <div className="absolute inset-0 flex items-center justify-center opacity-10">
               <span className="material-symbols-outlined text-[120px]">spa</span>
             </div>
