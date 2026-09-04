@@ -234,8 +234,24 @@ export const updateUser = async (req: Request, res: Response) => {
         const { username, display_name, bio, profile_visibility, search_indexing, avatar_url } = req.body;
 
         if (username !== undefined) {
-            if (typeof username !== 'string' || !/^[a-zA-Z0-9_-]{3,30}$/.test(username)) {
+            const cleanUsername = typeof username === 'string' ? username.trim().replace(/^@/, '') : '';
+            if (!cleanUsername || !/^[a-zA-Z0-9_-]{3,30}$/.test(cleanUsername)) {
                 return res.status(400).json({ error: 'Username must be 3-30 characters containing only letters, numbers, underscores, or hyphens' });
+            }
+
+            // Check if username is already taken by another user
+            const existingQuery = await docClient.send(new QueryCommand({
+                TableName: TABLES.USER,
+                IndexName: 'UsernameIndex',
+                KeyConditionExpression: 'username = :username',
+                ExpressionAttributeValues: {
+                    ':username': cleanUsername
+                }
+            }));
+
+            const conflict = existingQuery.Items?.find(item => item.id !== id);
+            if (conflict) {
+                return res.status(400).json({ error: 'Username already taken' });
             }
         }
 
@@ -282,8 +298,9 @@ export const updateUser = async (req: Request, res: Response) => {
         const exprNames: Record<string, string> = { '#updated_at': 'updated_at' };
 
         if (username !== undefined) {
+            const cleanUsername = typeof username === 'string' ? username.trim().replace(/^@/, '') : username;
             updateExpr.push('username = :username');
-            exprVals[':username'] = username;
+            exprVals[':username'] = cleanUsername;
         }
 
         if (display_name !== undefined) {
