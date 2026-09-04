@@ -1,4 +1,4 @@
-﻿# Deony
+# Deony
 
 A personal media experience archive for movies, TV, books, and games. Unlike standard trackers that only record consumption counts, Deony logs the experience—ratings, dates, and markdown journal entries tied to each title.
 
@@ -105,7 +105,7 @@ npx playwright test
 
 ### AWS Deployment
 
-Infrastructure is defined in `cdk/`. See [`docs/deployment-guide.md`](docs/deployment-guide.md) for details.
+Infrastructure is defined in `infra/` using AWS CDK:
 
 ```bash
 # Build frontend and Lambda bundle
@@ -113,6 +113,8 @@ npm run build
 npm run build:server
 
 # Deploy via CDK
+cd infra
+npm install
 npx cdk deploy
 ```
 
