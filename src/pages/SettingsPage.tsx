@@ -374,15 +374,19 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
 
   const handleSaveProfile = async () => {
     try {
+      const cleanUsername = username.trim().replace(/^@/, '');
       await api.patch('/users/me', {
+        username: cleanUsername,
         display_name: displayName,
         bio,
         profile_visibility: publicProfile ? 'public' : 'private',
         avatar_url: avatarUrl || null,
       });
+      setUsername(cleanUsername);
       showToast('Profile saved successfully', 'success');
-    } catch (e) {
-      showToast('Failed to save profile', 'error');
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || e?.message || 'Failed to save profile';
+      showToast(msg, 'error');
     }
   };
 
