@@ -259,7 +259,7 @@ export function HomeDashboardPage() {
   }
 
   return (
-    <div className="max-w-[1100px] mx-auto px-gutter md:px-margin-desktop py-xl lg:py-xxl space-y-xl">
+    <div className="max-w-[1200px] mx-auto px-gutter md:px-8 lg:px-12 py-lg md:py-xl space-y-lg">
       {/* First-Time Welcome Banner */}
       {!loading && experiences.length === 0 && (
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-md sm:p-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md">
@@ -284,7 +284,7 @@ export function HomeDashboardPage() {
       )}
 
       {/* Quick Log Widget */}
-      <section className="bg-surface-container-lowest border border-tertiary rounded-xl p-lg md:p-xl transition-all focus-within:ring-1 focus-within:ring-primary">
+      <section className="bg-surface-container-lowest border border-tertiary rounded-xl p-md sm:p-lg transition-all focus-within:ring-1 focus-within:ring-primary">
         <h2 className="font-headline-md text-headline-md text-primary mb-md">Quick Log</h2>
         <div className="flex flex-col md:flex-row gap-md items-start md:items-center">
           <input
@@ -300,21 +300,21 @@ export function HomeDashboardPage() {
           <div className="flex gap-sm w-full md:w-auto">
             <button
               onClick={() => navigate('/log')}
-              className="p-sm text-secondary hover:text-primary hover:bg-surface-variant rounded-full transition-colors"
+              className="p-sm text-secondary hover:text-primary hover:bg-surface-variant rounded-full transition-colors cursor-pointer"
               title="Add Media"
             >
               <span className="material-symbols-outlined">image</span>
             </button>
             <button
               onClick={() => navigate('/log')}
-              className="p-sm text-secondary hover:text-primary hover:bg-surface-variant rounded-full transition-colors"
+              className="p-sm text-secondary hover:text-primary hover:bg-surface-variant rounded-full transition-colors cursor-pointer"
               title="Tag Location"
             >
               <span className="material-symbols-outlined">location_on</span>
             </button>
             <button
               onClick={handleQuickLog}
-              className="px-lg py-sm bg-primary text-on-primary font-label-md text-label-md rounded-lg ml-auto md:ml-sm hover:opacity-90 transition-opacity"
+              className="px-lg py-sm bg-primary text-on-primary font-label-md text-label-md rounded-lg ml-auto md:ml-sm hover:opacity-90 transition-opacity cursor-pointer shadow-xs"
             >
               Log
             </button>
@@ -323,9 +323,9 @@ export function HomeDashboardPage() {
       </section>
 
       {/* Grid Layout for Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
         {/* Main Column (Left/Center) */}
-        <div className="lg:col-span-2 space-y-xl">
+        <div className="lg:col-span-2 space-y-lg">
           {/* Currently Experiencing (Horizontal Scroll) */}
           <section>
             <div className="flex items-center justify-between mb-lg">

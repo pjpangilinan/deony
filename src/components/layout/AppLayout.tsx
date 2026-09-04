@@ -39,21 +39,15 @@ export function AppLayout() {
             </Link>
           </li>
           <li>
-            <Link to="/timeline" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/timeline' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/timeline' ? "'FILL' 1" : "'FILL' 0" }}>history</span>
-              <span className="font-label-md text-label-md">Timeline</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/library" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/library' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/library' ? "'FILL' 1" : "'FILL' 0" }}>perm_media</span>
+            <Link to="/library" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname.startsWith('/library') || location.pathname === '/stats' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.startsWith('/library') || location.pathname === '/stats' ? "'FILL' 1" : "'FILL' 0" }}>perm_media</span>
               <span className="font-label-md text-label-md">Library</span>
             </Link>
           </li>
           <li>
-            <Link to="/stats" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/stats' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/stats' ? "'FILL' 1" : "'FILL' 0" }}>bar_chart</span>
-              <span className="font-label-md text-label-md">Statistics</span>
+            <Link to="/timeline" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/timeline' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/timeline' ? "'FILL' 1" : "'FILL' 0" }}>history</span>
+              <span className="font-label-md text-label-md">Timeline</span>
             </Link>
           </li>
           <li>
@@ -69,7 +63,7 @@ export function AppLayout() {
             </Link>
           </li>
           <li>
-            <button onClick={handleSignOut} className="flex w-full items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-error-container hover:text-error transition-all group">
+            <button onClick={handleSignOut} className="flex w-full items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-error-container hover:text-error transition-all group cursor-pointer">
               <span className="material-symbols-outlined">logout</span>
               <span className="font-label-md text-label-md">Sign Out</span>
             </button>
@@ -104,9 +98,8 @@ export function AppLayout() {
             </div>
             <ul className="space-y-md">
               <li><Link to="/home" onClick={closeMenu} className="text-headline-md font-headline-md">Journal</Link></li>
-              <li><Link to="/timeline" onClick={closeMenu} className="text-headline-md font-headline-md">Timeline</Link></li>
               <li><Link to="/library" onClick={closeMenu} className="text-headline-md font-headline-md">Library</Link></li>
-              <li><Link to="/stats" onClick={closeMenu} className="text-headline-md font-headline-md">Stats</Link></li>
+              <li><Link to="/timeline" onClick={closeMenu} className="text-headline-md font-headline-md">Timeline</Link></li>
               <li><Link to="/categories" onClick={closeMenu} className="text-headline-md font-headline-md">Categories</Link></li>
               <li><Link to="/settings" onClick={closeMenu} className="text-headline-md font-headline-md">Settings</Link></li>
               <li><Link to="/log" onClick={closeMenu} className="text-headline-md font-headline-md text-primary">+ New Entry</Link></li>
