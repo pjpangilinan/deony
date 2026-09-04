@@ -201,4 +201,7 @@ test('first-time user end-to-end journey audit', async ({ page }) => {
   expect(pageErrors.length).toBe(0);
   const errorLogs = consoleLogs.filter(l => l.type === 'error');
   console.log('Console Errors count:', errorLogs.length);
+  if (errorLogs.length > 0) {
+    console.log('Console errors:', errorLogs.map(l => l.text));
+  }
 });

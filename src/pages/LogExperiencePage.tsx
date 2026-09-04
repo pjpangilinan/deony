@@ -13,10 +13,13 @@ interface Category {
 
 interface MediaSearchResult {
   id?: string;
+  external_id?: string;
   providerId?: string;
-  provider: string;
+  provider?: string;
+  source?: string;
   title: string;
-  type: string;
+  type?: string;
+  media_type?: string;
   year?: string | number;
   release_date?: string;
   description?: string;
@@ -140,29 +143,35 @@ export function LogExperiencePage() {
 
   const handleMediaSelect = async (media: MediaSearchResult) => {
     try {
+      const source = media.source || media.provider || 'tmdb';
+      const external_id = media.external_id || media.providerId || media.id || uuidv4();
+      const media_type = media.media_type || media.type || currentCategory?.media_type || 'movie';
+      const cover_image = media.cover_image || media.imageUrl;
+      const release_date = media.release_date || (media.year ? String(media.year) : undefined);
+
       const res = await api.post<{ id: string; [key: string]: any }>('/media/resolve', {
-        source: media.provider || 'tmdb',
-        external_id: media.providerId || media.id || uuidv4(),
+        source,
+        external_id,
         title: media.title,
-        media_type: media.type || currentCategory?.media_type || 'movie',
+        media_type,
         description: media.description,
-        cover_image: media.imageUrl || media.cover_image,
-        release_date: media.year ? String(media.year) : media.release_date,
+        cover_image,
+        release_date,
       });
 
       setSelectedMediaId(res.id);
       setSelectedMedia({
         id: res.id,
         title: media.title,
-        type: media.type || currentCategory?.name || 'Film',
-        media_type: media.type,
-        year: media.year || media.release_date,
-        release_date: media.release_date || (media.year ? String(media.year) : undefined),
-        imageUrl: media.imageUrl || media.cover_image,
-        cover_image: media.imageUrl || media.cover_image,
+        type: media_type,
+        media_type,
+        year: release_date ? release_date.slice(0, 4) : media.year,
+        release_date,
+        imageUrl: cover_image,
+        cover_image,
         description: media.description,
         creator: media.creator,
-        provider: media.provider,
+        provider: source,
         is_manual: false,
       });
       setStep(2);
@@ -440,13 +449,17 @@ export function LogExperiencePage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-sm">
                             <span className="px-sm py-xs bg-surface-variant text-on-surface-variant font-label-md text-label-md uppercase rounded-full tracking-widest text-[10px]">
-                              {item.type || currentCategory?.media_type || 'Media'}
+                              {item.type || item.media_type || currentCategory?.media_type || 'Media'}
                             </span>
-                            {item.year && (
-                              <span className="font-caption text-caption text-secondary">{item.year}</span>
+                            {(item.year || item.release_date) && (
+                              <span className="font-caption text-caption text-secondary">
+                                {item.year || (item.release_date ? item.release_date.slice(0, 4) : '')}
+                              </span>
                             )}
-                            {item.provider && (
-                              <span className="font-caption text-caption text-outline">({item.provider})</span>
+                            {(item.provider || item.source) && (
+                              <span className="font-caption text-caption text-outline">
+                                ({item.provider || item.source})
+                              </span>
                             )}
                           </div>
                           <h4 className="font-headline-md text-[18px] text-on-surface leading-snug truncate mt-xs">

@@ -82,6 +82,8 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
     - `src/pages/OnboardingPage.tsx`: Aligned category template IDs to canonical `media_type` enums (`movie` and `tv`).
     - `src/services/auth.ts`: Gracefully suppressed unsupported `GlobalSignOut` warning in local dev.
     - `src/pages/LandingPage.tsx`: Replaced dead footer `#` links with real anchors (`#features`, `#philosophy`, `/auth`) and dynamic current year copyright.
+    - `src/pages/LogExperiencePage.tsx`: Mapped provider search fields (`source`, `external_id`, `release_date`) properly into `/media/resolve`, strictly honoring the `PROVIDER#{source}#{external_id}` deduplication invariant instead of creating random UUIDs.
+    - `src/components/editor/JournalViewer.tsx` & `src/pages/ExperienceDetailPage.tsx`: Created read-only Tiptap Markdown viewer so archival thoughts render rich typography (headings, lists, quotes, emphasis) instead of raw markdown text.
 - **Verification & Test Suite Results**:
   - Vitest unit tests: **24/24 passing** (`npx vitest run`).
   - Playwright E2E tests: **12/12 passing** (`npx playwright test`).
