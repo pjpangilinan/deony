@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;1,500&family=Hanken+Grotesk:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+@import './tokens.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--deony-typography-body-md-font-family);
+  font-size: var(--deony-typography-body-md-font-size);
+  font-weight: var(--deony-typography-body-md-font-weight);
+  line-height: var(--deony-typography-body-md-line-height);
+  background-color: var(--deony-color-surface);
+  color: var(--deony-color-on-surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--deony-color-primary);
+  color: var(--deony-color-on-primary);
+}
+
+a {
+  color: var(--deony-color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

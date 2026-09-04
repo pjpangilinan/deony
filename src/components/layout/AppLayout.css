@@ -1,0 +1,143 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  background-color: var(--deony-color-surface-container-lowest);
+  border-bottom: 1px solid var(--deony-color-surface-variant);
+  padding: 0 var(--deony-spacing-gutter);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.nav-logo {
+  font-family: var(--deony-typography-display-font-family);
+  font-size: var(--deony-typography-headline-md-font-size);
+  font-weight: 500;
+  color: var(--deony-color-primary);
+  text-decoration: none;
+}
+
+.nav-logo:hover {
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--deony-spacing-md);
+}
+
+.nav-links a {
+  font-family: var(--deony-typography-label-md-font-family);
+  font-size: var(--deony-typography-label-md-font-size);
+  text-transform: uppercase;
+  letter-spacing: var(--deony-typography-label-md-letter-spacing);
+  color: var(--deony-color-on-surface-variant);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--deony-color-primary);
+  text-decoration: none;
+}
+
+.log-btn,
+.login-btn {
+  background-color: var(--deony-color-primary);
+  color: var(--deony-color-on-primary) !important;
+  padding: var(--deony-spacing-sm) var(--deony-spacing-md);
+  border-radius: var(--deony-rounded-default);
+}
+
+.log-btn:hover,
+.login-btn:hover {
+  background-color: var(--deony-color-primary-container);
+}
+
+.profile-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--deony-spacing-md);
+  border-left: 1px solid var(--deony-color-outline-variant);
+  padding-left: var(--deony-spacing-md);
+  margin-left: var(--deony-spacing-md);
+}
+
+.signout-btn {
+  background: none;
+  border: none;
+  font-family: var(--deony-typography-label-md-font-family);
+  font-size: var(--deony-typography-label-md-font-size);
+  text-transform: uppercase;
+  letter-spacing: var(--deony-typography-label-md-letter-spacing);
+  color: var(--deony-color-on-surface-variant);
+  cursor: pointer;
+}
+
+.signout-btn:hover {
+  color: var(--deony-color-error);
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--deony-color-primary);
+}
+
+.app-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background-color: var(--deony-color-surface-container-lowest);
+    flex-direction: column;
+    padding: var(--deony-spacing-md);
+    border-bottom: 1px solid var(--deony-color-surface-variant);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .profile-menu {
+    border-left: none;
+    border-top: 1px solid var(--deony-color-outline-variant);
+    padding-left: 0;
+    margin-left: 0;
+    padding-top: var(--deony-spacing-md);
+    margin-top: var(--deony-spacing-sm);
+    width: 100%;
+    justify-content: center;
+  }
+}

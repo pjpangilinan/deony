@@ -1,0 +1,77 @@
+.deony-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(31, 27, 24, 0.5); /* var(--deony-color-on-surface) with opacity */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fade-in 0.2s ease-out;
+  padding: var(--deony-spacing-md);
+}
+
+.deony-modal-content {
+  background-color: var(--deony-color-surface-container-lowest);
+  border: 1px solid var(--deony-color-tertiary);
+  border-radius: var(--deony-rounded-lg);
+  padding: var(--deony-spacing-lg);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: none;
+  animation: scale-up 0.2s ease-out;
+}
+
+.deony-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--deony-spacing-md);
+}
+
+.deony-modal-header h2 {
+  margin: 0;
+  color: var(--deony-color-on-surface);
+}
+
+.deony-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--deony-color-on-surface-variant);
+  cursor: pointer;
+  padding: var(--deony-spacing-xs);
+  margin: calc(var(--deony-spacing-xs) * -1);
+  border-radius: var(--deony-rounded-sm);
+  transition: background-color 0.2s;
+}
+
+.deony-modal-close:hover {
+  background-color: var(--deony-color-surface-container-high);
+}
+
+.deony-modal-body {
+  color: var(--deony-color-on-surface);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-up {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}

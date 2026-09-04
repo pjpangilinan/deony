@@ -1,0 +1,51 @@
+.deony-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 var(--deony-spacing-sm);
+  background-color: var(--deony-color-surface-container-high);
+  color: var(--deony-color-on-surface);
+  border-radius: var(--deony-rounded-full);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.deony-chip--clickable {
+  cursor: pointer;
+}
+
+.deony-chip--clickable:hover:not(.deony-chip--active) {
+  background-color: var(--deony-color-surface-container-highest);
+}
+
+.deony-chip--active {
+  background-color: var(--deony-color-primary);
+  color: var(--deony-color-on-primary);
+}
+
+.deony-chip__label {
+  display: inline-block;
+}
+
+.deony-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--deony-spacing-xs);
+  margin-right: calc(var(--deony-spacing-xs) * -1);
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.deony-chip__remove:hover {
+  opacity: 1;
+}
