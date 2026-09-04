@@ -33,12 +33,6 @@ export function AppLayout() {
         
         <ul className="flex-1 space-y-sm w-full">
           <li>
-            <Link to="/home" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/home' ? 'text-primary font-bold bg-primary-container/10 focus:ring-1 focus:ring-primary' : 'text-secondary hover:bg-primary-container/10 hover:text-primary focus:ring-1 focus:ring-primary'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/home' ? "'FILL' 1" : "'FILL' 0" }}>edit_note</span>
-              <span className="font-label-md text-label-md">Journal</span>
-            </Link>
-          </li>
-          <li>
             <Link to="/library" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname.startsWith('/library') || location.pathname === '/stats' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
               <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.startsWith('/library') || location.pathname === '/stats' ? "'FILL' 1" : "'FILL' 0" }}>perm_media</span>
               <span className="font-label-md text-label-md">Library</span>
@@ -91,7 +85,6 @@ export function AppLayout() {
               </button>
             </div>
             <ul className="space-y-md">
-              <li><Link to="/home" onClick={closeMenu} className="text-headline-md font-headline-md">Journal</Link></li>
               <li><Link to="/library" onClick={closeMenu} className="text-headline-md font-headline-md">Library</Link></li>
               <li><Link to="/timeline" onClick={closeMenu} className="text-headline-md font-headline-md">Timeline</Link></li>
               <li><Link to="/settings" onClick={closeMenu} className="text-headline-md font-headline-md">Settings</Link></li>

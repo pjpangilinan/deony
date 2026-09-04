@@ -18,7 +18,7 @@ test('unauthenticated visitor can view public profile shelves and respects priva
   await expect(page.locator('text=Verify Account')).toBeVisible();
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
-  await expect(page).toHaveURL(/\/home/);
+  await expect(page).toHaveURL(/\/library/);
 
   // 2. Log a manual experience
   await page.goto('/log');

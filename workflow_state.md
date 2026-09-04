@@ -110,13 +110,26 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
       - Aligned section header dividers across `SettingsPage.tsx`, `LibraryPage.tsx`, `LogExperiencePage.tsx`, `EditExperiencePage.tsx`, and `ExperienceDetailPage.tsx` to uniform `border-b border-tertiary/25 pb-xs mb-md` with `font-headline-md text-headline-md text-primary`.
       - Standardized card borders and dividers to subtle `border-tertiary/25`.
       - Fixed oversized desktop padding in `EditExperiencePage.tsx` and `ExperienceDetailPage.tsx`, standardizing to `max-w-[860px] mx-auto px-gutter md:px-8`.
-    - **Visual Audit & Screenshot Verification**:
-      - Captured and visually inspected full screenshots across all key user flows (`01` through `10` in `screenshots-audit/`).
-      - Verified modal layout, placeholder visibility, picture buttons, and section dividers.
-    - **Automated Verification**:
+  - **Inline Error Placement, Outline Removal & Sidebar Streamlining (User Request Implemented)**:
+    - **Inline Specific Cover Errors**:
+      - Replaced all left-side and toast banners for cover image errors in `LogExperiencePage.tsx` and `EditExperiencePage.tsx` with dedicated inline alerts rendered directly at the cover controls container beneath the URL and upload buttons.
+      - Added specific, descriptive error feedback for URL validation, file sizes, and server error messages.
+      - Built `src/utils/imageCompressor.ts` using HTML5 Canvas to client-compress uploaded pictures to ~150KB, ensuring uploads never fail payload limits.
+      - Increased Express payload limit in `server/dev-server.ts` to `50mb` and configured both S3 buckets (`deony-assets`, `deony-media-assets`).
+    - **Search Input Outline Removal**:
+      - Completely removed focus/active outlines on `LogExperiencePage.tsx` search and category select with `outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0`.
+      - Updated `src/styles/index.css` with global overrides ensuring `input, select, textarea, button` never render browser focus rectangle boxes.
+    - **Sidebar Streamlining & Landing Navigation**:
+      - Removed "Journal" from desktop sidebar and mobile navigation drawer in `AppLayout.tsx`.
+      - Sidebar now contains strictly: **Library**, **Timeline**, **Settings**, **Sign Out**, with `+ New Entry` pinned at the bottom left.
+      - Redirected auth and onboarding destinations to `/library`, making the Library the primary landing page.
+      - Configured `/home` route to redirect to `/library`.
+    - **Automated & Visual Verification**:
+      - Created `tests/new-user-experience-audit.spec.ts` testing the exact new-user flow: signup -> library landing -> sidebar check -> + New Entry -> search without outline -> cover error inline -> image update -> experience edit -> library catalog.
+      - Captured visual screenshots in `screenshots-new-user-audit/` and verified with `view_file`.
       - TypeScript (`tsc --noEmit`): Clean, 0 errors.
       - Unit Tests (`npm test`): 24/24 tests passed across 3 test suites.
-      - Playwright End-to-End Tests (`npx playwright test`): 14/14 test suites passed with 0 page errors and 0 console errors.
+      - Playwright End-to-End Tests (`npx playwright test`): 15/15 test suites passed cleanly with 0 page errors and 0 console errors.
 
 ## Current Task
 - **TICK-004**: AWS Infrastructure as Code (IaC) Deployment Baseline
@@ -128,3 +141,4 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
 
 ## Blockers
 None. Ready for TICK-004 when user signals to proceed.
+

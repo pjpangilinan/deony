@@ -24,7 +24,7 @@ test('verify library search, status badges, list view, tightened onboarding, and
   await expect(page.locator('text=Verify Account')).toBeVisible();
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
-  await expect(page).toHaveURL(/\/home/);
+  await expect(page).toHaveURL(/\/library/);
 
   // 2. Verify tightened Onboarding Page
   await page.goto('/onboarding');

@@ -16,10 +16,10 @@ test('capture full visual audit screenshots', async ({ page }) => {
   await page.click('form#form-signup button[type="submit"]');
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
-  await page.waitForURL(/\/home/);
+  await page.waitForURL(/\/library/);
 
-  // 1. Home Dashboard Empty
-  await page.screenshot({ path: path.join(screenshotDir, '01-home-empty.png'), fullPage: true });
+  // 1. Library Empty
+  await page.screenshot({ path: path.join(screenshotDir, '01-library-empty.png'), fullPage: true });
 
   // 2. Log an experience - Step 1
   await page.goto('/log');

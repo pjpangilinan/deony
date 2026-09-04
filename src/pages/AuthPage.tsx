@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthProvider';
 import { signIn, signUp, confirmSignUp } from '../services/auth';
@@ -15,8 +15,14 @@ export const AuthPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { refreshSession } = useAuth();
+  const { user, refreshSession } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/library');
+    }
+  }, [user, navigate]);
 
   const handleLoginSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -27,7 +33,7 @@ export const AuthPage = () => {
       // In Cognito, the login identifier can be username or email
       await signIn(email || username, password);
       await refreshSession();
-      navigate('/home');
+      navigate('/library');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in. Please check your credentials.');
     } finally {
@@ -59,7 +65,7 @@ export const AuthPage = () => {
       await confirmSignUp(username, code);
       await signIn(username, password);
       await refreshSession();
-      navigate('/home');
+      navigate('/library');
     } catch (err: any) {
       setError(err.message || 'Invalid confirmation code. Please try again.');
     } finally {

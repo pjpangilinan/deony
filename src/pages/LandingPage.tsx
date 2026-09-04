@@ -1,6 +1,16 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../providers/AuthProvider';
 
 export function LandingPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/library');
+    }
+  }, [user, navigate]);
   return (
     <div className="min-h-screen flex flex-col font-body-md text-body-md bg-background overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
       {/* TopAppBar - Sticky with subtle backdrop blur & smooth transitions */}

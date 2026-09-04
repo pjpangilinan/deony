@@ -58,15 +58,17 @@ test('first-time user end-to-end journey audit', async ({ page }) => {
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
 
-  // Verify landing on /home
-  await page.waitForURL(/\/home/);
-  expect(page.url()).toContain('/home');
-  console.log('Verified redirect to home:', page.url());
+  // Verify landing on /library
+  await page.waitForURL(/\/library/);
+  expect(page.url()).toContain('/library');
+  console.log('Verified redirect to library:', page.url());
 
-  console.log('=== Step 3: Onboarding Audit via Welcome Banner ===');
-  await expect(page.locator('text=Welcome to your personal archive')).toBeVisible();
-  await page.click('button:has-text("Set up categories")');
-  await page.waitForURL(/\/onboarding/);
+  console.log('=== Step 3: Library Empty State ===');
+  await expect(page.locator('text=Your shelves are waiting')).toBeVisible();
+  await page.screenshot({ path: path.join(screenshotDir, 'audit-08-library-empty.png') });
+
+  console.log('=== Step 4: Onboarding Categories ===');
+  await page.goto('/onboarding');
   await expect(page.locator('text=Choose your building blocks')).toBeVisible();
   await page.screenshot({ path: path.join(screenshotDir, 'audit-05-onboarding.png') });
 
@@ -76,23 +78,11 @@ test('first-time user end-to-end journey audit', async ({ page }) => {
   await page.screenshot({ path: path.join(screenshotDir, 'audit-06-onboarding-selected.png') });
 
   await page.click('button:has-text("Continue")');
-  await page.waitForURL(/\/home/);
+  await page.waitForURL(/\/library/);
 
-  console.log('=== Step 4: First-Time Home Dashboard (Empty State) ===');
-  await expect(page.locator('text=Nothing in progress')).toBeVisible();
-  await expect(page.locator('text=No recent highlights')).toBeVisible();
-  await page.screenshot({ path: path.join(screenshotDir, 'audit-07-home-empty.png'), fullPage: true });
-
-  console.log('=== Step 5: Quick Log Pre-fill Test ===');
-  await page.fill('input[placeholder="What are you experiencing right now?"]', 'Princess Mononoke');
-  await page.getByRole('button', { name: 'Log', exact: true }).click();
+  console.log('=== Step 5: Navigate to Log Experience via Sidebar New Entry ===');
+  await page.click('a:has-text("New Entry")');
   await page.waitForURL(/\/log/);
-  // Verify searchQuery is pre-populated from Quick Log
-  const searchInputVal = await page.inputValue('input[placeholder="Search for a film, book, game, or album..."]');
-  expect(searchInputVal).toBe('Princess Mononoke');
-
-  console.log('=== Step 6: Library Empty State ===');
-  await page.goto('/library');
   await expect(page.locator('text=Your shelves are waiting')).toBeVisible();
   await page.screenshot({ path: path.join(screenshotDir, 'audit-08-library-empty.png') });
 
