@@ -94,7 +94,7 @@ export function ExperienceDetailPage() {
 
   if (loading) {
     return (
-      <div className="max-w-[800px] mx-auto px-gutter md:px-margin-desktop py-xl">
+      <div className="max-w-[860px] mx-auto px-gutter md:px-8 py-xl">
         <div className="animate-pulse flex flex-col gap-lg">
           <div className="h-10 w-24 bg-surface-variant rounded"></div>
           <div className="h-64 bg-surface-variant rounded-xl"></div>
@@ -107,13 +107,13 @@ export function ExperienceDetailPage() {
 
   if (!experience) {
     return (
-      <div className="max-w-[800px] mx-auto px-gutter md:px-margin-desktop py-xl">
+      <div className="max-w-[860px] mx-auto px-gutter md:px-8 py-xl">
         <div className="border border-dashed border-outline-variant rounded-xl p-xl flex flex-col items-center justify-center text-center gap-md">
           <span className="material-symbols-outlined text-4xl text-outline">error</span>
           <h2 className="font-headline-md text-headline-md text-on-surface">Experience not found</h2>
           <button 
             onClick={() => navigate('/library')}
-            className="mt-md bg-primary text-on-primary font-label-md text-label-md rounded-lg px-lg py-sm hover:opacity-90 transition-opacity"
+            className="mt-md bg-primary text-on-primary font-label-md text-label-md rounded-lg px-lg py-sm hover:opacity-90 transition-opacity cursor-pointer"
           >
             Back to Library
           </button>
@@ -123,11 +123,11 @@ export function ExperienceDetailPage() {
   }
 
   return (
-    <div className="max-w-[800px] mx-auto px-gutter md:px-margin-desktop py-xl">
-      <div className="flex justify-between items-center mb-xl">
+    <div className="max-w-[860px] mx-auto px-gutter md:px-8 py-lg md:py-xl">
+      <div className="flex justify-between items-center mb-lg">
         <button 
           onClick={() => navigate('/library')}
-          className="flex items-center gap-sm text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors"
+          className="flex items-center gap-sm text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors cursor-pointer"
         >
           <span className="material-symbols-outlined">arrow_back</span>
           Library
@@ -136,7 +136,7 @@ export function ExperienceDetailPage() {
           <button 
             type="button"
             onClick={handleShare}
-            className="flex items-center gap-xs border border-tertiary text-on-surface-variant font-label-md text-label-md rounded-lg px-md py-sm hover:bg-surface-variant transition-colors cursor-pointer"
+            className="flex items-center gap-xs border border-tertiary/30 text-on-surface-variant font-label-md text-label-md rounded-lg px-md py-sm hover:bg-surface-variant transition-colors cursor-pointer"
             title="Share this experience"
           >
             <span className="material-symbols-outlined text-[18px]">share</span>
@@ -145,7 +145,7 @@ export function ExperienceDetailPage() {
           <button 
             type="button"
             onClick={() => navigate(`/experience/${experience.id}/edit`)}
-            className="flex items-center gap-xs border border-tertiary text-on-surface-variant font-label-md text-label-md rounded-lg px-lg py-sm hover:bg-surface-variant transition-colors cursor-pointer"
+            className="flex items-center gap-xs border border-tertiary/30 text-on-surface-variant font-label-md text-label-md rounded-lg px-lg py-sm hover:bg-surface-variant transition-colors cursor-pointer"
           >
             <span className="material-symbols-outlined text-[18px]">edit</span>
             Edit
@@ -153,7 +153,7 @@ export function ExperienceDetailPage() {
           <button 
             type="button"
             onClick={handleDelete}
-            className="flex items-center gap-xs border border-error text-error font-label-md text-label-md rounded-lg px-lg py-sm hover:bg-error hover:text-white transition-colors cursor-pointer"
+            className="flex items-center gap-xs border border-error/40 text-error font-label-md text-label-md rounded-lg px-lg py-sm hover:bg-error hover:text-white transition-colors cursor-pointer"
           >
             <span className="material-symbols-outlined text-[18px]">delete</span>
             Delete
@@ -161,9 +161,9 @@ export function ExperienceDetailPage() {
         </div>
       </div>
       
-      <div className="bg-surface-container-lowest border border-tertiary rounded-xl p-lg overflow-hidden flex flex-col gap-xl">
+      <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg overflow-hidden flex flex-col gap-lg shadow-xs">
         {coverImage && (
-          <div className="w-[calc(100%+48px)] h-64 -mt-lg -mx-lg bg-surface-variant relative">
+          <div className="w-[calc(100%+32px)] sm:w-[calc(100%+48px)] h-64 -mt-md -mx-md sm:-mt-lg sm:-mx-lg bg-surface-variant relative overflow-hidden">
             <img src={coverImage} alt={experience.media_title} className="w-full h-full object-cover" />
           </div>
         )}
@@ -171,14 +171,14 @@ export function ExperienceDetailPage() {
         <div>
           <h1 className="font-headline-lg text-headline-lg text-primary mb-md">{experience.media_title}</h1>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-md p-md bg-surface-container rounded-lg border border-tertiary">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-md p-md bg-surface-container-low rounded-lg border border-tertiary/25">
             <div className="flex flex-col gap-xs">
-              <span className="font-label-md text-label-md text-on-surface-variant">Status</span>
+              <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Status</span>
               <span className="font-body-md text-body-md text-on-surface">{experience.status}</span>
             </div>
             
             <div className="flex flex-col gap-xs">
-              <span className="font-label-md text-label-md text-on-surface-variant">Rating</span>
+              <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Rating</span>
               <div className="flex items-center gap-xs">
                 {experience.rating !== undefined && experience.rating !== null ? (
                   <>
@@ -210,12 +210,12 @@ export function ExperienceDetailPage() {
             </div>
             
             <div className="flex flex-col gap-xs">
-              <span className="font-label-md text-label-md text-on-surface-variant">Started</span>
+              <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Started</span>
               <span className="font-body-md text-body-md text-on-surface">{experience.started_on || '-'}</span>
             </div>
             
             <div className="flex flex-col gap-xs">
-              <span className="font-label-md text-label-md text-on-surface-variant">Ended</span>
+              <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide">Ended</span>
               <span className="font-body-md text-body-md text-on-surface">{experience.ended_on || '-'}</span>
             </div>
           </div>
@@ -223,7 +223,7 @@ export function ExperienceDetailPage() {
         
         {experience.thoughts && (
           <div>
-            <h3 className="font-headline-md text-headline-md text-primary mb-md flex items-center gap-sm">
+            <h3 className="font-headline-md text-headline-md text-primary mb-md pb-xs border-b border-tertiary/25 flex items-center gap-sm">
               <span className="material-symbols-outlined">menu_book</span>
               Thoughts
             </h3>

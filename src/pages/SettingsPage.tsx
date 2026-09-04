@@ -391,13 +391,13 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
 
       {/* SECTION 1: PROFILE */}
       <section id="settings-profile" className="space-y-md">
-        <h2 className="font-headline-md text-headline-md text-primary border-b border-tertiary/20 pb-xs">
+        <h2 className="font-headline-md text-headline-md text-primary border-b border-tertiary/25 pb-xs mb-md">
           Profile
         </h2>
         
-        <div className="bg-surface-container-lowest border border-tertiary rounded-xl p-md sm:p-lg flex flex-col sm:flex-row gap-lg">
+        <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg flex flex-col sm:flex-row gap-lg shadow-xs">
           <div className="shrink-0">
-            <div className="w-[90px] h-[90px] rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-tertiary">
+            <div className="w-[90px] h-[90px] rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-tertiary/25">
               <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${displayName || 'User'}`} alt="Avatar" className="w-full h-full object-cover" />
             </div>
           </div>
@@ -411,7 +411,7 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
                 type="text" 
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full py-sm border-b border-tertiary focus:border-primary bg-transparent outline-none font-body-md text-body-md text-on-surface transition-colors"
+                className="w-full py-sm border-b border-tertiary/30 focus:border-primary bg-transparent outline-none font-body-md text-body-md text-on-surface transition-colors"
                 placeholder="Your display name"
               />
             </div>
@@ -424,7 +424,7 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
                 type="text" 
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full py-sm border-b border-tertiary focus:border-primary bg-transparent outline-none font-body-md text-body-md text-on-surface transition-colors"
+                className="w-full py-sm border-b border-tertiary/30 focus:border-primary bg-transparent outline-none font-body-md text-body-md text-on-surface transition-colors"
                 placeholder="@username"
               />
             </div>
@@ -437,7 +437,7 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={2}
-                className="w-full py-sm border-b border-tertiary focus:border-primary bg-transparent outline-none resize-y font-body-md text-body-md text-on-surface transition-colors"
+                className="w-full py-sm border-b border-tertiary/30 focus:border-primary bg-transparent outline-none resize-y font-body-md text-body-md text-on-surface transition-colors"
                 placeholder="Tell us about yourself..."
               />
             </div>
@@ -456,7 +456,7 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
 
       {/* SECTION 2: CATEGORY MANAGEMENT */}
       <section id="settings-categories" className="space-y-md">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-sm border-b border-tertiary/20 pb-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-sm border-b border-tertiary/25 pb-xs mb-md">
           <div>
             <h1 className="font-headline-md text-headline-md text-primary m-0">Category Management</h1>
             <p className="font-body-md text-sm text-secondary m-0 mt-0.5">
@@ -482,8 +482,8 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest border border-tertiary rounded-xl p-md sm:p-lg">
-          <div className="flex justify-between text-secondary font-label-md text-xs uppercase tracking-wider mb-sm pb-xs border-b border-tertiary/20">
+        <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg shadow-xs">
+          <div className="flex justify-between text-secondary font-label-md text-xs uppercase tracking-wider mb-sm pb-xs border-b border-tertiary/25">
             <span>CATEGORY</span>
             <span>ITEMS</span>
           </div>
@@ -561,13 +561,13 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
 
       {/* SECTION 3: PRIVACY & VISIBILITY */}
       <section id="settings-privacy" className="space-y-md">
-        <h2 className="font-headline-md text-headline-md text-primary border-b border-tertiary/20 pb-xs">
+        <h2 className="font-headline-md text-headline-md text-primary border-b border-tertiary/25 pb-xs mb-md">
           Privacy
         </h2>
         
-        <div className="bg-surface-container-lowest border border-tertiary rounded-xl p-md sm:p-lg flex flex-col gap-lg">
+        <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg flex flex-col gap-lg shadow-xs">
           {/* Public Profile Toggle Row matching selector input[aria-labelledby="public-profile-label"] */}
-          <div className="flex justify-between items-center pb-md border-b border-tertiary/20">
+          <div className="flex justify-between items-center pb-md border-b border-tertiary/25">
             <div>
               <div className="font-body-lg text-body-lg text-on-surface mb-xs font-medium" id="public-profile-label">
                 Public Profile
@@ -590,7 +590,7 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
 
           {/* Public Profile Link & Actions */}
           {publicProfile && username ? (
-            <div className="p-md rounded-lg bg-surface border border-tertiary flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md animate-fade-in">
+            <div className="p-md rounded-lg bg-surface border border-tertiary/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md animate-fade-in">
               <div className="flex items-center gap-md min-w-0">
                 <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-[20px]">public</span>
@@ -606,7 +606,7 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
                 <button
                   type="button"
                   onClick={handleShareProfile}
-                  className="flex items-center gap-xs px-md py-sm bg-surface-variant hover:bg-surface-container text-primary font-label-md text-label-md rounded-lg border border-tertiary transition-colors cursor-pointer shadow-xs"
+                  className="flex items-center gap-xs px-md py-sm bg-surface-variant hover:bg-surface-container text-primary font-label-md text-label-md rounded-lg border border-tertiary/25 transition-colors cursor-pointer shadow-xs"
                 >
                   <span className="material-symbols-outlined text-[16px]">share</span>
                   <span>Share Profile</span>
@@ -646,12 +646,12 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
 
       {/* SECTION 4: DATA & ACCOUNT */}
       <section id="settings-account" className="space-y-md">
-        <h2 className="font-headline-md text-headline-md text-primary border-b border-tertiary/20 pb-xs">
+        <h2 className="font-headline-md text-headline-md text-primary border-b border-tertiary/25 pb-xs mb-md">
           Account
         </h2>
         
-        <div className="bg-surface-container-lowest border border-tertiary rounded-xl p-md sm:p-lg space-y-lg">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md pb-md border-b border-tertiary/20">
+        <div className="bg-surface-container-lowest border border-tertiary/25 rounded-xl p-md sm:p-lg space-y-lg shadow-xs">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md pb-md border-b border-tertiary/25">
             <div>
               <div className="font-body-lg text-body-lg text-on-surface mb-xs font-medium">Export Your Archive</div>
               <div className="font-body-md text-body-md text-secondary">
@@ -661,7 +661,7 @@ export function SettingsPage({ initialTab }: SettingsPageProps) {
             <button 
               onClick={handleRequestExport}
               disabled={isExporting}
-              className="bg-surface text-primary border border-tertiary font-label-md text-label-md rounded-lg px-lg py-sm hover:bg-surface-variant transition-colors disabled:opacity-50 shrink-0 cursor-pointer shadow-xs"
+              className="bg-surface text-primary border border-tertiary/30 font-label-md text-label-md rounded-lg px-lg py-sm hover:bg-surface-variant transition-colors disabled:opacity-50 shrink-0 cursor-pointer shadow-xs"
             >
               {isExporting ? 'Exporting...' : 'Request Export'}
             </button>

@@ -20,6 +20,7 @@
     "@aws-sdk/client-s3": "^3.1121.0",
     "@aws-sdk/lib-dynamodb": "^3.1121.0",
     "@aws-sdk/s3-request-presigner": "^3.1121.0",
+    "@tiptap/extension-placeholder": "^3.30.5",
     "@tiptap/pm": "^3.30.5",
     "@tiptap/react": "^3.30.5",
     "@tiptap/starter-kit": "^3.30.5",
