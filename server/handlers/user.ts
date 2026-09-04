@@ -210,11 +210,12 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
     try {
         let { id } = req.params;
+        const callerId = (req as any).user?.sub;
         if (id === 'me') {
-            id = (req as any).user?.sub;
+            id = callerId;
         }
-        if (!id) {
-            return res.status(401).json({ error: 'Unauthorized' });
+        if (!id || !callerId || id !== callerId) {
+            return res.status(403).json({ error: 'Forbidden' });
         }
 
         const { username, display_name, bio, profile_visibility } = req.body;

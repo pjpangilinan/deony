@@ -91,6 +91,7 @@ export const createManualMedia = async (req: Request, res: Response) => {
 
 export const updateMedia = async (req: Request, res: Response) => {
     try {
+        const userId = (req as any).user?.sub;
         const id = req.params.id as string;
         const { cover_image, title, description } = req.body;
         const now = new Date().toISOString();
@@ -102,6 +103,11 @@ export const updateMedia = async (req: Request, res: Response) => {
 
         if (!existing.Item) {
             return res.status(404).json({ error: 'Media not found' });
+        }
+
+        // Prevent users from modifying another user's manual media
+        if (existing.Item.is_manual && existing.Item.user_id !== userId) {
+            return res.status(403).json({ error: 'Forbidden' });
         }
 
         const updated = {
