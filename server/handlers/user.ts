@@ -166,17 +166,20 @@ export const getUserByUsername = async (req: Request, res: Response) => {
         const mediaMap: Record<string, any> = {};
         if (mediaIds.length > 0) {
             try {
-                const batchResult = await docClient.send(new BatchGetCommand({
-                    RequestItems: {
-                        'Media': {
-                            Keys: mediaIds.slice(0, 100).map(id => ({ id }))
+                for (let i = 0; i < mediaIds.length; i += 100) {
+                    const chunk = mediaIds.slice(i, i + 100);
+                    const batchResult = await docClient.send(new BatchGetCommand({
+                        RequestItems: {
+                            [TABLES.MEDIA]: {
+                                Keys: chunk.map(id => ({ id }))
+                            }
                         }
-                    }
-                }));
-                const mediaItems = batchResult.Responses?.['Media'] || [];
-                mediaItems.forEach((m: any) => {
-                    mediaMap[m.id] = m;
-                });
+                    }));
+                    const mediaItems = batchResult.Responses?.[TABLES.MEDIA] || [];
+                    mediaItems.forEach((m: any) => {
+                        mediaMap[m.id] = m;
+                    });
+                }
             } catch (mErr) {
                 console.error('Error fetching media for public profile:', mErr);
             }
@@ -184,7 +187,7 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 
         const enrichedExps = visibleExps.map(e => ({
             ...e,
-            cover_image: mediaMap[e.media_id]?.cover_image || null,
+            cover_image: mediaMap[e.media_id]?.cover_image || (e as any).cover_image || null,
         }));
 
         res.json({
