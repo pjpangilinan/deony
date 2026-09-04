@@ -7,6 +7,15 @@ export const createCategory = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.sub;
         const { name, media_type, icon, color, sort_order, is_builtin } = req.body;
+
+        const VALID_MEDIA_TYPES = ['movie', 'tv', 'book', 'game'];
+        if (!media_type || !VALID_MEDIA_TYPES.includes(media_type)) {
+            return res.status(400).json({ error: `Invalid media_type. Must be one of: ${VALID_MEDIA_TYPES.join(', ')}` });
+        }
+
+        if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 100) {
+            return res.status(400).json({ error: 'Category name must be between 1 and 100 characters' });
+        }
         
         const id = uuidv4();
         const now = new Date().toISOString();
@@ -102,6 +111,9 @@ export const updateCategory = async (req: Request, res: Response) => {
         const exprNames: Record<string, string> = { '#updated_at': 'updated_at' };
 
         if (name !== undefined) {
+            if (typeof name !== 'string' || name.trim().length === 0 || name.length > 100) {
+                return res.status(400).json({ error: 'Category name must be between 1 and 100 characters' });
+            }
             updateExpr.push('#name = :name');
             updateExpr.push('normalized_name = :normalized_name');
             exprVals[':name'] = name;

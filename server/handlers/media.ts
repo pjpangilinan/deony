@@ -57,6 +57,20 @@ export const createManualMedia = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.sub;
         const { title, media_type, description, release_date, cover_image } = req.body;
+
+        if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 300) {
+            return res.status(400).json({ error: 'Title is required and must be between 1 and 300 characters' });
+        }
+
+        if (cover_image && typeof cover_image === 'string') {
+            if (!cover_image.startsWith('https://') && !cover_image.startsWith('http://') && !cover_image.startsWith('data:image/')) {
+                return res.status(400).json({ error: 'Cover image must start with https://, http://, or data:image/' });
+            }
+        }
+
+        if (description && (typeof description !== 'string' || description.length > 5000)) {
+            return res.status(400).json({ error: 'Description must not exceed 5000 characters' });
+        }
         
         const mediaId = uuidv4();
         const id = `MANUAL#${userId}#${mediaId}`;
@@ -108,6 +122,20 @@ export const updateMedia = async (req: Request, res: Response) => {
         // Prevent users from modifying another user's manual media
         if (existing.Item.is_manual && existing.Item.user_id !== userId) {
             return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        if (title !== undefined && (typeof title !== 'string' || title.trim().length === 0 || title.length > 300)) {
+            return res.status(400).json({ error: 'Title must be between 1 and 300 characters' });
+        }
+
+        if (cover_image && typeof cover_image === 'string') {
+            if (!cover_image.startsWith('https://') && !cover_image.startsWith('http://') && !cover_image.startsWith('data:image/')) {
+                return res.status(400).json({ error: 'Cover image must start with https://, http://, or data:image/' });
+            }
+        }
+
+        if (description && (typeof description !== 'string' || description.length > 5000)) {
+            return res.status(400).json({ error: 'Description must not exceed 5000 characters' });
         }
 
         const updated = {

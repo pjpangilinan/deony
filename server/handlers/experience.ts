@@ -22,6 +22,21 @@ export const createExperience = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'idempotency_key is required' });
         }
 
+        const VALID_STATUSES = ['Want to Experience', 'Currently Experiencing', 'Completed', 'Dropped'];
+        if (status && !VALID_STATUSES.includes(status)) {
+            return res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+        }
+
+        if (rating !== undefined && rating !== null) {
+            if (typeof rating !== 'number' || isNaN(rating) || rating < 0 || rating > 10) {
+                return res.status(400).json({ error: 'Rating must be a number between 0 and 10, or null' });
+            }
+        }
+
+        if (thoughts && typeof thoughts === 'string' && thoughts.length > 50000) {
+            return res.status(400).json({ error: 'Thoughts must not exceed 50,000 characters' });
+        }
+
         // Fetch media for denormalization
         const mediaRes = await docClient.send(new GetCommand({
             TableName: TABLES.MEDIA,
@@ -113,6 +128,21 @@ export const updateExperience = async (req: Request, res: Response) => {
 
         if (version === undefined) {
             return res.status(400).json({ error: 'version is required for optimistic concurrency' });
+        }
+
+        const VALID_STATUSES = ['Want to Experience', 'Currently Experiencing', 'Completed', 'Dropped'];
+        if (status !== undefined && !VALID_STATUSES.includes(status)) {
+            return res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+        }
+
+        if (rating !== undefined && rating !== null) {
+            if (typeof rating !== 'number' || isNaN(rating) || rating < 0 || rating > 10) {
+                return res.status(400).json({ error: 'Rating must be a number between 0 and 10, or null' });
+            }
+        }
+
+        if (thoughts && typeof thoughts === 'string' && thoughts.length > 50000) {
+            return res.status(400).json({ error: 'Thoughts must not exceed 50,000 characters' });
         }
 
         const PK = `USER#${userId}`;
