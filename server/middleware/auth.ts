@@ -23,7 +23,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         
         (req as any).user = {
             sub: claims.sub,
-            username: claims['cognito:username']
+            username: claims['cognito:username'] || claims.username
         };
         
         next();
@@ -41,7 +41,7 @@ export const optionalAuthMiddleware = (req: Request, _res: Response, next: NextF
             
             (req as any).user = {
                 sub: claims.sub,
-                username: claims['cognito:username']
+                username: claims['cognito:username'] || claims.username
             };
         }
     } catch (error) {

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { docClient } from '../lib/db';
+import { docClient, TABLES } from '../lib/db';
 import { PutCommand, GetCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -31,7 +31,7 @@ export const resolveMedia = async (req: Request, res: Response) => {
 
         try {
             await docClient.send(new PutCommand({
-                TableName: 'Media',
+                TableName: TABLES.MEDIA,
                 Item: mediaItem,
                 ConditionExpression: 'attribute_not_exists(id)'
             }));
@@ -40,7 +40,7 @@ export const resolveMedia = async (req: Request, res: Response) => {
             if (err.name === 'ConditionalCheckFailedException') {
                 // Item already exists, return it
                 const existing = await docClient.send(new GetCommand({
-                    TableName: 'Media',
+                    TableName: TABLES.MEDIA,
                     Key: { id }
                 }));
                 return res.json(existing.Item);
@@ -78,7 +78,7 @@ export const createManualMedia = async (req: Request, res: Response) => {
         };
 
         await docClient.send(new PutCommand({
-            TableName: 'Media',
+            TableName: TABLES.MEDIA,
             Item: mediaItem
         }));
 
@@ -96,7 +96,7 @@ export const updateMedia = async (req: Request, res: Response) => {
         const now = new Date().toISOString();
 
         const existing = await docClient.send(new GetCommand({
-            TableName: 'Media',
+            TableName: TABLES.MEDIA,
             Key: { id }
         }));
 
@@ -113,7 +113,7 @@ export const updateMedia = async (req: Request, res: Response) => {
         };
 
         await docClient.send(new PutCommand({
-            TableName: 'Media',
+            TableName: TABLES.MEDIA,
             Item: updated
         }));
 
@@ -138,13 +138,13 @@ export const batchGetMedia = async (req: Request, res: Response) => {
         // For production, chunk array into 100s.
         const result = await docClient.send(new BatchGetCommand({
             RequestItems: {
-                'Media': {
+                [TABLES.MEDIA]: {
                     Keys: keys
                 }
             }
         }));
 
-        const items = result.Responses ? result.Responses['Media'] : [];
+        const items = result.Responses ? result.Responses[TABLES.MEDIA] : [];
         res.json({ items });
     } catch (error) {
         console.error('Error batch getting media:', error);

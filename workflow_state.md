@@ -131,14 +131,24 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
       - Unit Tests (`npm test`): 24/24 tests passed across 3 test suites.
       - Playwright End-to-End Tests (`npx playwright test`): 15/15 test suites passed cleanly with 0 page errors and 0 console errors.
 
+## Current Phase
+All Development, Invariant Testing, UI Polish, and AWS Production Deployment Complete.
+
 ## Current Task
-- **TICK-004**: AWS Infrastructure as Code (IaC) Deployment Baseline
-  - Status: READY FOR DEDICATED FOCUS SESSION (as directed by user)
-  - Detailed architecture, CDK constructs, and runbooks planned in `implementation_plan.md`.
+- TICK-004: AWS Infrastructure as Code (IaC) Deployment Baseline — **COMPLETED & LIVE IN AWS**
+  - **Live URL**: `https://d1cdomhzh1pe4j.cloudfront.net`
+  - **API Gateway**: `https://9i4pe5nh7d.execute-api.ap-southeast-1.amazonaws.com/`
+  - **Cognito User Pool**: `ap-southeast-1_Tj0a3lf5F`
+  - **Cognito Client**: `7s68msdl6gaukpjt6drtue5jg4`
+  - **DynamoDB Tables**: `deony-users`, `deony-categories`, `deony-media`, `deony-experiences`
+  - **S3 Buckets**: `deonystack-frontendbucketefe2e19c-xidikzenbqoy`, `deonystack-mediabucketbcbb02ba-v8tobxr33up4`
+  - **CloudFront Distribution**: `E2FBFV25USKQU1`
+  - **Runbook**: `docs/deployment-guide.md`
 
 ## What's Next
-- Execute TICK-004 (AWS CDK IaC deployment baseline) in a dedicated focus session when requested.
+- Live smoke testing of user flows on production URL (`https://d1cdomhzh1pe4j.cloudfront.net`).
+- Optional custom domain setup if desired in the future.
 
 ## Blockers
-None. Ready for TICK-004 when user signals to proceed.
+None. Stack is live and healthy.
 

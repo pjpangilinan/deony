@@ -1,5 +1,5 @@
-const COGNITO_URL = 'http://localhost:9229';
-const CLIENT_ID = '2c3ijf8npjx6fspk8qahsdhne';
+const COGNITO_URL = import.meta.env.VITE_COGNITO_URL || 'http://localhost:9229';
+const CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID || '2c3ijf8npjx6fspk8qahsdhne';
 
 export const authFetch = async (target: string, body: any) => {
   const response = await fetch(COGNITO_URL, {

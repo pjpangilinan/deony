@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { docClient } from '../lib/db';
+import { docClient, TABLES } from '../lib/db';
 import { PutCommand, ScanCommand, UpdateCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -28,7 +28,7 @@ export const createCategory = async (req: Request, res: Response) => {
         };
 
         await docClient.send(new PutCommand({
-            TableName: 'Category',
+            TableName: TABLES.CATEGORY,
             Item: category
         }));
 
@@ -44,7 +44,7 @@ export const listCategories = async (req: Request, res: Response) => {
         const userId = (req as any).user.sub;
         
         const result = await docClient.send(new ScanCommand({
-            TableName: 'Category',
+            TableName: TABLES.CATEGORY,
             FilterExpression: 'user_id = :userId AND (attribute_not_exists(deleted_at) OR deleted_at = :nullValue)',
             ExpressionAttributeValues: {
                 ':userId': userId,
@@ -53,7 +53,7 @@ export const listCategories = async (req: Request, res: Response) => {
         }));
 
         const expResult = await docClient.send(new QueryCommand({
-            TableName: 'Experience',
+            TableName: TABLES.EXPERIENCE,
             KeyConditionExpression: 'PK = :pk',
             ProjectionExpression: 'category_id',
             ExpressionAttributeValues: {
@@ -88,7 +88,7 @@ export const updateCategory = async (req: Request, res: Response) => {
         // media_type is immutable, do not update
 
         const getRes = await docClient.send(new GetCommand({
-            TableName: 'Category',
+            TableName: TABLES.CATEGORY,
             Key: { id }
         }));
 
@@ -126,7 +126,7 @@ export const updateCategory = async (req: Request, res: Response) => {
         }
 
         const result = await docClient.send(new UpdateCommand({
-            TableName: 'Category',
+            TableName: TABLES.CATEGORY,
             Key: { id },
             UpdateExpression: `SET ${updateExpr.join(', ')}, #updated_at = :updated_at`,
             ExpressionAttributeValues: exprVals,
@@ -147,7 +147,7 @@ export const softDeleteCategory = async (req: Request, res: Response) => {
         const { id } = req.params;
 
         const getRes = await docClient.send(new GetCommand({
-            TableName: 'Category',
+            TableName: TABLES.CATEGORY,
             Key: { id }
         }));
 
@@ -161,7 +161,7 @@ export const softDeleteCategory = async (req: Request, res: Response) => {
 
         const now = new Date().toISOString();
         const result = await docClient.send(new UpdateCommand({
-            TableName: 'Category',
+            TableName: TABLES.CATEGORY,
             Key: { id },
             UpdateExpression: 'SET deleted_at = :now, updated_at = :now',
             ExpressionAttributeValues: {
