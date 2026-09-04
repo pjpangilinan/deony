@@ -25,3 +25,45 @@ test('user can sign up, logout, and login', async ({ page }) => {
   await page.click('button:has-text("Sign Out")');
   await expect(page).toHaveURL(/\//);
 });
+
+test('password visibility toggle and focus states on auth page', async ({ page }) => {
+  await page.goto('/auth');
+
+  // Verify login password input starts with type="password"
+  const loginPassword = page.locator('#login-password');
+  await expect(loginPassword).toHaveAttribute('type', 'password');
+  await loginPassword.fill('SecretPassword123!');
+  
+  // Click in input
+  await loginPassword.click();
+  await page.screenshot({ path: 'screenshots/auth-login-password-focused.png' });
+
+  // Toggle eye icon to show password
+  const toggleLoginBtn = page.locator('#toggle-login-password');
+  await expect(toggleLoginBtn).toBeVisible();
+  await toggleLoginBtn.click();
+  await expect(loginPassword).toHaveAttribute('type', 'text');
+  await page.screenshot({ path: 'screenshots/auth-login-password-visible.png' });
+
+  // Toggle back to hide password
+  await toggleLoginBtn.click();
+  await expect(loginPassword).toHaveAttribute('type', 'password');
+
+  // Switch to sign up tab
+  await page.click('#tab-signup');
+  const signupPassword = page.locator('#signup-password');
+  await expect(signupPassword).toHaveAttribute('type', 'password');
+  await signupPassword.fill('SignUpPassword456!');
+
+  // Click eye icon in sign up
+  const toggleSignupBtn = page.locator('#toggle-signup-password');
+  await expect(toggleSignupBtn).toBeVisible();
+  await toggleSignupBtn.click();
+  await expect(signupPassword).toHaveAttribute('type', 'text');
+  await page.screenshot({ path: 'screenshots/auth-signup-password-visible.png' });
+
+  // Toggle back to hidden
+  await toggleSignupBtn.click();
+  await expect(signupPassword).toHaveAttribute('type', 'password');
+});
+

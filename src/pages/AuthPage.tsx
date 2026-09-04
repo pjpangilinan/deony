@@ -8,6 +8,7 @@ export const AuthPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [code, setCode] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
@@ -86,10 +87,11 @@ export const AuthPage = () => {
                 onClick={() => {
                   setIsLogin(true);
                   setError('');
+                  setShowPassword(false);
                 }}
-                className={`flex-1 pb-md font-label-md text-label-md text-center ${
+                className={`flex-1 pb-md font-label-md text-label-md text-center cursor-pointer ${
                   isLogin ? 'border-b-2 border-primary text-primary' : 'border-b-2 border-transparent text-secondary'
-                } hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset`}
+                } hover:text-primary transition-colors duration-200 outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-primary`}
               >
                 Log In
               </button>
@@ -99,10 +101,11 @@ export const AuthPage = () => {
                 onClick={() => {
                   setIsLogin(false);
                   setError('');
+                  setShowPassword(false);
                 }}
-                className={`flex-1 pb-md font-label-md text-label-md text-center ${
+                className={`flex-1 pb-md font-label-md text-label-md text-center cursor-pointer ${
                   !isLogin ? 'border-b-2 border-primary text-primary' : 'border-b-2 border-transparent text-secondary'
-                } hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset`}
+                } hover:text-primary transition-colors duration-200 outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-primary`}
               >
                 Sign Up
               </button>
@@ -128,7 +131,7 @@ export const AuthPage = () => {
               <div>
                 <label className="sr-only" htmlFor="confirm-code">Confirmation Code</label>
                 <input
-                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
+                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary outline-none focus:outline-none focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
                   id="confirm-code"
                   placeholder="Confirmation code"
                   required
@@ -138,7 +141,7 @@ export const AuthPage = () => {
                 />
               </div>
               <button
-                className="w-full bg-primary text-on-primary py-md px-lg rounded-DEFAULT font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="w-full bg-primary text-on-primary py-md px-lg rounded-DEFAULT font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-all outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] cursor-pointer"
                 type="submit"
                 disabled={loading}
               >
@@ -163,7 +166,7 @@ export const AuthPage = () => {
               <div>
                 <label className="sr-only" htmlFor="login-email">Email address</label>
                 <input
-                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
+                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary outline-none focus:outline-none focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
                   id="login-email"
                   placeholder="Email address"
                   required
@@ -172,22 +175,34 @@ export const AuthPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="relative">
                 <label className="sr-only" htmlFor="login-password">Password</label>
                 <input
-                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
+                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary outline-none focus:outline-none focus:ring-0 px-0 py-sm pr-10 font-body-md text-on-surface placeholder:text-secondary transition-colors"
                   id="login-password"
                   placeholder="Password"
                   required
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <button
+                  type="button"
+                  id="toggle-login-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-xs text-secondary hover:text-primary transition-colors outline-none focus:outline-none focus-visible:text-primary cursor-pointer flex items-center justify-center"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <span className="material-symbols-outlined text-[20px] select-none">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
               </div>
               <div className="flex justify-between items-center pt-sm">
                 <div className="flex items-center">
                   <input
-                    className="border-outline-variant text-primary focus:ring-primary rounded-sm h-4 w-4 bg-transparent cursor-pointer"
+                    className="border-outline-variant text-primary focus:ring-primary rounded-sm h-4 w-4 bg-transparent cursor-pointer outline-none focus:outline-none"
                     id="remember"
                     type="checkbox"
                     checked={rememberMe}
@@ -202,7 +217,7 @@ export const AuthPage = () => {
                 </a>
               </div>
               <button
-                className="w-full bg-primary text-on-primary py-md px-lg rounded-DEFAULT font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="w-full bg-primary text-on-primary py-md px-lg rounded-DEFAULT font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-all outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] cursor-pointer"
                 type="submit"
                 disabled={loading}
               >
@@ -215,7 +230,7 @@ export const AuthPage = () => {
               <div>
                 <label className="sr-only" htmlFor="signup-username">Username</label>
                 <input
-                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
+                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary outline-none focus:outline-none focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
                   id="signup-username"
                   placeholder="Choose a username"
                   required
@@ -227,7 +242,7 @@ export const AuthPage = () => {
               <div>
                 <label className="sr-only" htmlFor="signup-email">Email address</label>
                 <input
-                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
+                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary outline-none focus:outline-none focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
                   id="signup-email"
                   placeholder="Email address"
                   required
@@ -236,20 +251,32 @@ export const AuthPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="relative">
                 <label className="sr-only" htmlFor="signup-password">Password</label>
                 <input
-                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-sm font-body-md text-on-surface placeholder:text-secondary transition-colors"
+                  className="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary outline-none focus:outline-none focus:ring-0 px-0 py-sm pr-10 font-body-md text-on-surface placeholder:text-secondary transition-colors"
                   id="signup-password"
                   placeholder="Create a password"
                   required
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <button
+                  type="button"
+                  id="toggle-signup-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-xs text-secondary hover:text-primary transition-colors outline-none focus:outline-none focus-visible:text-primary cursor-pointer flex items-center justify-center"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <span className="material-symbols-outlined text-[20px] select-none">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
               </div>
               <button
-                className="w-full bg-primary text-on-primary py-md px-lg rounded-DEFAULT font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 mt-md"
+                className="w-full bg-primary text-on-primary py-md px-lg rounded-DEFAULT font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-all outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] cursor-pointer mt-md"
                 type="submit"
                 disabled={loading}
               >
@@ -268,7 +295,7 @@ export const AuthPage = () => {
               <button
                 type="button"
                 aria-label="Sign in with Google"
-                className="w-12 h-12 rounded-full border border-tertiary flex items-center justify-center hover:bg-surface-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-12 h-12 rounded-full border border-tertiary flex items-center justify-center hover:bg-surface-variant transition-colors outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
               >
                 <span className="material-symbols-outlined text-on-surface" data-icon="account_circle">
                   account_circle
@@ -277,7 +304,7 @@ export const AuthPage = () => {
               <button
                 type="button"
                 aria-label="Sign in with Apple"
-                className="w-12 h-12 rounded-full border border-tertiary flex items-center justify-center hover:bg-surface-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-12 h-12 rounded-full border border-tertiary flex items-center justify-center hover:bg-surface-variant transition-colors outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
               >
                 <span className="material-symbols-outlined text-on-surface" data-icon="lock">
                   lock
