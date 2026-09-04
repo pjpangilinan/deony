@@ -13,7 +13,8 @@ const port = 3001;
 app.use(cors({
     origin: 'http://localhost:5173',
 }));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok' });
@@ -27,10 +28,16 @@ new S3rver({
     port: s3Port,
     directory: path.resolve(process.cwd(), 'local-data/s3'),
     silent: false,
-    configureBuckets: [{
-        name: 'deony-media-assets',
-        configs: []
-    }]
+    configureBuckets: [
+        {
+            name: 'deony-assets',
+            configs: []
+        },
+        {
+            name: 'deony-media-assets',
+            configs: []
+        }
+    ]
 }).run((err, addressInfo) => {
     if (err) {
         console.error('Failed to start s3rver', err);

@@ -8,7 +8,6 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { LandingPage } from './pages/LandingPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { OnboardingPage } from './pages/OnboardingPage';
-import { HomeDashboardPage } from './pages/HomeDashboardPage';
 import { LibraryPage } from './pages/LibraryPage';
 import { LogExperiencePage } from './pages/LogExperiencePage';
 import { ExperienceDetailPage } from './pages/ExperienceDetailPage';
@@ -37,7 +36,7 @@ export default function App() {
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/onboarding" element={<OnboardingPage />} />
-                <Route path="/home" element={<HomeDashboardPage />} />
+                <Route path="/home" element={<Navigate to="/library" replace />} />
                 <Route path="/library" element={<LibraryPage />} />
                 <Route path="/log" element={<LogExperiencePage />} />
                 <Route path="/experience/:id" element={<ExperienceDetailPage />} />

@@ -25,7 +25,7 @@ test('comprehensive test: library ui, 5-star rating scaling, and experience deta
   await expect(page.locator('text=Verify Account')).toBeVisible();
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
-  await expect(page).toHaveURL(/\/home/);
+  await expect(page).toHaveURL(/\/library/);
 
   // Helper to log an entry
   const logEntry = async (title: string, starCount?: number) => {

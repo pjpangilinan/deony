@@ -17,10 +17,27 @@ html {
     scrollbar-width: none;
 }
 
-/* Prevent ugly default browser focus outlines on click while preserving keyboard accessibility */
-input:focus:not(:focus-visible),
-button:focus:not(:focus-visible),
-select:focus:not(:focus-visible),
-textarea:focus:not(:focus-visible) {
-    outline: none;
+/* Prevent ugly default browser focus outlines completely */
+input,
+button,
+select,
+textarea {
+    outline: none !important;
 }
+
+input:focus,
+button:focus,
+select:focus,
+textarea:focus,
+input:focus-visible,
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+input:active,
+button:active,
+select:active,
+textarea:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+

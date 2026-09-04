@@ -42,17 +42,17 @@ export function OnboardingPage() {
           });
         }
       }));
-      navigate('/home');
+      navigate('/library');
     } catch (error) {
       console.error('Failed to create categories', error);
-      navigate('/home');
+      navigate('/library');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleSkip = () => {
-    navigate('/home');
+    navigate('/library');
   };
 
   return (

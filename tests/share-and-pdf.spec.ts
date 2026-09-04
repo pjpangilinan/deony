@@ -24,7 +24,7 @@ test('verify share profile across settings, public profile, and statistics PDF d
   await expect(page.locator('text=Verify Account')).toBeVisible();
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
-  await expect(page).toHaveURL(/\/home/);
+  await expect(page).toHaveURL(/\/library/);
 
   // 2. Log an experience so statistics and profile have content
   await page.goto('/log');

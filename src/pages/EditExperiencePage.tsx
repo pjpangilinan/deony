@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useToast } from '../components/ui/useToast';
 import { normalizeRatingTo5 } from '../utils/rating';
 import { JournalEditor } from '../components/editor/JournalEditor';
+import { compressImage } from '../utils/imageCompressor';
 
 interface Experience {
   id: string;
@@ -38,6 +39,7 @@ export function EditExperiencePage() {
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUrlInputOpen, setIsUrlInputOpen] = useState(false);
   const [imageUrlValue, setImageUrlValue] = useState('');
+  const [coverError, setCoverError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -68,19 +70,29 @@ export function EditExperiencePage() {
   };
 
   const handleUpdateCover = async (coverUrl: string) => {
-    if (!experience?.media_id) return;
+    if (!experience?.media_id) {
+      setCoverError('Media identifier missing. Unable to update cover.');
+      return;
+    }
+    const trimmed = coverUrl.trim();
+    if (trimmed && !trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('data:image/')) {
+      setCoverError('Please enter a valid image web link starting with https:// or http://');
+      return;
+    }
+
     try {
+      setCoverError(null);
       setIsUploadingCover(true);
       await api.patch(`/media/${encodeURIComponent(experience.media_id)}`, {
-        cover_image: coverUrl,
+        cover_image: trimmed,
       });
-      setMediaItem((prev) => (prev ? { ...prev, cover_image: coverUrl } : { id: experience.media_id, cover_image: coverUrl }));
-      showToast('Cover image updated', 'success');
+      setMediaItem((prev) => (prev ? { ...prev, cover_image: trimmed } : { id: experience.media_id, cover_image: trimmed }));
       setIsUrlInputOpen(false);
       setImageUrlValue('');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to update cover', err);
-      showToast('Failed to update cover image', 'error');
+      const detail = err?.response?.data?.error || err?.message || 'Server was unable to save the cover image';
+      setCoverError(`Failed to update cover picture: ${detail}`);
     } finally {
       setIsUploadingCover(false);
     }
@@ -90,43 +102,21 @@ export function EditExperiencePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Image must be under 5MB', 'error');
+    if (file.size > 10 * 1024 * 1024) {
+      setCoverError(`Selected image is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Please choose an image under 10MB.`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
     try {
+      setCoverError(null);
       setIsUploadingCover(true);
-      let finalUrl: string | null = null;
-      try {
-        const presigned = await api.post<{ uploadUrl: string; publicUrl: string }>('/upload-url', {
-          media_id: experience?.media_id.replace(/[^a-zA-Z0-9_-]/g, '_') || 'custom',
-        });
-        if (presigned?.uploadUrl) {
-          await fetch(presigned.uploadUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': file.type || 'image/jpeg' },
-            body: file,
-          });
-          finalUrl = presigned.publicUrl;
-        }
-      } catch (uploadErr) {
-        console.warn('S3 upload fallback to data URL', uploadErr);
-      }
-
-      if (!finalUrl) {
-        finalUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      }
-
-      await handleUpdateCover(finalUrl);
-    } catch (err) {
-      console.error(err);
-      showToast('Could not process image', 'error');
+      // Fast client-side resize and compression to JPEG ~150KB
+      const compressedDataUrl = await compressImage(file, 1200, 0.85);
+      await handleUpdateCover(compressedDataUrl);
+    } catch (err: any) {
+      console.error('Failed to process image file', err);
+      setCoverError(err?.message || 'Could not process the selected image file.');
     } finally {
       setIsUploadingCover(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -234,7 +224,7 @@ export function EditExperiencePage() {
         )}
 
         {/* Media Cover Preview & Picture Controls */}
-        <div className="mb-lg p-md bg-surface-container-low rounded-lg border border-tertiary/25 flex flex-col sm:flex-row items-start sm:items-center gap-md">
+        <div className="mb-lg w-full p-md bg-surface-container-low rounded-lg border border-tertiary/25 flex flex-col sm:flex-row items-start gap-md">
           <div className="w-20 h-28 bg-surface-variant rounded border border-tertiary/25 overflow-hidden shrink-0 relative group">
             {mediaItem?.cover_image ? (
               <img src={mediaItem.cover_image} alt={experience.media_title} className="w-full h-full object-cover" />
@@ -244,7 +234,7 @@ export function EditExperiencePage() {
               </div>
             )}
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full self-stretch">
             <h3 className="font-headline-md text-sm sm:text-base text-primary font-medium truncate">
               {experience.media_title}
             </h3>
@@ -299,19 +289,22 @@ export function EditExperiencePage() {
             )}
 
             {isUrlInputOpen && (
-              <div className="flex items-center gap-xs mt-2 max-w-md animate-fade-in">
+              <div className="flex items-center gap-xs mt-2 w-full max-w-md min-w-[260px] p-1.5 bg-surface rounded border border-tertiary/25 animate-fade-in">
                 <input
                   type="url"
                   placeholder="https://.../cover.jpg"
                   value={imageUrlValue}
-                  onChange={(e) => setImageUrlValue(e.target.value)}
+                  onChange={(e) => {
+                    setImageUrlValue(e.target.value);
+                    if (coverError) setCoverError(null);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       handleUpdateCover(imageUrlValue.trim());
                     }
                   }}
-                  className="flex-1 text-xs py-1 px-2 border-b border-tertiary/30 focus:border-primary bg-transparent outline-none font-body-md text-on-surface"
+                  className="flex-1 min-w-0 text-xs py-1 px-2 border-b border-tertiary/30 focus:border-primary bg-transparent outline-none font-body-md text-on-surface"
                 />
                 <button
                   type="button"
@@ -319,6 +312,21 @@ export function EditExperiencePage() {
                   className="px-2.5 py-1 bg-primary text-on-primary text-xs font-label-md rounded hover:opacity-90 transition-opacity cursor-pointer shrink-0"
                 >
                   Apply
+                </button>
+              </div>
+            )}
+
+            {coverError && (
+              <div className="mt-xs w-full max-w-md min-w-[260px] p-2 bg-error/10 border border-error/25 text-error rounded text-xs flex items-start gap-1.5 animate-fade-in">
+                <span className="material-symbols-outlined text-[16px] shrink-0 mt-0.5">error</span>
+                <span className="flex-1 min-w-0 font-body-sm text-[12px] leading-snug whitespace-normal break-words">{coverError}</span>
+                <button
+                  type="button"
+                  onClick={() => setCoverError(null)}
+                  className="text-error/70 hover:text-error p-0.5 cursor-pointer shrink-0"
+                  aria-label="Dismiss cover error"
+                >
+                  <span className="material-symbols-outlined text-[14px]">close</span>
                 </button>
               </div>
             )}

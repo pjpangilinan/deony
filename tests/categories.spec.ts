@@ -18,7 +18,7 @@ test('user can create and delete custom categories', async ({ page }) => {
   await expect(page.locator('text=Verify Account')).toBeVisible();
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
-  await expect(page).toHaveURL(/\/home/);
+  await expect(page).toHaveURL(/\/library/);
 
   // Navigate to Category Management
   await page.goto('/categories');

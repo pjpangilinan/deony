@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useToast } from '../components/ui/useToast';
 import { v4 as uuidv4 } from 'uuid';
 import { JournalEditor } from '../components/editor/JournalEditor';
+import { compressImage } from '../utils/imageCompressor';
 
 interface Category {
   id: string;
@@ -80,20 +81,25 @@ export function LogExperiencePage() {
   const [isCustomImageOpen, setIsCustomImageOpen] = useState(false);
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [coverError, setCoverError] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Upload image to S3 or data URL fallback
   const uploadAndSetCover = async (coverUrl: string) => {
-    if (!selectedMediaId) return;
+    if (!selectedMediaId) {
+      setCoverError('Media item not selected. Please choose or add media first.');
+      return;
+    }
     try {
+      setCoverError(null);
       await api.patch(`/media/${encodeURIComponent(selectedMediaId)}`, { cover_image: coverUrl });
       setSelectedMedia((prev) => (prev ? { ...prev, cover_image: coverUrl, imageUrl: coverUrl } : null));
-      showToast('Cover picture updated!', 'success');
       setIsCustomImageOpen(false);
       setImageUrlInput('');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to update cover image', err);
-      showToast('Failed to update cover image', 'error');
+      const detail = err?.response?.data?.error || err?.message || 'Server was unable to save the cover image';
+      setCoverError(`Failed to update cover picture: ${detail}`);
     }
   };
 
@@ -101,45 +107,21 @@ export function LogExperiencePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Image must be under 5MB', 'error');
+    if (file.size > 10 * 1024 * 1024) {
+      setCoverError(`Selected image is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Please choose an image under 10MB.`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
     try {
+      setCoverError(null);
       setIsUploadingImage(true);
-      // Attempt presigned S3 upload first
-      let uploadedUrl: string | null = null;
-      try {
-        const presigned = await api.post<{ uploadUrl: string; publicUrl: string }>('/upload-url', {
-          media_id: selectedMediaId.replace(/[^a-zA-Z0-9_-]/g, '_'),
-        });
-        if (presigned?.uploadUrl) {
-          await fetch(presigned.uploadUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': file.type || 'image/jpeg' },
-            body: file,
-          });
-          uploadedUrl = presigned.publicUrl;
-        }
-      } catch (uploadErr) {
-        console.warn('S3 upload unavailable, falling back to data URL', uploadErr);
-      }
-
-      if (!uploadedUrl) {
-        // Fallback to FileReader data URL
-        uploadedUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      }
-
-      await uploadAndSetCover(uploadedUrl);
-    } catch (err) {
+      // Fast client-side resize and compression to JPEG ~150KB
+      const compressedDataUrl = await compressImage(file, 1200, 0.85);
+      await uploadAndSetCover(compressedDataUrl);
+    } catch (err: any) {
       console.error('Failed to process image file', err);
-      showToast('Could not process image file', 'error');
+      setCoverError(err?.message || 'Could not process the selected image file.');
     } finally {
       setIsUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -147,10 +129,19 @@ export function LogExperiencePage() {
   };
 
   const handleApplyImageUrl = async () => {
-    if (!imageUrlInput.trim()) return;
+    const trimmed = imageUrlInput.trim();
+    if (!trimmed) {
+      setCoverError('Please enter an image URL.');
+      return;
+    }
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('data:image/')) {
+      setCoverError('Please enter a valid image web link starting with https:// or http://');
+      return;
+    }
     try {
+      setCoverError(null);
       setIsUploadingImage(true);
-      await uploadAndSetCover(imageUrlInput.trim());
+      await uploadAndSetCover(trimmed);
     } finally {
       setIsUploadingImage(false);
     }
@@ -412,7 +403,7 @@ export function LogExperiencePage() {
                     id="category-select"
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full appearance-none bg-transparent border-0 border-b border-tertiary rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-pointer"
+                    className="w-full appearance-none bg-transparent border-0 border-b border-tertiary rounded-none py-sm px-0 font-body-md text-body-md text-on-surface outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus:border-primary cursor-pointer"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id} className="bg-surface text-on-surface">
@@ -442,7 +433,7 @@ export function LogExperiencePage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
-                    className="w-full bg-transparent border-0 border-b border-tertiary rounded-none py-sm pl-0 pr-8 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-colors"
+                    className="w-full bg-transparent border-0 border-b border-tertiary rounded-none py-sm pl-0 pr-8 font-body-md text-body-md text-on-surface outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus:border-primary placeholder:text-outline-variant transition-colors"
                   />
                   {searchQuery ? (
                     <button
@@ -735,7 +726,10 @@ export function LogExperiencePage() {
                         type="url"
                         placeholder="https://.../cover.jpg"
                         value={imageUrlInput}
-                        onChange={(e) => setImageUrlInput(e.target.value)}
+                        onChange={(e) => {
+                          setImageUrlInput(e.target.value);
+                          if (coverError) setCoverError(null);
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -750,6 +744,21 @@ export function LogExperiencePage() {
                         className="px-2 py-1 bg-primary text-on-primary text-xs font-label-md rounded hover:opacity-90 transition-opacity cursor-pointer shrink-0"
                       >
                         Apply
+                      </button>
+                    </div>
+                  )}
+
+                  {coverError && (
+                    <div className="p-xs bg-error/10 border border-error/25 text-error rounded text-xs flex items-start gap-1 animate-fade-in">
+                      <span className="material-symbols-outlined text-[15px] shrink-0 mt-0.5">error</span>
+                      <span className="flex-1 font-body-sm text-[11px] leading-tight">{coverError}</span>
+                      <button
+                        type="button"
+                        onClick={() => setCoverError(null)}
+                        className="text-error/70 hover:text-error p-0.5 cursor-pointer"
+                        aria-label="Dismiss cover error"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">close</span>
                       </button>
                     </div>
                   )}

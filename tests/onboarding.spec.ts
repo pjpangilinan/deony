@@ -19,7 +19,7 @@ test('user can complete onboarding', async ({ page }) => {
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
 
-  await expect(page).toHaveURL(/\/home/);
+  await expect(page).toHaveURL(/\/library/);
   
   await page.goto('/onboarding');
   await expect(page).toHaveURL(/\/onboarding/);
@@ -38,9 +38,9 @@ test('user can complete onboarding', async ({ page }) => {
 
   await page.click('button:has-text("Continue")');
 
-  // Should redirect to home
-  await expect(page).toHaveURL(/\/home/);
+  // Should redirect to library
+  await expect(page).toHaveURL(/\/library/);
 
-  // Check home dashboard rendered
-  await expect(page.locator('text=Recent Highlights').first()).toBeVisible();
+  // Check library rendered
+  await expect(page.locator('h1:has-text("Personal Library")')).toBeVisible();
 });

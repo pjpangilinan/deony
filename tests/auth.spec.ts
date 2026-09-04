@@ -19,7 +19,7 @@ test('user can sign up, logout, and login', async ({ page }) => {
   await page.fill('input#confirm-code', '123456');
   await page.click('button:has-text("Confirm and Enter")');
 
-  await expect(page).toHaveURL(/\/home/);
+  await expect(page).toHaveURL(/\/library/);
 
   // Logout (logout from sidebar)
   await page.click('button:has-text("Sign Out")');
