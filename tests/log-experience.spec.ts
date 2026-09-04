@@ -75,6 +75,28 @@ test('user can search and log an experience', async ({ page }) => {
   
   // Click result
   await page.click('text=Mocked Movie Title');
+  await expect(page.locator('text=Personal Thoughts')).toBeVisible();
+
+  // Test editor toolbar bold before typing
+  const boldBtn = page.locator('button[aria-label="Bold"]');
+  await expect(boldBtn).toBeVisible();
+  
+  // Click bold before typing
+  await boldBtn.click();
+  await expect(boldBtn).toHaveClass(/text-primary/);
+
+  // Focus and type in ProseMirror editor
+  const editor = page.locator('.ProseMirror');
+  await editor.click();
+  await page.keyboard.type('Bold Thoughts');
+
+  // Verify the typed text contains strong tag
+  await expect(editor.locator('strong')).toHaveText('Bold Thoughts');
+
+  // Toggle bold off and type normal text
+  await boldBtn.click();
+  await page.keyboard.type(' and normal notes.');
+  await expect(editor).toContainText('Bold Thoughts and normal notes.');
   
   // Submit
   await page.click('button:has-text("Save Experience")');

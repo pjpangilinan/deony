@@ -233,12 +233,12 @@ export function EditExperiencePage() {
               <span className="material-symbols-outlined text-[18px]">menu_book</span>
               Thoughts
             </label>
-            <div className="border border-tertiary rounded-lg overflow-hidden focus-within:border-primary transition-colors">
-              <JournalEditor 
-                initialContent={experience.thoughts || ''} 
-                onChange={val => setExperience({ ...experience, thoughts: val })}
-              />
-            </div>
+            <JournalEditor 
+              initialContent={experience.thoughts || ''} 
+              onChange={val => setExperience({ ...experience, thoughts: val })}
+              minHeightClass="min-h-[140px]"
+              maxHeightClass="max-h-[260px]"
+            />
           </div>
           
           <div className="mt-xl flex justify-end gap-md">

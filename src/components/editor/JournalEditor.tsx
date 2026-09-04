@@ -7,15 +7,18 @@ interface JournalEditorProps {
   initialContent?: string;
   onChange?: (markdown: string) => void;
   minHeightClass?: string;
+  maxHeightClass?: string;
 }
 
 export const JournalEditor: React.FC<JournalEditorProps> = ({
   initialContent = '',
   onChange,
-  minHeightClass = 'min-h-[300px]'
+  minHeightClass = 'min-h-[140px]',
+  maxHeightClass = 'max-h-[240px]',
 }) => {
   const [isSourceView, setIsSourceView] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(initialContent);
+  const [, setTick] = useState(0);
 
   const editor = useEditor({
     extensions: [
@@ -23,6 +26,10 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
       Markdown,
     ],
     content: initialContent,
+    onTransaction: () => {
+      // Force re-render on selection, cursor, and mark changes so toolbar reflects active state immediately
+      setTick((t) => t + 1);
+    },
     onUpdate: ({ editor }) => {
       const markdown = (editor.storage as unknown as Record<string, { getMarkdown: () => string }>).markdown.getMarkdown();
       setMarkdownContent(markdown);
@@ -48,86 +55,108 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
   }
 
   return (
-    <div className="border border-tertiary rounded-lg overflow-hidden flex flex-col bg-surface-container-lowest">
+    <div className="border border-tertiary rounded-lg overflow-hidden flex flex-col bg-surface-container-lowest focus-within:border-primary transition-colors">
       {/* Toolbar */}
-      <div className="px-md py-sm border-b border-tertiary bg-surface-variant flex items-center gap-sm">
+      <div className="px-sm py-xs border-b border-tertiary/30 bg-surface-variant flex items-center gap-xs flex-wrap">
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={toggleView}
-          className="font-label-md text-label-md text-secondary hover:text-primary px-sm py-xs rounded hover:bg-surface-container transition-colors"
+          className="font-label-md text-xs text-secondary hover:text-primary px-sm py-1 rounded hover:bg-surface-container transition-colors cursor-pointer"
         >
           {isSourceView ? 'WYSIWYG' : 'Markdown'}
         </button>
 
         {!isSourceView && (
           <>
-            <div className="w-px h-4 bg-tertiary/30 mx-xs" />
+            <div className="w-px h-3.5 bg-tertiary/40 mx-xs" />
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`p-xs rounded hover:bg-surface-container transition-colors ${
-                editor.isActive('bold') ? 'text-primary bg-surface-container' : 'text-secondary hover:text-primary'
+              className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
+                editor.isActive('bold')
+                  ? 'text-primary bg-surface font-semibold shadow-xs'
+                  : 'text-secondary hover:text-primary hover:bg-surface-container'
               }`}
               aria-label="Bold"
+              title="Bold (Ctrl+B)"
             >
-              <span className="material-symbols-outlined text-[20px]">format_bold</span>
+              <span className="material-symbols-outlined text-[18px]">format_bold</span>
             </button>
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`p-xs rounded hover:bg-surface-container transition-colors ${
-                editor.isActive('italic') ? 'text-primary bg-surface-container' : 'text-secondary hover:text-primary'
+              className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
+                editor.isActive('italic')
+                  ? 'text-primary bg-surface font-semibold shadow-xs'
+                  : 'text-secondary hover:text-primary hover:bg-surface-container'
               }`}
               aria-label="Italic"
+              title="Italic (Ctrl+I)"
             >
-              <span className="material-symbols-outlined text-[20px]">format_italic</span>
+              <span className="material-symbols-outlined text-[18px]">format_italic</span>
             </button>
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`p-xs rounded hover:bg-surface-container transition-colors ${
-                editor.isActive('heading', { level: 2 }) ? 'text-primary bg-surface-container' : 'text-secondary hover:text-primary'
+              className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
+                editor.isActive('heading', { level: 2 })
+                  ? 'text-primary bg-surface font-semibold shadow-xs'
+                  : 'text-secondary hover:text-primary hover:bg-surface-container'
               }`}
               aria-label="Heading"
+              title="Heading 2"
             >
-              <span className="material-symbols-outlined text-[20px]">title</span>
+              <span className="material-symbols-outlined text-[18px]">title</span>
             </button>
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`p-xs rounded hover:bg-surface-container transition-colors ${
-                editor.isActive('bulletList') ? 'text-primary bg-surface-container' : 'text-secondary hover:text-primary'
+              className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
+                editor.isActive('bulletList')
+                  ? 'text-primary bg-surface font-semibold shadow-xs'
+                  : 'text-secondary hover:text-primary hover:bg-surface-container'
               }`}
               aria-label="Bullet List"
+              title="Bullet List"
             >
-              <span className="material-symbols-outlined text-[20px]">format_list_bulleted</span>
+              <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
             </button>
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`p-xs rounded hover:bg-surface-container transition-colors ${
-                editor.isActive('blockquote') ? 'text-primary bg-surface-container' : 'text-secondary hover:text-primary'
+              className={`p-1 rounded transition-all cursor-pointer flex items-center justify-center ${
+                editor.isActive('blockquote')
+                  ? 'text-primary bg-surface font-semibold shadow-xs'
+                  : 'text-secondary hover:text-primary hover:bg-surface-container'
               }`}
               aria-label="Blockquote"
+              title="Blockquote"
             >
-              <span className="material-symbols-outlined text-[20px]">format_quote</span>
+              <span className="material-symbols-outlined text-[18px]">format_quote</span>
             </button>
           </>
         )}
       </div>
 
       {/* Editor Content */}
-      <div className={`flex-1 p-md ${minHeightClass}`}>
+      <div className={`p-sm sm:p-md ${minHeightClass} ${maxHeightClass} overflow-y-auto`}>
         {isSourceView ? (
           <textarea
             value={markdownContent}
             onChange={handleMarkdownChange}
-            className={`w-full h-full ${minHeightClass} border-0 resize-none font-mono font-body-md text-body-md text-on-surface bg-transparent focus:ring-0 focus:outline-none leading-relaxed`}
+            placeholder="Write your personal thoughts, reflections, or favorite moments..."
+            className={`w-full ${minHeightClass} border-0 resize-none font-mono text-sm text-on-surface bg-transparent focus:ring-0 focus:outline-none leading-relaxed placeholder:text-secondary/50`}
           />
         ) : (
           <EditorContent
             editor={editor}
-            className={`prose prose-sm max-w-none ${minHeightClass} font-body-lg text-on-surface [&_.ProseMirror]:outline-none [&_.ProseMirror]:${minHeightClass}`}
+            className={`prose prose-sm max-w-none ${minHeightClass} text-on-surface [&_.ProseMirror]:outline-none [&_.ProseMirror]:${minHeightClass} [&_.ProseMirror_p]:my-1 leading-relaxed`}
           />
         )}
       </div>

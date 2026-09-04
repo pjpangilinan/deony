@@ -51,14 +51,8 @@ export function AppLayout() {
             </Link>
           </li>
           <li>
-            <Link to="/categories" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/categories' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/categories' ? "'FILL' 1" : "'FILL' 0" }}>category</span>
-              <span className="font-label-md text-label-md">Categories</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/settings" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/settings' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/settings' ? "'FILL' 1" : "'FILL' 0" }}>settings</span>
+            <Link to="/settings" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/settings' || location.pathname === '/categories' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/settings' || location.pathname === '/categories' ? "'FILL' 1" : "'FILL' 0" }}>settings</span>
               <span className="font-label-md text-label-md">Settings</span>
             </Link>
           </li>
@@ -100,7 +94,6 @@ export function AppLayout() {
               <li><Link to="/home" onClick={closeMenu} className="text-headline-md font-headline-md">Journal</Link></li>
               <li><Link to="/library" onClick={closeMenu} className="text-headline-md font-headline-md">Library</Link></li>
               <li><Link to="/timeline" onClick={closeMenu} className="text-headline-md font-headline-md">Timeline</Link></li>
-              <li><Link to="/categories" onClick={closeMenu} className="text-headline-md font-headline-md">Categories</Link></li>
               <li><Link to="/settings" onClick={closeMenu} className="text-headline-md font-headline-md">Settings</Link></li>
               <li><Link to="/log" onClick={closeMenu} className="text-headline-md font-headline-md text-primary">+ New Entry</Link></li>
               <li><button onClick={handleSignOut} className="text-headline-md font-headline-md text-error">Sign Out</button></li>

@@ -94,6 +94,10 @@ TMDB · Open Library · RAWG · Tiptap · Vitest · Playwright
       - Eliminated oversized 120px desktop side margins and 80px vertical dead spaces across `HomeDashboardPage` and `LibraryPage`, replacing with responsive `px-gutter md:px-8 lg:px-12`.
       - Balanced font sizes and badge hierarchy: upgraded tiny `text-[10px]` status badges to readable `text-xs font-medium` chips with backdrop blur, and aligned header scales across screens.
       - Supported tokenized search matching on both internal status enums and user-facing status chip labels (`In Progress`, `Completed`, etc.).
+  - **Sidebar Cleanup & Editor Polish (User Request Implemented)**:
+    - **Sidebar Streamlined**: Removed Categories item from desktop sidebar and mobile navigation drawer in `AppLayout.tsx` since Category Management is directly inside Settings.
+    - **Log Experience Editor Sizing**: Reduced `JournalEditor` min-height from `min-h-[300px]` to compact `min-h-[130px]` with `max-h-[220px]` scroll container in `LogExperiencePage.tsx`, removing redundant outer border wrapper and preventing modal box clipping.
+    - **Toolbar Mark Retention Fix**: Added `onMouseDown={(e) => e.preventDefault()}` on all `JournalEditor` toolbar buttons to prevent contenteditable blur and ProseMirror `storedMarks` clearance. Clicking Bold now immediately highlights the active button and formats typing into `<strong>` text from the very first stroke. Added `onTransaction` listener for instant visual reactivity.
   - **Verification & Test Suite Results**:
     - Vitest unit tests: **24/24 passing** (`npm test`).
     - Playwright E2E tests: **13/13 passing** (`npx playwright test`).
