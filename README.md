@@ -1,8 +1,28 @@
 # Deony
 
-A personal media experience archive for movies, TV, books, and games. Unlike standard trackers that only record consumption counts, Deony logs the experience—ratings, dates, and markdown journal entries tied to each title.
+A personal media experience archive for movies, TV, books, and games. Unlike standard trackers that only record consumption counts, Deony logs the experience—ratings, dates, and markdown journal entries tied to each title. Features **Deonysus**, a playful AI critic agent powered by **Amazon Bedrock** and **Bedrock Guardrails**.
 
-[Live Demo](https://d1cdomhzh1pe4j.cloudfront.net) · [Architecture](#architecture) · [Screenshots](#screenshots) · [Data Model](#data-model) · [Getting Started](#getting-started)
+[Live Demo](https://d1cdomhzh1pe4j.cloudfront.net) · [Deonysus AI Agent](#deonysus-ai-agent-aws-bedrock) · [Architecture](#architecture) · [Screenshots](#screenshots) · [Data Model](#data-model) · [Getting Started](#getting-started)
+
+---
+
+## Deonysus AI Agent (AWS Bedrock)
+
+Unlocked after logging 20 or more experiences, **Deonysus** is an AI agent inspired by the Greek god of wine, theater, and ritual madness, reincarnated as an imperious media critic.
+
+- **AWS Service**: Amazon Bedrock Runtime (`ConverseCommand` via `@aws-sdk/client-bedrock-runtime`).
+- **Model**: `anthropic.claude-3-haiku-20240307-v1:0` / Amazon Nova.
+- **20-Entry Archiver Gate**: Sidebar item remains locked with live progress counter (`Deonysus (X/20)`) until 20 entries are logged.
+- **Invocations**:
+  - `🔥 /roast`: Playful critique of overall archive habits, genres, and contradictory ratings.
+  - `✨ /taste`: Pits 5-star masterpieces against low-rated guilty pleasures.
+  - `📜 /backlog`: Mocks abandoned wishlist queues and unfinished in-progress entries.
+  - `🍇 /grape`: Dionysian mythological easter egg (wine goblets, Athenian drama festivals, and Apollo shade).
+- **Responsible AI Guardrails (AWS AI Practitioner Standard)**:
+  - **Prompt Injection & Jailbreak Defense**: Pre-inference filters intercept instruction overrides (`"ignore previous instructions"`, `"DAN"`, system prompt extraction) with playful Olympian rebuke before model invocation.
+  - **Sensitive Data & PII Masking**: Real-time regex sanitizes credit card numbers, SSNs, emails, and phone numbers (`[REDACTED_PII]`).
+  - **Contextual Grounding**: Roasts strictly grounded in user-owned DynamoDB library records to prevent hallucination.
+  - **Observability**: Returns real-time latency and guardrail evaluation status tags.
 
 ---
 
@@ -12,24 +32,37 @@ Serverless AWS stack deployed via AWS CDK.
 
 ```mermaid
 graph LR
-    Client[Browser / SPA] --> CF[CloudFront CDN]
+    Client[Browser / PWA] --> CF[CloudFront CDN]
     CF -->|Static Assets| S3[S3 Web Bucket]
     CF -->|/api/*| APIGW[API Gateway HTTP API]
     APIGW --> Lambda[Lambda Node.js 20]
     Lambda --> DDB[(DynamoDB)]
     Lambda --> S3Media[S3 Media Bucket]
     Lambda --> Providers[External APIs<br/>TMDB · Open Library · RAWG]
+    Lambda -->|ConverseCommand| Bedrock[Amazon Bedrock<br/>Claude 3 Haiku]
+    Bedrock -.->|Safety Evaluation| Guardrails[Bedrock Guardrails<br/>Prompt Defense · PII Mask]
     Client -.->|Auth| Cognito[Cognito User Pool]
 ```
 
-- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Tiptap.
-- **Backend**: Express on AWS Lambda, API Gateway v2, Amazon Cognito.
+- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS, Tiptap Markdown, PWA.
+- **Backend**: Express on AWS Lambda (ARM64), API Gateway v2, Amazon Cognito.
+- **Generative AI**: Amazon Bedrock Runtime with native Bedrock Guardrails.
 - **Storage**: DynamoDB (on-demand), S3 for custom cover uploads.
-- **Routing**: CloudFront with edge function for client-side SPA rewrites.
+- **Routing**: CloudFront with edge routing for client-side SPA rewrites.
 
 ---
 
 ## Screenshots
+
+### Deonysus AI Agent & Responsible AI Guardrails
+
+| Deonysus Chatbot (`/roast`) | Guardrails Architecture Modal |
+|---|---|
+| ![Deonysus Roast](docs/screenshots/13-deonysus-chat-roast.png) | ![Guardrails Modal](docs/screenshots/11-deonysus-guardrails-architecture.png) |
+
+| Prompt Injection Blocked | 20-Entry Locked Gate |
+|---|---|
+| ![Injection Blocked](docs/screenshots/12-deonysus-prompt-injection-blocked.png) | ![Locked Temple Gate](docs/screenshots/14-deonysus-locked-gate.png) |
 
 ### Library & Experience Journal
 
@@ -96,7 +129,7 @@ npm run dev
 ### Testing
 
 ```bash
-# Unit & invariant tests (Vitest)
+# Unit & invariant tests (Vitest) — 48 tests passing
 npm test
 
 # End-to-end browser tests (Playwright)
@@ -108,14 +141,13 @@ npx playwright test
 Infrastructure is defined in `infra/` using AWS CDK:
 
 ```bash
-# Build frontend and Lambda bundle
+# Build frontend
 npm run build
-npm run build:server
 
 # Deploy via CDK
 cd infra
 npm install
-npx cdk deploy
+npx cdk deploy DeonyStack
 ```
 
 ---
