@@ -6,6 +6,7 @@ import { createExperience, getExperience, updateExperience, deleteExperience, li
 import { getUploadUrl } from './handlers/upload';
 import { authMiddleware, optionalAuthMiddleware } from './middleware/auth';
 import { searchMedia } from './handlers/search';
+import { chatWithDeonysus } from './handlers/deonysus';
 
 const router = Router();
 
@@ -42,5 +43,8 @@ router.delete('/experiences/:id', authMiddleware, deleteExperience);
 
 // Upload routes
 router.post('/upload-url', authMiddleware, getUploadUrl);
+
+// AI Agent routes (AWS Bedrock)
+router.post('/ai/deonysus', authMiddleware, chatWithDeonysus);
 
 export default router;

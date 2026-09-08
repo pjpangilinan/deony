@@ -1,14 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider';
+import { api } from '../../services/api';
 
 export function AppLayout() {
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [experienceCount, setExperienceCount] = useState<number | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
   const closeMenu = () => setIsMobileMenuOpen(false);
+
+  useEffect(() => {
+    if (user) {
+      api.get<{ items: any[] }>('/experiences')
+        .then((res) => setExperienceCount(res.items?.length ?? 0))
+        .catch(() => setExperienceCount(0));
+    }
+  }, [user, location.pathname]);
 
   const handleSignOut = () => {
     signOut();
@@ -21,6 +31,8 @@ export function AppLayout() {
   if (isPublicRoute || !user) {
     return <Outlet />; // Public pages or unauthenticated visitors handle their own layout
   }
+
+  const isDeonysusUnlocked = experienceCount !== null && experienceCount >= 20;
 
   return (
     <div className="bg-background text-on-surface font-body-md min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
@@ -43,6 +55,44 @@ export function AppLayout() {
               <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/timeline' ? "'FILL' 1" : "'FILL' 0" }}>history</span>
               <span className="font-label-md text-label-md">Timeline</span>
             </Link>
+          </li>
+          <li>
+            {isDeonysusUnlocked ? (
+              <Link
+                to="/deonysus"
+                className={`flex items-center justify-between px-md py-sm rounded-lg transition-all group ${
+                  location.pathname === '/deonysus'
+                    ? 'text-primary font-bold bg-primary-container/10'
+                    : 'text-secondary hover:bg-primary-container/10 hover:text-primary'
+                }`}
+              >
+                <div className="flex items-center gap-md">
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontVariationSettings: location.pathname === '/deonysus' ? "'FILL' 1" : "'FILL' 0" }}
+                  >
+                    wine_bar
+                  </span>
+                  <span className="font-label-md text-label-md">Deonysus</span>
+                </div>
+                <span className="text-[10px] font-label-md px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                  AI
+                </span>
+              </Link>
+            ) : (
+              <div
+                title={`Needs at least 20 entries to unlock Deonysus (currently ${experienceCount ?? 0}/20)`}
+                className="flex items-center justify-between px-md py-sm rounded-lg text-secondary/40 cursor-not-allowed select-none transition-opacity"
+              >
+                <div className="flex items-center gap-md">
+                  <span className="material-symbols-outlined text-base text-secondary/40">lock</span>
+                  <span className="font-label-md text-label-md">Deonysus</span>
+                </div>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary-container/40 text-secondary/60">
+                  {experienceCount ?? 0}/20
+                </span>
+              </div>
+            )}
           </li>
           <li>
             <Link to="/settings" className={`flex items-center gap-md px-md py-sm rounded-lg transition-all group ${location.pathname === '/settings' || location.pathname === '/categories' ? 'text-primary font-bold bg-primary-container/10' : 'text-secondary hover:bg-primary-container/10 hover:text-primary'}`}>
@@ -87,6 +137,19 @@ export function AppLayout() {
             <ul className="space-y-md">
               <li><Link to="/library" onClick={closeMenu} className="text-headline-md font-headline-md">Library</Link></li>
               <li><Link to="/timeline" onClick={closeMenu} className="text-headline-md font-headline-md">Timeline</Link></li>
+              <li>
+                {isDeonysusUnlocked ? (
+                  <Link to="/deonysus" onClick={closeMenu} className="text-headline-md font-headline-md flex items-center gap-2">
+                    <span>Deonysus</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">AI</span>
+                  </Link>
+                ) : (
+                  <div className="text-headline-md font-headline-md text-secondary/40 flex items-center gap-2 select-none cursor-not-allowed">
+                    <span>Deonysus</span>
+                    <span className="text-sm font-body-md text-secondary/50">({experienceCount ?? 0}/20)</span>
+                  </div>
+                )}
+              </li>
               <li><Link to="/settings" onClick={closeMenu} className="text-headline-md font-headline-md">Settings</Link></li>
               <li><Link to="/log" onClick={closeMenu} className="text-headline-md font-headline-md text-primary">+ New Entry</Link></li>
               <li><button onClick={handleSignOut} className="text-headline-md font-headline-md text-error">Sign Out</button></li>

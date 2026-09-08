@@ -75,6 +75,18 @@ export class DeonyApiStack extends cdk.Stack {
       })
     );
 
+    // 4. Grant Amazon Bedrock Permissions for Deonysus AI Agent & Guardrails
+    this.apiHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          'bedrock:InvokeModel',
+          'bedrock:InvokeModelWithResponseStream',
+          'bedrock:ApplyGuardrail',
+        ],
+        resources: ['*'],
+      })
+    );
+
     // 4. API Gateway HTTP API (v2)
     const lambdaIntegration = new integrations.HttpLambdaIntegration(
       'ApiLambdaIntegration',

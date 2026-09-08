@@ -19,6 +19,7 @@ import { PublicProfilePage } from './pages/PublicProfilePage';
 import { ToastProvider } from './components/ui/useToast';
 import { ThemeProvider } from './providers/ThemeProvider';
 import { SettingsPage } from './pages/SettingsPage';
+import { DeonysusPage } from './pages/DeonysusPage';
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
                 <Route path="/onboarding" element={<OnboardingPage />} />
                 <Route path="/home" element={<Navigate to="/library" replace />} />
                 <Route path="/library" element={<LibraryPage />} />
+                <Route path="/deonysus" element={<DeonysusPage />} />
                 <Route path="/log" element={<LogExperiencePage />} />
                 <Route path="/experience/:id" element={<ExperienceDetailPage />} />
                 <Route path="/experience/:id/edit" element={<EditExperiencePage />} />
