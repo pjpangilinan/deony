@@ -3,17 +3,19 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
 const userPoolId = process.env.COGNITO_USER_POOL_ID;
+const clientId = process.env.COGNITO_CLIENT_ID;
 const region = process.env.AWS_REGION || 'ap-southeast-1';
+const expectedIssuer = userPoolId
+    ? `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`
+    : null;
 const jwksUrl = userPoolId
-    ? `https://cognito-idp.${region}.amazonaws.com/${userPoolId}/.well-known/jwks.json`
+    ? `${expectedIssuer}/.well-known/jwks.json`
     : null;
 
 const pemsCache: Record<string, string> = {};
 
-async function getPemForKid(kid?: string): Promise<string | null> {
-    if (!jwksUrl || !kid) return null;
-    if (pemsCache[kid]) return pemsCache[kid];
-
+async function fetchJwks(): Promise<void> {
+    if (!jwksUrl) return;
     try {
         const res = await fetch(jwksUrl);
         const data = (await res.json()) as any;
@@ -25,11 +27,17 @@ async function getPemForKid(kid?: string): Promise<string | null> {
                 }
             }
         }
-        return pemsCache[kid] || null;
     } catch (e) {
         console.error('Failed to fetch Cognito JWKS:', e);
-        return null;
     }
+}
+
+async function getPemForKid(kid?: string): Promise<string | null> {
+    if (!jwksUrl || !kid) return null;
+    if (pemsCache[kid]) return pemsCache[kid];
+
+    await fetchJwks();
+    return pemsCache[kid] || null;
 }
 
 const verifyJwt = async (token: string) => {
@@ -45,7 +53,9 @@ const verifyJwt = async (token: string) => {
         throw new Error('Token expired');
     }
 
-    // In production with Cognito, enforce cryptographic RS256 signature verification
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // In production with Cognito, enforce strict cryptographic RS256 signature verification & claims
     if (jwksUrl) {
         const kid = decoded.header?.kid;
         if (!kid || decoded.header?.alg !== 'RS256') {
@@ -55,7 +65,27 @@ const verifyJwt = async (token: string) => {
         if (!pem) {
             throw new Error('Unknown signing key');
         }
-        jwt.verify(token, pem, { algorithms: ['RS256'] });
+        
+        jwt.verify(token, pem, { 
+            algorithms: ['RS256'],
+            issuer: expectedIssuer || undefined,
+        });
+
+        // Verify token_use claim
+        if (payload.token_use !== 'id' && payload.token_use !== 'access') {
+            throw new Error('Invalid token_use claim');
+        }
+
+        // Verify audience or client_id claim if client ID is configured
+        if (clientId) {
+            const tokenClient = payload.client_id || payload.aud;
+            if (tokenClient !== clientId) {
+                throw new Error('Token audience does not match configured Cognito client ID');
+            }
+        }
+    } else if (isProduction) {
+        // Fail-closed in production if Cognito User Pool ID is not configured
+        throw new Error('COGNITO_USER_POOL_ID configuration required in production');
     }
 
     return payload;

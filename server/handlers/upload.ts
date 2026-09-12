@@ -19,28 +19,38 @@ const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'deony-assets';
 
 export const getUploadUrl = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).user.sub;
-        const { media_id } = req.body;
-        
-        if (!media_id) {
-            return res.status(400).json({ error: 'media_id is required' });
+        const userId = (req as any).user?.sub;
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        const key = `users/${userId}/manual-media/${media_id}/cover.jpg`;
+        const { media_id, content_type = 'image/jpeg' } = req.body;
+        
+        // Prevent path traversal and enforce safe identifier
+        if (!media_id || typeof media_id !== 'string' || !/^[a-zA-Z0-9_-]{1,64}$/.test(media_id)) {
+            return res.status(400).json({ error: 'Valid media_id (1-64 alphanumeric characters, underscores, or dashes) is required' });
+        }
+
+        const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!ALLOWED_MIME_TYPES.includes(content_type)) {
+            return res.status(400).json({ error: `content_type must be one of: ${ALLOWED_MIME_TYPES.join(', ')}` });
+        }
+
+        const ext = content_type === 'image/png' ? 'png' : content_type === 'image/webp' ? 'webp' : 'jpg';
+        const key = `users/${userId}/manual-media/${media_id}/cover.${ext}`;
         
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,
             Key: key,
-            ContentType: 'image/jpeg'
+            ContentType: content_type
         });
 
-        const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        // 15-minute expiration for presigned upload URLs
+        const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 });
 
-        // We can also return the public URL that the frontend will use to display it
-        // The public URL depends on CloudFront or local setup
         const publicUrl = isDev 
             ? `${process.env.S3_ENDPOINT || 'http://localhost:4569'}/${BUCKET_NAME}/${key}`
-            : `https://${process.env.CDN_DOMAIN}/${key}`;
+            : `https://${process.env.CDN_DOMAIN || 'd1cdomhzh1pe4j.cloudfront.net'}/${key}`;
 
         res.json({ uploadUrl, publicUrl });
     } catch (error) {

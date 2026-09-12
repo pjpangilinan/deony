@@ -39,9 +39,10 @@ export function evaluateSafetyGuardrails(userInput: string): {
   safeText: string;
   evaluation: GuardrailEvaluation;
 } {
-  const text = (userInput || '').trim();
+  // Bound input to maximum 1000 characters to defend against ReDoS and token flooding
+  const text = (userInput || '').trim().slice(0, 1000);
 
-  // 1. Prompt Injection & Jailbreak Attack Defense
+  // 1. Prompt Injection, Jailbreak & Exfiltration Attack Defense
   const injectionPatterns = [
     /(ignore|forget|override|disregard)\s+(all|previous|prior|above)\s+(instructions|prompts|rules)/i,
     /(you are now|act as|pretend to be|roleplay as)\s+(dan|root|admin|unfiltered|jailbroken|developer mode)/i,
@@ -49,6 +50,8 @@ export function evaluateSafetyGuardrails(userInput: string): {
     /(bypass|disable|evade)\s+(safety|content filters|guardrails)/i,
     /<script[\s\S]*?>[\s\S]*?<\/script>/i,
     /system\s*:\s*you are/i,
+    /!\[.*?\]\((https?:|\/\/)[^\)]+\)/i, // Markdown exfiltration attempt
+    /(markdown\s+image|exfiltrat|leak)\s+(token|key|cookie|data|prompt)/i,
   ];
 
   for (const pattern of injectionPatterns) {
@@ -141,7 +144,10 @@ export const chatWithDeonysus = async (req: Request, res: Response) => {
     }
 
     const { command, message } = req.body || {};
-    const rawInput = (command || message || '').trim();
+    let rawInput = (typeof command === 'string' ? command : typeof message === 'string' ? message : '').trim();
+    if (rawInput.length > 1000) {
+      rawInput = rawInput.slice(0, 1000);
+    }
 
     // 1. Evaluate AWS AI Practitioner Guardrails on raw input
     const { safeText, evaluation } = evaluateSafetyGuardrails(rawInput);

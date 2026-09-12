@@ -175,9 +175,7 @@ export function HomeDashboardPage() {
 
   const stripHtml = (html?: string) => {
     if (!html) return '';
-    const tmp = document.createElement('DIV');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
+    return html.replace(/<[^>]*>?/gm, '').trim();
   };
 
   const formatDisplayDate = (dateStr?: string) => {

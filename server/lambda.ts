@@ -16,7 +16,29 @@ app.use((_req, res, next) => {
     next();
 });
 
-app.use(cors());
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+const defaultAllowedOrigins = [
+    'https://d1cdomhzh1pe4j.cloudfront.net',
+    'http://localhost:5173',
+    'http://localhost:3000',
+];
+
+const allAllowedOrigins = [...new Set([...defaultAllowedOrigins, ...allowedOrigins])];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allAllowedOrigins.includes(origin) || origin.endsWith('.cloudfront.net')) {
+            return callback(null, true);
+        }
+        return callback(new Error('CORS origin not allowed'), false);
+    },
+    credentials: true,
+}));
 app.use(express.json({ limit: '6mb' }));
 app.use(express.urlencoded({ limit: '6mb', extended: true }));
 
