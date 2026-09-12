@@ -127,7 +127,7 @@ export class DeonyStack extends cdk.Stack {
         requireLowercase: true,
         requireUppercase: true,
         requireDigits: true,
-        requireSymbols: false,
+        requireSymbols: true,
       },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
@@ -232,7 +232,7 @@ export class DeonyStack extends cdk.Stack {
       })
     );
 
-    // Grant Amazon Bedrock Permissions for Deonysus AI Agent & Guardrails
+    // Grant Amazon Bedrock Permissions for Deonysus AI Agent & Guardrails (scoped least privilege)
     apiHandler.addToRolePolicy(
       new iam.PolicyStatement({
         actions: [
@@ -240,7 +240,10 @@ export class DeonyStack extends cdk.Stack {
           'bedrock:InvokeModelWithResponseStream',
           'bedrock:ApplyGuardrail',
         ],
-        resources: ['*'],
+        resources: [
+          'arn:aws:bedrock:*::foundation-model/*',
+          `arn:aws:bedrock:${this.region}:${this.account}:guardrail/*`,
+        ],
       })
     );
 
@@ -303,6 +306,33 @@ function handler(event) {
       `),
     });
 
+    // CloudFront Security Headers Policy (HSTS, CSP, X-Frame-Options, X-Content-Type-Options)
+    const securityHeadersPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersPolicy', {
+      responseHeadersPolicyName: 'DeonySecurityHeadersPolicy',
+      comment: 'Enforces HSTS, CSP, FrameOptions, and ContentTypeOptions',
+      securityHeadersBehavior: {
+        strictTransportSecurity: {
+          accessControlMaxAge: cdk.Duration.days(365),
+          includeSubdomains: true,
+          preload: true,
+          override: true,
+        },
+        contentTypeOptions: { override: true },
+        frameOptions: {
+          frameOption: cloudfront.HeadersFrameOption.DENY,
+          override: true,
+        },
+        referrerPolicy: {
+          referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
+          override: true,
+        },
+        contentSecurityPolicy: {
+          contentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://image.tmdb.org https://covers.openlibrary.org https://media.rawg.io https://*.cloudfront.net https://*.amazonaws.com; connect-src 'self' https://cognito-idp.*.amazonaws.com https://*.cloudfront.net; frame-ancestors 'none';",
+          override: true,
+        },
+      },
+    });
+
     const distribution = new cloudfront.Distribution(this, 'DeonyDistribution', {
       defaultRootObject: 'index.html',
       comment: 'Deony Personal Archive CDN Distribution',
@@ -310,6 +340,7 @@ function handler(event) {
         origin: origins.S3BucketOrigin.withOriginAccessControl(frontendBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        responseHeadersPolicy: securityHeadersPolicy,
         functionAssociations: [
           {
             function: spaRewriteFunction,
@@ -336,6 +367,7 @@ function handler(event) {
           origin: origins.S3BucketOrigin.withOriginAccessControl(mediaBucket),
           viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+          responseHeadersPolicy: securityHeadersPolicy,
         },
       },
     });

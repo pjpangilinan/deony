@@ -67,3 +67,9 @@ scripts/
 docs/*
 !docs/screenshots/
 !docs/screenshots/*
+
+# Interview preparation documents and cheat sheets
+INTERVIEW_PREP.md
+INTERVIEW_CHEAT_SHEET.md
+*interview*
+*cheat_sheet*

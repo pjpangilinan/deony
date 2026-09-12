@@ -11,6 +11,15 @@ export const resolveMedia = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'source and external_id are required' });
         }
 
+        const VALID_SOURCES = ['tmdb', 'openlibrary', 'rawg'];
+        if (!VALID_SOURCES.includes(source)) {
+            return res.status(400).json({ error: `source must be one of: ${VALID_SOURCES.join(', ')}` });
+        }
+
+        if (typeof external_id !== 'string' || external_id.length > 200 || !/^[a-zA-Z0-9_\-/:.]+$/.test(external_id)) {
+            return res.status(400).json({ error: 'external_id is invalid or exceeds allowed length' });
+        }
+
         const id = `PROVIDER#${source}#${external_id}`;
         const now = new Date().toISOString();
 
@@ -119,9 +128,9 @@ export const updateMedia = async (req: Request, res: Response) => {
             return res.status(404).json({ error: 'Media not found' });
         }
 
-        // Prevent users from modifying another user's manual media
-        if (existing.Item.is_manual && existing.Item.user_id !== userId) {
-            return res.status(403).json({ error: 'Forbidden' });
+        // Security invariant: Provider-sourced media is global and immutable; only user-owned manual media can be updated
+        if (!existing.Item.is_manual || existing.Item.user_id !== userId) {
+            return res.status(403).json({ error: 'Forbidden: Only owned manual media can be updated' });
         }
 
         if (title !== undefined && (typeof title !== 'string' || title.trim().length === 0 || title.length > 300)) {
@@ -166,10 +175,17 @@ export const batchGetMedia = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'ids must be a non-empty array' });
         }
 
-        const keys = ids.map(id => ({ id }));
+        if (ids.length > 100) {
+            return res.status(400).json({ error: 'ids array cannot exceed 100 items per request' });
+        }
+
+        const validIds = ids.filter(id => typeof id === 'string' && id.trim().length > 0 && id.length <= 256);
+        if (validIds.length === 0) {
+            return res.status(400).json({ error: 'No valid ids provided' });
+        }
+
+        const keys = validIds.map(id => ({ id }));
         
-        // DynamoDB BatchGet limits to 100 items per request, assuming < 100 here.
-        // For production, chunk array into 100s.
         const result = await docClient.send(new BatchGetCommand({
             RequestItems: {
                 [TABLES.MEDIA]: {

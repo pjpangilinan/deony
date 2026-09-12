@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
 import { docClient, TABLES } from '../lib/db';
 import { GetCommand, PutCommand, UpdateCommand, QueryCommand, DeleteCommand, ScanCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
-import { v4 as uuidv4 } from 'uuid';
 
 export const createUser = async (req: Request, res: Response) => {
     try {
+        const callerUserId = (req as any).user?.sub;
+        if (!callerUserId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
         const { username, display_name } = req.body;
 
         if (!username || typeof username !== 'string' || !/^[a-zA-Z0-9_-]{3,30}$/.test(username)) {
@@ -13,6 +17,15 @@ export const createUser = async (req: Request, res: Response) => {
 
         if (display_name && (typeof display_name !== 'string' || display_name.length > 100)) {
             return res.status(400).json({ error: 'Display name must not exceed 100 characters' });
+        }
+
+        // Prevent duplicate user creation for same Cognito sub
+        const existingUser = await docClient.send(new GetCommand({
+            TableName: TABLES.USER,
+            Key: { id: callerUserId }
+        }));
+        if (existingUser.Item) {
+            return res.status(409).json({ error: 'User profile already exists' });
         }
 
         // Check if username exists using GSI
@@ -29,13 +42,12 @@ export const createUser = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Username already taken' });
         }
 
-        const id = uuidv4();
         const now = new Date().toISOString();
 
         const user = {
-            id,
+            id: callerUserId,
             username,
-            display_name,
+            display_name: display_name || username,
             profile_visibility: 'private',
             profile_version: 0,
             created_at: now,
@@ -57,8 +69,9 @@ export const createUser = async (req: Request, res: Response) => {
 export const getUser = async (req: Request, res: Response) => {
     try {
         let { id } = req.params;
+        const callerUserId = (req as any).user?.sub;
         if (id === 'me') {
-            id = (req as any).user?.sub;
+            id = callerUserId;
         }
         if (!id) {
             return res.status(401).json({ error: 'Unauthorized' });
@@ -91,6 +104,19 @@ export const getUser = async (req: Request, res: Response) => {
                 return res.json(newUser);
             }
             return res.status(404).json({ error: 'User not found' });
+        }
+
+        const isOwner = callerUserId === result.Item.id;
+        // Privacy enforcement: mask private profile data for non-owners
+        if (result.Item.profile_visibility === 'private' && !isOwner) {
+            return res.json({
+                id: result.Item.id,
+                username: result.Item.username,
+                display_name: result.Item.display_name,
+                avatar_url: result.Item.avatar_url || null,
+                profile_visibility: 'private',
+                entries_count: 0
+            });
         }
 
         res.json(result.Item);

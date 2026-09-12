@@ -5,15 +5,20 @@ export const searchMedia = async (req: Request, res: Response) => {
     try {
         const { q, type } = req.query;
 
-        if (!q || typeof q !== 'string') {
+        if (!q || typeof q !== 'string' || q.trim().length === 0) {
             return res.status(400).json({ error: 'Query parameter "q" is required' });
+        }
+
+        if (q.length > 200) {
+            return res.status(400).json({ error: 'Query string must not exceed 200 characters' });
         }
 
         if (!type || typeof type !== 'string') {
             return res.status(400).json({ error: 'Query parameter "type" is required' });
         }
 
-        const query = encodeURIComponent(q);
+        const trimmedQ = q.trim();
+        const query = encodeURIComponent(trimmedQ);
         const cacheKey = `search:${type}:${query}`;
         const cached = getCached(cacheKey);
         if (cached) {
