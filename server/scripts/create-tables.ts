@@ -1,6 +1,6 @@
 import { DynamoDBClient, CreateTableCommand, DeleteTableCommand, ResourceNotFoundException } from '@aws-sdk/client-dynamodb';
 
-const endpoint = process.env.DYNAMODB_ENDPOINT || 'http://localhost:8000';
+const endpoint = process.env.DYNAMODB_ENDPOINT || 'http://localhost:8005';
 const client = new DynamoDBClient({
     endpoint,
     region: 'local-env',

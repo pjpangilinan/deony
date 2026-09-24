@@ -8,7 +8,7 @@ export const createCategory = async (req: Request, res: Response) => {
         const userId = (req as any).user.sub;
         const { name, media_type, icon, color, sort_order, is_builtin } = req.body;
 
-        const VALID_MEDIA_TYPES = ['movie', 'tv', 'book', 'game'];
+        const VALID_MEDIA_TYPES = ['movie', 'tv', 'book', 'game', 'music', 'podcast', 'other'];
         if (!media_type || !VALID_MEDIA_TYPES.includes(media_type)) {
             return res.status(400).json({ error: `Invalid media_type. Must be one of: ${VALID_MEDIA_TYPES.join(', ')}` });
         }
