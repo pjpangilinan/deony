@@ -19,34 +19,34 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    console.error('Uncaught error in ErrorBoundary:', error, errorInfo);
   }
 
   public render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '4rem 2rem', textAlign: 'center', fontFamily: 'var(--font-family-base)' }}>
-          <h2 style={{ fontFamily: 'var(--font-family-serif)', color: 'var(--color-primary-dark)' }}>Oops, something went wrong!</h2>
-          <p style={{ margin: '1rem 0', color: 'var(--color-text-secondary)' }}>
-            {this.state.error?.message || 'An unexpected error occurred.'}
-          </p>
-          <button 
-            onClick={() => {
-              this.setState({ hasError: false });
-              window.location.href = '/';
-            }}
-            style={{ 
-              padding: '0.75rem 1.5rem', 
-              marginTop: '1rem', 
-              cursor: 'pointer',
-              background: 'var(--color-primary-dark)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px'
-            }}
-          >
-            Return to Home
-          </button>
+        <div className="min-h-screen bg-background text-on-surface flex items-center justify-center p-gutter">
+          <div className="flex flex-col items-center text-center max-w-[540px] p-xl rounded-2xl bg-surface border border-tertiary/25 shadow-sm">
+            <span className="material-symbols-outlined text-[48px] text-error mb-sm">
+              warning
+            </span>
+            <h2 className="font-headline-md text-headline-md text-primary mb-xs">
+              A Ripple in the Sanctuary
+            </h2>
+            <p className="font-body-md text-body-md text-secondary mb-lg leading-relaxed">
+              {this.state.error?.message || 'An unexpected error occurred while rendering this view.'}
+            </p>
+            <button 
+              type="button"
+              onClick={() => {
+                this.setState({ hasError: false });
+                window.location.href = '/';
+              }}
+              className="bg-primary text-on-primary font-label-md text-label-md px-xl py-sm rounded-lg hover:bg-primary/90 transition-colors cursor-pointer"
+            >
+              Return Home
+            </button>
+          </div>
         </div>
       );
     }

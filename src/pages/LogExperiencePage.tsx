@@ -666,7 +666,7 @@ export function LogExperiencePage() {
                       <span className="material-symbols-outlined text-[14px]">swap_horiz</span>
                       Change
                     </button>
-                    {(selectedMedia?.imageUrl || selectedMedia?.cover_image) && (
+                    {selectedMedia?.is_manual && (selectedMedia?.imageUrl || selectedMedia?.cover_image) && (
                       <button
                         type="button"
                         onClick={() => uploadAndSetCover('')}
@@ -680,30 +680,37 @@ export function LogExperiencePage() {
                   </div>
                 </div>
 
-                {/* Picture Actions: Upload photo or paste URL */}
+                {/* Picture Actions: Upload photo or paste URL (manual media only) */}
                 <div className="flex flex-col gap-xs mb-md">
-                  <div className="flex items-center gap-xs">
-                    <button
-                      type="button"
-                      disabled={isUploadingImage}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-label-md text-on-surface bg-surface-variant hover:bg-surface-container rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
-                      title="Upload an image from your computer or phone"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">upload</span>
-                      <span>Upload Photo</span>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isUploadingImage}
-                      onClick={() => setIsCustomImageOpen(!isCustomImageOpen)}
-                      className="flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-label-md text-on-surface bg-surface-variant hover:bg-surface-container rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
-                      title="Paste an image URL"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">link</span>
-                      <span>URL</span>
-                    </button>
-                  </div>
+                  {!selectedMedia?.is_manual ? (
+                    <div className="flex items-center gap-xs py-1 px-2 text-xs font-caption text-secondary bg-surface-variant/40 rounded border border-tertiary/20">
+                      <span className="material-symbols-outlined text-[15px] text-primary">verified</span>
+                      <span>Artwork provided by {selectedMedia?.provider?.toUpperCase() || 'Provider'} catalog</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-xs">
+                      <button
+                        type="button"
+                        disabled={isUploadingImage}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-label-md text-on-surface bg-surface-variant hover:bg-surface-container rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
+                        title="Upload an image from your computer or phone"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">upload</span>
+                        <span>Upload Photo</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isUploadingImage}
+                        onClick={() => setIsCustomImageOpen(!isCustomImageOpen)}
+                        className="flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-label-md text-on-surface bg-surface-variant hover:bg-surface-container rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
+                        title="Paste an image URL"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">link</span>
+                        <span>URL</span>
+                      </button>
+                    </div>
+                  )}
 
                   <input
                     type="file"

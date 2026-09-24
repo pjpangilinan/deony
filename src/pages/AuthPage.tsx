@@ -218,9 +218,13 @@ export const AuthPage = () => {
                     Remember me
                   </label>
                 </div>
-                <a className="font-caption text-caption text-secondary hover:text-primary transition-colors" href="#">
+                <button
+                  type="button"
+                  onClick={() => setError('To reset your password, please contact administrator or verify your registered email.')}
+                  className="font-caption text-caption text-secondary hover:text-primary transition-colors cursor-pointer bg-transparent border-none p-0 outline-none"
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
               <button
                 className="w-full bg-primary text-on-primary py-md px-lg rounded-DEFAULT font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-all outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.99] cursor-pointer"

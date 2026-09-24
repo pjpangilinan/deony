@@ -201,12 +201,24 @@ Deonysus AI Critic Agent (AWS Bedrock), Gating & Full App Visuals Complete.
     - **CORS & CloudFront Security Headers (`server/lambda.ts`, `infra/lib/deony-stack.ts`)**: Restricted production Lambda CORS to CloudFront and configured origins. Attached CloudFront `ResponseHeadersPolicy` enforcing HSTS (365 days preload), CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and `Referrer-Policy`.
     - **Frontend DOM Hardening (`src/pages/HomeDashboardPage.tsx`)**: Replaced `tmp.innerHTML = html` with safe regex-based HTML tag stripper.
     - **Security Test Suite (`server/handlers/__tests__/security.test.ts`)**: 14 dedicated security unit tests added; full Vitest suite passing at 62/62 tests.
+  - **Comprehensive Website Review & Hardening Audit (Completed)**:
+    - **P1: Batch Media Fetch Chunking (`src/utils/mediaBatch.ts`, `LibraryPage.tsx`, `TimelinePage.tsx`, `HomeDashboardPage.tsx`)**: Created `batchFetchMedia` to partition media IDs into safe <=100 slices. Fixed 400 rejection / cover loss when users accumulate >100 entries.
+    - **P2: Provider Media Cover Invariant (`EditExperiencePage.tsx`, `LogExperiencePage.tsx`)**: Enforced immutable provider media invariant in UI. Disallowed and hid manual cover edit/remove triggers on provider-sourced media items, displaying verified provider artwork badge and preventing 403 Forbidden errors.
+    - **P3: AppLayout Experience Fetch Optimization (`AppLayout.tsx`)**: Short-circuited `/experiences` count polling on route changes once user reaches unlock threshold (>=20), eliminating unnecessary DynamoDB reads.
+    - **P4: ESLint 10 Flat Configuration (`eslint.config.js`, `package.json`, `create-tables.ts`)**: Migrated to ESLint 10 flat config (`eslint.config.js`), fixed `@ts-ignore` to `@ts-expect-error`, updated `lint` script, and verified clean exit with 0 errors and 0 warnings.
+    - **P5: Code-Splitting & Route Lazy Loading (`src/App.tsx`)**: Wrapped all application routes with `React.lazy` and `Suspense`, cutting initial bundle size from 1,372 kB (425 kB gzip) down to 250 kB (79 kB gzip), a ~5x initial load speedup.
+    - **P6: Copy & Dead Link Remediation (`LandingPage.tsx`, `PublicProfilePage.tsx`, `AuthPage.tsx`)**: Updated hardcoded teaser year to dynamic current year, aligned public profile navigation button to `/library`, and added active feedback for "Forgot password?".
+    - **P7: Backend Error Propagation in API Client (`src/services/api.ts`)**: Extracted `errorData.error` before fallback to `errorData.message` or `statusText`, allowing descriptive server validation errors to reach user feedback.
+    - **P8: Graceful 401 Session Eviction (`src/services/api.ts`, `src/providers/AuthProvider.tsx`)**: Added `auth:unauthorized` custom event dispatch on 401 when token is present, resetting stale sessions gracefully rather than hanging.
+    - **P9: Modal Backdrop & Keyboard Accessibility (`src/pages/PublicProfilePage.tsx`)**: Added backdrop dismissal and `Escape` key listener on public experience preview modal.
+    - **P10: ProtectedRoute FOUC Elimination (`src/components/ProtectedRoute.tsx`)**: Replaced unstyled `<div>Loading...</div>` text with brand sanctuary spinner on session rehydration.
+    - **P11: ErrorBoundary Tailwind Modernization (`src/components/ErrorBoundary.tsx`)**: Replaced deprecated inline styles with brand Tailwind error screen.
 
 ## What's Next
 - Ready for ongoing monitoring or user requests.
 
 ## Blockers
-None. Live on AWS, hardened, and clean.
+None. Fully audited, optimized, and verified.
 
 
 

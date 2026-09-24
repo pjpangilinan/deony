@@ -96,7 +96,7 @@ export function LandingPage() {
           <div className="relative z-10 w-full">
             <div className="flex items-end justify-between mb-sm sm:mb-md border-b border-tertiary/15 pb-xs">
               <h2 className="font-headline-md text-[20px] sm:text-headline-md text-primary font-medium">Recent Entries</h2>
-              <span className="font-label-md text-label-md text-secondary uppercase tracking-widest text-[11px] sm:text-[12px]">2024 Archive</span>
+              <span className="font-label-md text-label-md text-secondary uppercase tracking-widest text-[11px] sm:text-[12px]">{new Date().getFullYear()} Archive</span>
             </div>
             {/* Horizontal scroll container */}
             <div className="flex gap-md overflow-x-auto timeline-scroll pb-xs items-start pt-xs">

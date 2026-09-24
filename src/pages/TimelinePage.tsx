@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { useToast } from '../components/ui/useToast';
 import { normalizeRatingTo5 } from '../utils/rating';
+import { batchFetchMedia, MediaItem } from '../utils/mediaBatch';
 
 interface Experience {
   id: string;
@@ -15,11 +16,6 @@ interface Experience {
   created_at: string;
   started_on: string;
   ended_on: string;
-}
-
-interface MediaItem {
-  id: string;
-  cover_image: string;
 }
 
 export function TimelinePage() {
@@ -44,13 +40,9 @@ export function TimelinePage() {
       });
       setExperiences(filtered);
 
-      const mediaIds = Array.from(new Set(filtered.map(e => e.media_id).filter(Boolean)));
+      const mediaIds = filtered.map(e => e.media_id).filter(Boolean);
       if (mediaIds.length > 0) {
-        const mediaRes = await api.post<{items: MediaItem[]}>('/media/batch-get', { ids: mediaIds });
-        const map: Record<string, MediaItem> = {};
-        mediaRes.items.forEach(m => {
-          map[m.id] = m;
-        });
+        const map = await batchFetchMedia(mediaIds);
         setMediaMap(map);
       }
     } catch (err) {
