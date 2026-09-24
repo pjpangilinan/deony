@@ -246,8 +246,9 @@ export function LogExperiencePage() {
         is_manual: false,
       });
       setStep(2);
-    } catch (e) {
-      setErrorMsg('Failed to resolve media. You can add it manually.');
+    } catch (e: any) {
+      console.error('Failed to resolve media:', e);
+      setErrorMsg(e.message || 'Failed to resolve media. You can add it manually.');
     }
   };
 
@@ -270,8 +271,9 @@ export function LogExperiencePage() {
         is_manual: true,
       });
       setStep(2);
-    } catch (e) {
-      setErrorMsg('Failed to create manual entry');
+    } catch (e: any) {
+      console.error('Failed to create manual entry:', e);
+      setErrorMsg(e.message || 'Failed to create manual entry');
     }
   };
 
@@ -500,9 +502,9 @@ export function LogExperiencePage() {
                     Results ({searchResults.length})
                   </label>
                   <div className="flex flex-col gap-sm max-h-[340px] overflow-y-auto pr-xs">
-                    {searchResults.map((item) => (
+                    {searchResults.map((item, idx) => (
                       <div
-                        key={item.id || item.providerId || `${item.provider}-${item.title}`}
+                        key={item.id || item.providerId || `${item.provider || item.source || 'media'}-${item.external_id || item.title}-${idx}`}
                         onClick={() => handleMediaSelect(item)}
                         className="flex items-center gap-md p-md rounded-lg border border-tertiary bg-white hover:bg-surface-variant transition-colors cursor-pointer group"
                       >

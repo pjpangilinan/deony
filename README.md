@@ -124,7 +124,7 @@ npm run dev
 
 - Web: `http://localhost:5173`
 - API: `http://localhost:3001`
-- DynamoDB Local: `http://localhost:8000`
+- DynamoDB Local: `http://localhost:8005`
 
 ### Testing
 

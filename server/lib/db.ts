@@ -2,7 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
 const isDev = process.env.NODE_ENV !== 'production';
-const endpoint = process.env.DYNAMODB_ENDPOINT || 'http://localhost:8000';
+const endpoint = process.env.DYNAMODB_ENDPOINT || 'http://localhost:8005';
 
 const clientParams = isDev ? {
     endpoint,

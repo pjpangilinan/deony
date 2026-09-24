@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm:dev:db\" \"npm:dev:api\" \"npm:dev:web\" \"npm:dev:cognito\"",
-    "dev:db": "java -Djava.library.path=./tools/dynamodb_local/DynamoDBLocal_lib -jar ./tools/dynamodb_local/DynamoDBLocal.jar -sharedDb -dbPath ./local-data/dynamodb -port 8000",
+    "dev:db": "java -Djava.library.path=./tools/dynamodb_local/DynamoDBLocal_lib -jar ./tools/dynamodb_local/DynamoDBLocal.jar -sharedDb -dbPath ./local-data/dynamodb -port 8005",
     "dev:cognito": "cognito-local --port 9229 --db ./local-data/cognito",
     "dev:api": "tsx watch server/dev-server.ts",
     "dev:web": "vite",

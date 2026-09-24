@@ -83,8 +83,8 @@ test('first-time user end-to-end journey audit', async ({ page }) => {
   console.log('=== Step 5: Navigate to Log Experience via Sidebar New Entry ===');
   await page.click('a:has-text("New Entry")');
   await page.waitForURL(/\/log/);
-  await expect(page.locator('text=Your shelves are waiting')).toBeVisible();
-  await page.screenshot({ path: path.join(screenshotDir, 'audit-08-library-empty.png') });
+  await expect(page.locator('input[placeholder="Search for a film, book, game, or album..."]')).toBeVisible();
+  await page.screenshot({ path: path.join(screenshotDir, 'audit-07-log-search.png') });
 
   console.log('=== Step 7: Timeline Empty State ===');
   await page.goto('/timeline');
@@ -170,7 +170,7 @@ test('first-time user end-to-end journey audit', async ({ page }) => {
   console.log('=== Step 14: Settings Page & Organization Card ===');
   await page.goto('/settings');
   await expect(page.locator('text=Category Management')).toBeVisible();
-  await expect(page.locator('a:has-text("Manage Categories")')).toBeVisible();
+  await expect(page.locator('button:has-text("Manage Categories")')).toBeVisible();
   await page.screenshot({ path: path.join(screenshotDir, 'audit-21-settings.png') });
 
   // Test Export Data

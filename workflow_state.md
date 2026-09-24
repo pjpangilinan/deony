@@ -213,12 +213,28 @@ Deonysus AI Critic Agent (AWS Bedrock), Gating & Full App Visuals Complete.
     - **P9: Modal Backdrop & Keyboard Accessibility (`src/pages/PublicProfilePage.tsx`)**: Added backdrop dismissal and `Escape` key listener on public experience preview modal.
     - **P10: ProtectedRoute FOUC Elimination (`src/components/ProtectedRoute.tsx`)**: Replaced unstyled `<div>Loading...</div>` text with brand sanctuary spinner on session rehydration.
     - **P11: ErrorBoundary Tailwind Modernization (`src/components/ErrorBoundary.tsx`)**: Replaced deprecated inline styles with brand Tailwind error screen.
+    - **P12: Google Site Verification & Crawling/Indexing Remediation**:
+      - Added `<meta name="google-site-verification" content="p3HqgEYjlAiEB9FS5d66gCw3xVSQYeyzcsCsk8Zn9g0" />` to `index.html`.
+      - Added `public/robots.txt` and `public/sitemap.xml`.
+      - Added pre-rendered semantic HTML inside `<div id="root">` to resolve "Crawled - currently not indexed" for raw crawler parsing.
+      - Synced `dist/` to AWS S3 (`deonystack-frontendbucketefe2e19c-xidikzenbqoy`) and invalidated CloudFront `E2FBFV25USKQU1`.
+    - **P13: Local Dev & Test Port Collision Remediation**:
+      - Port 8000 was bound by active local project (`Maple Street — Agent Civilization` via uvicorn).
+      - Reconfigured DynamoDB Local to port 8005 across `package.json`, `server/lib/db.ts`, `server/scripts/create-tables.ts`, and `README.md`.
+      - Initialized local DynamoDB tables (`User`, `Category`, `Media`, `Experience`) cleanly on port 8005.
+    - **P14: Category Media Types & React Key Hardening**:
+      - Expanded `VALID_MEDIA_TYPES` in `server/handlers/category.ts` to include `'music'`, `'podcast'`, and `'other'`.
+      - Added unique compound keys with indices for media search results in `src/pages/LogExperiencePage.tsx`.
+    - **P15: Full End-to-End Suite Verification**:
+      - `tests/first-time-user-audit.spec.ts`: Passed all 16 journey steps in 22.4s with 0 page errors, 0 console errors.
+      - `tests/new-user-experience-audit.spec.ts`: Passed in 11.2s.
+      - Vitest: 62/62 tests passing. ESLint: 0 errors, 0 warnings. Build: passing in 2.4s.
 
 ## What's Next
-- Ready for ongoing monitoring or user requests.
+- Monitor Google Search Console indexing after user verification and sitemap submission.
 
 ## Blockers
-None. Fully audited, optimized, and verified.
+None. Fully audited, optimized, tested, and verified.
 
 
 
