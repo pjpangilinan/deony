@@ -22,6 +22,7 @@ interface MediaItem {
   id: string;
   title?: string;
   cover_image?: string;
+  is_manual?: boolean;
 }
 
 export function EditExperiencePage() {
@@ -238,40 +239,49 @@ export function EditExperiencePage() {
             <h3 className="font-headline-md text-sm sm:text-base text-primary font-medium truncate">
               {experience.media_title}
             </h3>
-            <p className="font-caption text-xs text-secondary mt-0.5 mb-sm">
-              Change the cover picture by uploading an image file or pasting an image link.
-            </p>
-            <div className="flex flex-wrap items-center gap-xs">
-              <button
-                type="button"
-                disabled={isUploadingCover}
-                onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-label-md text-on-surface bg-surface hover:bg-surface-variant rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-[15px]">upload</span>
-                <span>Upload Photo</span>
-              </button>
-              <button
-                type="button"
-                disabled={isUploadingCover}
-                onClick={() => setIsUrlInputOpen(!isUrlInputOpen)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-label-md text-on-surface bg-surface hover:bg-surface-variant rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-[15px]">link</span>
-                <span>URL</span>
-              </button>
-              {mediaItem?.cover_image && (
-                <button
-                  type="button"
-                  disabled={isUploadingCover}
-                  onClick={() => handleUpdateCover('')}
-                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-label-md text-error hover:bg-error/10 rounded transition-colors cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[15px]">delete</span>
-                  <span>Remove</span>
-                </button>
-              )}
-            </div>
+            {experience.media_id?.startsWith('PROVIDER#') || (mediaItem && !mediaItem.is_manual) ? (
+              <div className="flex items-center gap-xs mt-1.5 py-1 px-2 text-xs font-caption text-secondary bg-surface-variant/40 rounded border border-tertiary/20 w-fit">
+                <span className="material-symbols-outlined text-[15px] text-primary">verified</span>
+                <span>Artwork provided by {experience.media_id?.split('#')[1]?.toUpperCase() || 'Provider'} catalog</span>
+              </div>
+            ) : (
+              <>
+                <p className="font-caption text-xs text-secondary mt-0.5 mb-sm">
+                  Change the cover picture by uploading an image file or pasting an image link.
+                </p>
+                <div className="flex flex-wrap items-center gap-xs">
+                  <button
+                    type="button"
+                    disabled={isUploadingCover}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-label-md text-on-surface bg-surface hover:bg-surface-variant rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">upload</span>
+                    <span>Upload Photo</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isUploadingCover}
+                    onClick={() => setIsUrlInputOpen(!isUrlInputOpen)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-label-md text-on-surface bg-surface hover:bg-surface-variant rounded border border-tertiary/25 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">link</span>
+                    <span>URL</span>
+                  </button>
+                  {mediaItem?.cover_image && (
+                    <button
+                      type="button"
+                      disabled={isUploadingCover}
+                      onClick={() => handleUpdateCover('')}
+                      className="inline-flex items-center gap-1 px-2 py-1 text-xs font-label-md text-error hover:bg-error/10 rounded transition-colors cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">delete</span>
+                      <span>Remove</span>
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
 
             <input
               type="file"

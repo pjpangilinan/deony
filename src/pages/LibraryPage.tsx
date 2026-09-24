@@ -8,6 +8,7 @@ import { useToast } from '../components/ui/useToast';
 import { generateStatisticsPdf } from '../utils/pdfExport';
 import { shareContent } from '../utils/share';
 import { GoalRing } from '../components/insights/GoalRing';
+import { batchFetchMedia } from '../utils/mediaBatch';
 
 interface Experience {
   id: string;
@@ -159,18 +160,12 @@ export function LibraryPage({ initialView }: LibraryPageProps = {}) {
       // Calculate statistics
       calculateStatistics(exps);
 
-      // Batch fetch media items for covers
-      const mediaIds = Array.from(new Set(exps.map((e) => e.media_id).filter(Boolean)));
+      // Batch fetch media items for covers (safely chunked)
+      const mediaIds = exps.map((e) => e.media_id).filter(Boolean);
       if (mediaIds.length > 0) {
         try {
-          const mediaRes = await api.post<{ items: MediaItem[] }>('/media/batch-get', { ids: mediaIds });
-          if (mediaRes.items) {
-            const map: Record<string, MediaItem> = {};
-            mediaRes.items.forEach((m) => {
-              map[m.id] = m;
-            });
-            setMediaMap(map);
-          }
+          const map = await batchFetchMedia(mediaIds);
+          setMediaMap(map);
         } catch (mErr) {
           console.error('Failed to batch fetch media items:', mErr);
         }

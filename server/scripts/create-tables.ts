@@ -105,7 +105,7 @@ async function run() {
     for (const table of tables) {
         try {
             console.log(`Creating table ${table.TableName}...`);
-            // @ts-ignore
+            // @ts-expect-error AWS SDK type mismatch on KeySchema/AttributeDefinitions
             await client.send(new CreateTableCommand(table));
             console.log(`Successfully created table ${table.TableName}`);
         } catch (e: any) {

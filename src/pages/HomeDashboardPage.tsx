@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { SkeletonCard, SkeletonRow, EmptyState } from '../components/ui';
+import { batchFetchMedia, MediaItem } from '../utils/mediaBatch';
 
 interface Experience {
   id: string;
@@ -17,15 +18,6 @@ interface Experience {
   thoughts?: string;
   created_at?: string;
   updated_at?: string;
-}
-
-interface MediaItem {
-  id: string;
-  title: string;
-  media_type?: string;
-  cover_image?: string;
-  description?: string;
-  release_date?: string;
 }
 
 export function HomeDashboardPage() {
@@ -46,17 +38,11 @@ export function HomeDashboardPage() {
       const items = res.items || [];
       setExperiences(items);
 
-      const mediaIds = Array.from(new Set(items.map(e => e.media_id).filter(Boolean))) as string[];
+      const mediaIds = items.map(e => e.media_id).filter(Boolean) as string[];
       if (mediaIds.length > 0) {
         try {
-          const mediaRes = await api.post<{ items: MediaItem[] }>('/media/batch-get', { ids: mediaIds });
-          if (mediaRes.items) {
-            const map: Record<string, MediaItem> = {};
-            mediaRes.items.forEach(m => {
-              map[m.id] = m;
-            });
-            setMediaMap(map);
-          }
+          const map = await batchFetchMedia(mediaIds);
+          setMediaMap(map);
         } catch (mErr) {
           console.error('Failed to batch fetch media items:', mErr);
         }

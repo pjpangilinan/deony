@@ -85,6 +85,16 @@ export function PublicProfilePage() {
     }
   }, [profile]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedExp(null);
+    };
+    if (selectedExp) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [selectedExp]);
+
   const fetchProfile = async () => {
     try {
       setLoading(true);
@@ -114,11 +124,11 @@ export function PublicProfilePage() {
         <div className="flex items-center gap-md font-label-md text-label-md">
           {isAuthenticated ? (
             <Link
-              to="/home"
+              to="/library"
               className="inline-flex items-center gap-xs text-primary hover:bg-primary-container/10 px-md py-xs rounded-md transition-colors"
             >
-              <span className="material-symbols-outlined text-[18px]">dashboard</span>
-              Dashboard
+              <span className="material-symbols-outlined text-[18px]">perm_media</span>
+              Library
             </Link>
           ) : (
             <>
@@ -306,7 +316,12 @@ export function PublicProfilePage() {
 
       {/* Public Experience Details Modal (Read-Only) */}
       {selectedExp && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-gutter animate-fade-in">
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedExp(null);
+          }}
+          className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-gutter animate-fade-in"
+        >
           <div className="bg-surface rounded-xl border border-tertiary max-w-[540px] w-full p-xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-md">
               <div>

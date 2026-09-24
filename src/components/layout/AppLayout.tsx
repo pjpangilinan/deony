@@ -14,11 +14,15 @@ export function AppLayout() {
 
   useEffect(() => {
     if (user) {
+      // If already unlocked (>= 20 entries), keep unlocked without refetching on every route change
+      if (experienceCount !== null && experienceCount >= 20) {
+        return;
+      }
       api.get<{ items: any[] }>('/experiences')
         .then((res) => setExperienceCount(res.items?.length ?? 0))
         .catch(() => setExperienceCount(0));
     }
-  }, [user, location.pathname]);
+  }, [user, location.pathname, experienceCount]);
 
   const handleSignOut = () => {
     signOut();

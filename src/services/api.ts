@@ -69,10 +69,19 @@ export const api = {
       let errorData;
       try {
         errorData = await response.json();
-      } catch (e) {
+      } catch {
         errorData = null;
       }
-      throw new ApiError(response.status, errorData?.message || response.statusText, errorData);
+
+      if (response.status === 401 && token) {
+        this.clearToken();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+        }
+      }
+
+      const errorMessage = errorData?.error || errorData?.message || response.statusText || 'Request failed';
+      throw new ApiError(response.status, errorMessage, errorData);
     }
 
     // Handle 204 No Content or empty responses

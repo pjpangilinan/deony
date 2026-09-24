@@ -99,8 +99,8 @@ test('first-time user end-to-end journey audit', async ({ page }) => {
   console.log('=== Step 9: Log First Experience ===');
   await page.goto('/log');
   await page.fill('input[placeholder="Search for a film, book, game, or album..."]', 'Spirited Away');
-  await page.locator('button:has-text("Add Manually")').first().click();
-  await expect(page.getByRole('heading', { name: 'Log an Experience' })).toBeVisible();
+  await page.locator('h4:has-text("Spirited Away")').first().click();
+  await expect(page.locator('text=Step 2: Reflect & Record')).toBeVisible();
   await page.screenshot({ path: path.join(screenshotDir, 'audit-12-log-modal-step2.png') });
 
   // Set rating: 4 stars
