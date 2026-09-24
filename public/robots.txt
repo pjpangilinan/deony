@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /log
+Disallow: /settings
+Disallow: /deonysus
+Disallow: /onboarding
+
+Sitemap: https://d1cdomhzh1pe4j.cloudfront.net/sitemap.xml

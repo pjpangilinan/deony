@@ -4,8 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Deony — Personal Media Sanctuary</title>
-    <meta name="description" content="A calm, personal media-experience archive for intentional reflection." />
+    <meta name="description" content="A calm, personal media-experience archive for intentional reflection. Index the books, films, and games that shape your perspective." />
     <meta name="google-site-verification" content="p3HqgEYjlAiEB9FS5d66gCw3xVSQYeyzcsCsk8Zn9g0" />
+    <link rel="canonical" href="https://d1cdomhzh1pe4j.cloudfront.net/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://d1cdomhzh1pe4j.cloudfront.net/" />
+    <meta property="og:title" content="Deony — Personal Media Sanctuary" />
+    <meta property="og:description" content="A calm, personal media-experience archive for intentional reflection. Forget social pressure and build a permanent archive." />
+    <meta property="og:image" content="https://d1cdomhzh1pe4j.cloudfront.net/icon.jpg" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://d1cdomhzh1pe4j.cloudfront.net/" />
+    <meta name="twitter:title" content="Deony — Personal Media Sanctuary" />
+    <meta name="twitter:description" content="A calm, personal media-experience archive for intentional reflection." />
+    <meta name="twitter:image" content="https://d1cdomhzh1pe4j.cloudfront.net/icon.jpg" />
+
+    <!-- Theme & PWA -->
     <meta name="theme-color" content="#114349" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -15,9 +32,59 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="icon" type="image/jpeg" href="/icon.jpg?v=3" />
     <link rel="apple-touch-icon" href="/icon.jpg?v=3" />
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Deony",
+      "url": "https://d1cdomhzh1pe4j.cloudfront.net",
+      "description": "A calm, personal media-experience archive for intentional reflection without social pressure.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Pre-rendered semantic content indexed by search engine crawlers before JS hydration -->
+    <div id="root">
+      <div style="max-width: 800px; margin: 40px auto; padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #222;">
+        <header>
+          <h1 style="font-size: 2rem; color: #114349; margin-bottom: 8px;">Deony — Personal Media Sanctuary</h1>
+          <p style="font-size: 1.15rem; color: #555; margin-bottom: 24px;">Your life, indexed through the art you love.</p>
+        </header>
+        <main>
+          <section>
+            <p>A calm, personal media-experience archive for intentional reflection. Forget social pressure, algorithms, and fleeting metrics. Build a permanent, personal archive of the films, books, and music that shape your perspective.</p>
+          </section>
+          <section style="margin-top: 24px;">
+            <h2 style="font-size: 1.4rem; color: #114349;">Archive Philosophy & Features</h2>
+            <ul>
+              <li><strong>Intentional Logging:</strong> Record personal reflections, ratings, and milestones without social comparison.</li>
+              <li><strong>Custom Taxonomy:</strong> Flexible categories, tags, and personal shelves for movies, literature, video games, and shows.</li>
+              <li><strong>Chronological Timeline:</strong> A permanent chronicle of your artistic journey.</li>
+              <li><strong>Deonysus AI Critic:</strong> Olympian mythological perspectives powered by AWS Bedrock.</li>
+            </ul>
+          </section>
+          <footer style="margin-top: 32px; border-top: 1px solid #eee; padding-top: 16px;">
+            <a href="/auth" style="display: inline-block; background-color: #114349; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 500;">Start Your Archive</a>
+            <a href="/auth" style="display: inline-block; margin-left: 12px; color: #114349; text-decoration: none;">Sign In</a>
+          </footer>
+        </main>
+      </div>
+    </div>
+    <noscript>
+      <div style="padding: 24px; text-align: center; font-family: sans-serif;">
+        <p>Deony is an interactive media archive. Please enable JavaScript to access your sanctuary.</p>
+        <p><a href="/auth">Sign In / Register</a></p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
