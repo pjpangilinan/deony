@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createExperience, updateExperience, getExperience, deleteExperience } from '../experience';
 import { docClient } from '../../lib/db';
-import { PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, UpdateCommand, TransactWriteCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 
 vi.mock('../../lib/db', () => ({
   docClient: {
@@ -21,7 +21,7 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
   let mockRes: any;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     mockReq = {
       user: { sub: mockUserId },
       body: {},
@@ -56,7 +56,9 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
         category_id: 'cat-films',
       };
 
-      vi.mocked(docClient.send).mockResolvedValueOnce({ Item: undefined } as any);
+      vi.mocked(docClient.send)
+        .mockResolvedValueOnce({ Item: { user_id: 'usr-test-123', deleted_at: null, media_type: 'movie' } } as any)
+        .mockResolvedValueOnce({ Item: undefined } as any);
 
       await createExperience(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -73,17 +75,19 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
       };
 
       vi.mocked(docClient.send)
+        .mockResolvedValueOnce({ Item: { user_id: 'usr-test-123', deleted_at: null, media_type: 'movie' } } as any)
         .mockResolvedValueOnce({ Item: { id: 'PROVIDER#tmdb#101', title: 'Inception', media_type: 'movie' } } as any) // GetCommand for media
         .mockResolvedValueOnce({} as any); // PutCommand for experience
 
       await createExperience(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(201);
-      const putCall = vi.mocked(docClient.send).mock.calls[1][0] as PutCommand;
-      expect(putCall.input.TableName).toBe('Experience');
-      expect(putCall.input.Item?.sort_date).toBeUndefined();
-      expect(putCall.input.Item?.GSI2SK).toBeUndefined();
-      expect(putCall.input.ConditionExpression).toBe('attribute_not_exists(SK)');
+      const transactCall = vi.mocked(docClient.send).mock.calls[2][0] as TransactWriteCommand;
+      const putItem = (transactCall.input.TransactItems![0].Put as any);
+      expect(putItem.TableName).toBe('Experience');
+      expect(putItem.Item?.sort_date).toBeUndefined();
+      expect(putItem.Item?.GSI2SK).toBeUndefined();
+      expect(putItem.ConditionExpression).toBe('attribute_not_exists(SK)');
     });
 
     it('INVARIANT: rating: null is preserved and never coerced to 0', async () => {
@@ -97,14 +101,16 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
       };
 
       vi.mocked(docClient.send)
+        .mockResolvedValueOnce({ Item: { user_id: 'usr-test-123', deleted_at: null, media_type: 'movie' } } as any)
         .mockResolvedValueOnce({ Item: { id: 'PROVIDER#tmdb#102', title: 'Arrival', media_type: 'movie' } } as any)
         .mockResolvedValueOnce({} as any);
 
       await createExperience(mockReq, mockRes);
 
-      const putCall = vi.mocked(docClient.send).mock.calls[1][0] as PutCommand;
-      expect(putCall.input.Item?.rating).toBeNull();
-      expect(putCall.input.Item?.rating).not.toBe(0);
+      const transactCall = vi.mocked(docClient.send).mock.calls[2][0] as TransactWriteCommand;
+      const putItem = (transactCall.input.TransactItems![0].Put as any);
+      expect(putItem.Item?.rating).toBeNull();
+      expect(putItem.Item?.rating).not.toBe(0);
     });
 
     it('computes sort_date correctly for Completed and Currently Experiencing', async () => {
@@ -117,14 +123,16 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
       };
 
       vi.mocked(docClient.send)
+        .mockResolvedValueOnce({ Item: { user_id: 'usr-test-123', deleted_at: null, media_type: 'movie' } } as any)
         .mockResolvedValueOnce({ Item: { id: 'PROVIDER#tmdb#103', title: 'Dune', media_type: 'movie' } } as any)
         .mockResolvedValueOnce({} as any);
 
       await createExperience(mockReq, mockRes);
 
-      const putCall = vi.mocked(docClient.send).mock.calls[1][0] as PutCommand;
-      expect(putCall.input.Item?.sort_date).toBe('2026-02-28');
-      expect(putCall.input.Item?.GSI2SK).toBe('2026-02-28#idem-completed-1');
+      const transactCall = vi.mocked(docClient.send).mock.calls[2][0] as TransactWriteCommand;
+      const putItem = (transactCall.input.TransactItems![0].Put as any);
+      expect(putItem.Item?.sort_date).toBe('2026-02-28');
+      expect(putItem.Item?.GSI2SK).toBe('2026-02-28#idem-completed-1');
     });
 
     it('INVARIANT: creation idempotency returns existing item when key duplicates', async () => {
@@ -146,7 +154,8 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
       condError.name = 'ConditionalCheckFailedException';
 
       vi.mocked(docClient.send)
-        .mockResolvedValueOnce({ Item: { id: 'PROVIDER#tmdb#104', title: 'Interstellar' } } as any)
+        .mockResolvedValueOnce({ Item: { user_id: 'usr-test-123', deleted_at: null, media_type: 'movie' } } as any)
+        .mockResolvedValueOnce({ Item: { id: 'PROVIDER#tmdb#104', title: 'Interstellar', media_type: 'movie' } } as any)
         .mockRejectedValueOnce(condError) // PutCommand fails condition
         .mockResolvedValueOnce({ Item: existingExp } as any); // GetCommand fetches existing
 
@@ -201,12 +210,13 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
 
       await updateExperience(mockReq, mockRes);
 
-      const updateCall = vi.mocked(docClient.send).mock.calls[1][0] as UpdateCommand;
-      expect(updateCall.input.UpdateExpression).toContain('REMOVE sort_date, GSI2SK');
-      expect(updateCall.input.UpdateExpression).not.toContain('sort_date = :sort_date');
-      expect(updateCall.input.ConditionExpression).toBe('#version = :expected_version');
-      expect(updateCall.input.ExpressionAttributeValues?.[':expected_version']).toBe(2);
-      expect(updateCall.input.ExpressionAttributeValues?.[':new_version']).toBe(3);
+      const transactCall = vi.mocked(docClient.send).mock.calls[1][0] as TransactWriteCommand;
+      const updateItem = (transactCall.input.TransactItems![0].Update as any);
+      expect(updateItem.UpdateExpression).toContain('REMOVE sort_date, GSI2SK');
+      expect(updateItem.UpdateExpression).not.toContain('sort_date = :sort_date');
+      expect(updateItem.ConditionExpression).toBe('#version = :expected_version');
+      expect(updateItem.ExpressionAttributeValues?.[':expected_version']).toBe(2);
+      expect(updateItem.ExpressionAttributeValues?.[':new_version']).toBe(3);
     });
 
     it('INVARIANT: optimistic concurrency failure returns 409 Conflict', async () => {
@@ -252,6 +262,8 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
       mockReq.params = { id: 'exp-to-del' };
       vi.mocked(docClient.send).mockResolvedValueOnce({} as any);
 
+      vi.mocked(docClient.send).mockResolvedValueOnce({ Item: { visibility: 'public' } } as any);
+      vi.mocked(docClient.send).mockResolvedValueOnce({} as any);
       await deleteExperience(mockReq, mockRes);
       expect(mockRes.status).toHaveBeenCalledWith(204);
       expect(mockRes.send).toHaveBeenCalled();

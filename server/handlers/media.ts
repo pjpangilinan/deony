@@ -23,6 +23,52 @@ export const resolveMedia = async (req: Request, res: Response) => {
         const id = `PROVIDER#${source}#${external_id}`;
         const now = new Date().toISOString();
 
+        let finalTitle = title;
+        let finalDescription = description;
+        let finalCover = cover_image;
+        let finalReleaseDate = release_date;
+
+        try {
+            if (source === 'tmdb') {
+                const tmdbKey = process.env.TMDB_API_KEY;
+                if (tmdbKey) {
+                    const typePath = media_type === 'tv' ? 'tv' : 'movie';
+                    const res = await fetch(`https://api.themoviedb.org/3/${typePath}/${external_id}?api_key=${tmdbKey}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        finalTitle = data.title || data.name || title;
+                        finalDescription = data.overview || description;
+                        finalCover = data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : cover_image;
+                        finalReleaseDate = data.release_date || data.first_air_date || release_date;
+                    }
+                }
+            } else if (source === 'openlibrary') {
+                const res = await fetch(`https://openlibrary.org/works/${external_id}.json`);
+                if (res.ok) {
+                    const data = await res.json();
+                    finalTitle = data.title || title;
+                    finalDescription = (typeof data.description === 'string' ? data.description : data.description?.value) || description;
+                    finalCover = (data.covers && data.covers.length > 0) ? `https://covers.openlibrary.org/b/id/${data.covers[0]}-L.jpg` : cover_image;
+                    finalReleaseDate = data.first_publish_date || release_date;
+                }
+            } else if (source === 'rawg') {
+                const rawgKey = process.env.RAWG_API_KEY;
+                if (rawgKey) {
+                    const res = await fetch(`https://api.rawg.io/api/games/${external_id}?key=${rawgKey}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        finalTitle = data.name || title;
+                        finalDescription = data.description_raw || description;
+                        finalCover = data.background_image || cover_image;
+                        finalReleaseDate = data.released || release_date;
+                    }
+                }
+            }
+        } catch (fetchErr) {
+            console.error(`Failed to fetch server-side metadata for ${source}:${external_id}`, fetchErr);
+            // Fall back to client data if fetch fails, to not break the user flow entirely
+        }
+
         const mediaItem = {
             id,
             media_type,
@@ -30,10 +76,10 @@ export const resolveMedia = async (req: Request, res: Response) => {
             source,
             is_manual: false,
             user_id: null,
-            title,
-            description,
-            cover_image,
-            release_date,
+            title: finalTitle,
+            description: finalDescription,
+            cover_image: finalCover,
+            release_date: finalReleaseDate,
             created_at: now,
             updated_at: now
         };
@@ -195,7 +241,21 @@ export const batchGetMedia = async (req: Request, res: Response) => {
         }));
 
         const items = result.Responses ? result.Responses[TABLES.MEDIA] : [];
-        res.json({ items });
+        const callerId = (req as any).user?.sub;
+
+        const redactedItems = items.map((item: any) => {
+            if (item.is_manual && item.user_id !== callerId) {
+                return {
+                    id: item.id,
+                    cover_image: item.cover_image, // Allow cover rendering for public profile
+                    is_manual: true,
+                    // Redact everything else
+                };
+            }
+            return item;
+        });
+
+        res.json({ items: redactedItems });
     } catch (error) {
         console.error('Error batch getting media:', error);
         res.status(500).json({ error: 'Internal Server Error' });

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { docClient, TABLES } from '../lib/db';
-import { PutCommand, GetCommand, UpdateCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, GetCommand, UpdateCommand, QueryCommand, DeleteCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 
 
 export const createExperience = async (req: Request, res: Response) => {
@@ -37,6 +37,15 @@ export const createExperience = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Thoughts must not exceed 50,000 characters' });
         }
 
+        // Fetch category
+        const catRes = await docClient.send(new GetCommand({
+            TableName: TABLES.CATEGORY,
+            Key: { id: category_id }
+        }));
+        if (!catRes.Item || catRes.Item.user_id !== userId || catRes.Item.deleted_at !== null) {
+            return res.status(400).json({ error: 'Invalid or deleted category' });
+        }
+
         // Fetch media for denormalization
         const mediaRes = await docClient.send(new GetCommand({
             TableName: TABLES.MEDIA,
@@ -45,8 +54,15 @@ export const createExperience = async (req: Request, res: Response) => {
         if (!mediaRes.Item) {
             return res.status(404).json({ error: 'Media not found' });
         }
-        
         const media = mediaRes.Item;
+
+        if (media.is_manual && media.user_id !== userId) {
+            return res.status(403).json({ error: 'Forbidden: Cannot use another user\'s manual media' });
+        }
+        if (media.media_type !== catRes.Item.media_type) {
+            return res.status(400).json({ error: 'Category media_type does not match media item type' });
+        }
+        
         const experience_id = idempotency_key; // Use key as ID for idempotency via condition expression
         const PK = `USER#${userId}`;
         const SK = `EXP#${experience_id}`;
@@ -87,15 +103,36 @@ export const createExperience = async (req: Request, res: Response) => {
             GSI4SK: `${now}#${experience_id}`
         };
 
+        const isPublic = visibility !== 'private';
+        const transactItems: any[] = [
+            {
+                Put: {
+                    TableName: TABLES.EXPERIENCE,
+                    Item: experience,
+                    ConditionExpression: 'attribute_not_exists(SK)'
+                }
+            }
+        ];
+
+        if (isPublic) {
+            transactItems.push({
+                Update: {
+                    TableName: TABLES.USER,
+                    Key: { id: userId },
+                    UpdateExpression: 'ADD profile_version :one',
+                    ExpressionAttributeValues: { ':one': 1 }
+                }
+            });
+        }
+
         try {
-            await docClient.send(new PutCommand({
-                TableName: TABLES.EXPERIENCE,
-                Item: experience,
-                ConditionExpression: 'attribute_not_exists(SK)'
+            await docClient.send(new TransactWriteCommand({
+                TransactItems: transactItems
             }));
             return res.status(201).json(experience);
         } catch (err: any) {
-            if (err.name === 'ConditionalCheckFailedException') {
+            const isCondCheckFailed = err.name === 'ConditionalCheckFailedException' || (err.name === 'TransactionCanceledException' && err.CancellationReasons?.[0]?.Code === 'ConditionalCheckFailed');
+            if (isCondCheckFailed) {
                 // Idempotent return
                 const existing = await docClient.send(new GetCommand({
                     TableName: TABLES.EXPERIENCE,
@@ -126,7 +163,7 @@ export const updateExperience = async (req: Request, res: Response) => {
             version 
         } = req.body;
 
-        if (version === undefined) {
+        if (!Number.isInteger(version)) {
             return res.status(400).json({ error: 'version is required for optimistic concurrency' });
         }
 
@@ -217,19 +254,49 @@ export const updateExperience = async (req: Request, res: Response) => {
             updateExprStr += ` REMOVE ${removeClauses.join(', ')}`;
         }
 
+        const transactItems: any[] = [
+            {
+                Update: {
+                    TableName: TABLES.EXPERIENCE,
+                    Key: { PK, SK },
+                    UpdateExpression: updateExprStr,
+                    ConditionExpression: '#version = :expected_version',
+                    ExpressionAttributeValues: exprVals,
+                    ExpressionAttributeNames: exprNames,
+                    // ReturnValues: 'ALL_NEW' not supported in TransactWriteItems
+                }
+            }
+        ];
+
+        // Bump profile version if item is currently public, or is being made public
+        const isPublicNow = existing.visibility !== 'private';
+        const isPublicAfter = visibility !== undefined ? visibility !== 'private' : isPublicNow;
+        
+        if (isPublicNow || isPublicAfter) {
+            transactItems.push({
+                Update: {
+                    TableName: TABLES.USER,
+                    Key: { id: userId },
+                    UpdateExpression: 'ADD profile_version :one',
+                    ExpressionAttributeValues: { ':one': 1 }
+                }
+            });
+        }
+
         try {
-            const result = await docClient.send(new UpdateCommand({
-                TableName: TABLES.EXPERIENCE,
-                Key: { PK, SK },
-                UpdateExpression: updateExprStr,
-                ConditionExpression: '#version = :expected_version',
-                ExpressionAttributeValues: exprVals,
-                ExpressionAttributeNames: exprNames,
-                ReturnValues: 'ALL_NEW'
+            await docClient.send(new TransactWriteCommand({
+                TransactItems: transactItems
             }));
-            res.json(result.Attributes);
+            
+            // Re-fetch because ALL_NEW is not supported in transactions
+            const updated = await docClient.send(new GetCommand({
+                TableName: TABLES.EXPERIENCE,
+                Key: { PK, SK }
+            }));
+            res.json(updated.Item);
         } catch (err: any) {
-            if (err.name === 'ConditionalCheckFailedException') {
+            const isCondCheckFailed = err.name === 'ConditionalCheckFailedException' || (err.name === 'TransactionCanceledException' && err.CancellationReasons?.[0]?.Code === 'ConditionalCheckFailed');
+            if (isCondCheckFailed) {
                 return res.status(409).json({ error: 'Conflict: version mismatch' });
             }
             throw err;
@@ -263,10 +330,44 @@ export const deleteExperience = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.sub;
         const { id } = req.params;
-        await docClient.send(new DeleteCommand({
+        const PK = `USER#${userId}`;
+        const SK = `EXP#${id}`;
+        
+        // Fetch to see if it was public
+        const getRes = await docClient.send(new GetCommand({
             TableName: TABLES.EXPERIENCE,
-            Key: { PK: `USER#${userId}`, SK: `EXP#${id}` }
+            Key: { PK, SK }
         }));
+
+        if (!getRes.Item) {
+            return res.status(204).send(); // Idempotent
+        }
+
+        const isPublic = getRes.Item.visibility !== 'private';
+        const transactItems: any[] = [
+            {
+                Delete: {
+                    TableName: TABLES.EXPERIENCE,
+                    Key: { PK, SK }
+                }
+            }
+        ];
+
+        if (isPublic) {
+            transactItems.push({
+                Update: {
+                    TableName: TABLES.USER,
+                    Key: { id: userId },
+                    UpdateExpression: 'ADD profile_version :one',
+                    ExpressionAttributeValues: { ':one': 1 }
+                }
+            });
+        }
+
+        await docClient.send(new TransactWriteCommand({
+            TransactItems: transactItems
+        }));
+        
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
