@@ -232,9 +232,19 @@ Deonysus AI Critic Agent (AWS Bedrock), Gating & Full App Visuals Complete.
 
 ## What's Next
 - Monitor Google Search Console indexing after user verification and sitemap submission.
+- **Security audit (2026-10-04) — fixed**: removed unauthenticated profile auto-create in `getUserByUsername` (allowed overwriting any User row via `/users/username/<sub>`); `getUser('me')` auto-create now private; `updateExperience` requires integer `version`; `npm audit fix` (dompurify, ip-address).
+- **Security audit — OPEN (awaiting user decision)**:
+  - HIGH: experience create/update/delete do not bump `profile_version` in a `TransactWriteItems` (AGENTS.md invariant); username change doesn't bump it; username uniqueness is check-then-write (race).
+  - HIGH: `resolveMedia` trusts client title/cover for global provider rows (cache poisoning) — should fetch metadata server-side.
+  - HIGH: `POST /media/batch-get` unauthenticated, exposes manual media rows (public profile depends on it — needs a design choice).
+  - HIGH: `createExperience` doesn't verify media ownership (manual) or category ownership/deleted/media_type match.
+  - MED: auth dev-bypass keyed on `NODE_ENV !== 'production'`; CORS allows any `*.cloudfront.net`; API GW CORS `*`; CloudFront 403/404→index.html also rewrites `/api/*`; no CSP on SPA distribution; upload keys `users/...` not routed by CloudFront `/media/*`; unpaginated Query/Scan (listCategories, deleteUser, Deonysus count); in-memory rate limiter per Lambda.
+  - LOW: client-controlled `is_builtin`; updateCategory on soft-deleted; idempotency_key unvalidated; data: URLs stored in DynamoDB; Bedrock IAM `*`; tiptap-markdown html not disabled; tokens in localStorage.
+  - Dev-only npm audit: aws-sdk v2 / dicer via s3rver & cognito-local (no prod impact).
+  - Flaky E2E: `first-time-user-audit.spec.ts` hits live TMDB; failed in full-suite run, passes alone.
 
 ## Blockers
-None. Fully audited, optimized, tested, and verified.
+Open security items listed under What's Next need user decision before fix.
 
 
 

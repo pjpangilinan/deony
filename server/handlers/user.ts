@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { docClient, TABLES } from '../lib/db';
-import { GetCommand, PutCommand, UpdateCommand, QueryCommand, DeleteCommand, ScanCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, PutCommand, UpdateCommand, QueryCommand, DeleteCommand, ScanCommand, BatchGetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 
 export const createUser = async (req: Request, res: Response) => {
     try {
@@ -28,20 +28,6 @@ export const createUser = async (req: Request, res: Response) => {
             return res.status(409).json({ error: 'User profile already exists' });
         }
 
-        // Check if username exists using GSI
-        const queryResult = await docClient.send(new QueryCommand({
-            TableName: TABLES.USER,
-            IndexName: 'UsernameIndex',
-            KeyConditionExpression: 'username = :username',
-            ExpressionAttributeValues: {
-                ':username': username
-            }
-        }));
-
-        if (queryResult.Items && queryResult.Items.length > 0) {
-            return res.status(400).json({ error: 'Username already taken' });
-        }
-
         const now = new Date().toISOString();
 
         const user = {
@@ -54,10 +40,32 @@ export const createUser = async (req: Request, res: Response) => {
             updated_at: now
         };
 
-        await docClient.send(new PutCommand({
-            TableName: TABLES.USER,
-            Item: user
-        }));
+        try {
+            await docClient.send(new TransactWriteCommand({
+                TransactItems: [
+                    {
+                        Put: {
+                            TableName: TABLES.USER,
+                            Item: { id: `USERNAME#${username}`, locked_by: callerUserId },
+                            ConditionExpression: 'attribute_not_exists(id)'
+                        }
+                    },
+                    {
+                        Put: {
+                            TableName: TABLES.USER,
+                            Item: user,
+                            ConditionExpression: 'attribute_not_exists(id)'
+                        }
+                    }
+                ]
+            }));
+        } catch (err: any) {
+            const isCondCheckFailed = err.name === 'ConditionalCheckFailedException' || (err.name === 'TransactionCanceledException' && err.CancellationReasons?.some((r: any) => r.Code === 'ConditionalCheckFailed'));
+            if (isCondCheckFailed) {
+                return res.status(400).json({ error: 'Username already taken or user profile already exists' });
+            }
+            throw err;
+        }
 
         res.status(201).json(user);
     } catch (error) {
@@ -90,7 +98,7 @@ export const getUser = async (req: Request, res: Response) => {
                     id,
                     username,
                     display_name: username,
-                    profile_visibility: 'public',
+                    profile_visibility: 'private',
                     profile_version: 1,
                     search_indexing: true,
                     avatar_url: null,
@@ -137,36 +145,10 @@ export const getUserByUsername = async (req: Request, res: Response) => {
             }
         }));
 
-        let user = result.Items?.[0];
+        const user = result.Items?.[0];
 
         if (!user) {
-            const expCheck = await docClient.send(new QueryCommand({
-                TableName: TABLES.EXPERIENCE,
-                KeyConditionExpression: 'PK = :pk',
-                ExpressionAttributeValues: {
-                    ':pk': `USER#${username}`
-                },
-                Limit: 1
-            }));
-
-            if (expCheck.Items && expCheck.Items.length > 0) {
-                const now = new Date().toISOString();
-                user = {
-                    id: username,
-                    username,
-                    display_name: username,
-                    profile_visibility: 'public',
-                    profile_version: 1,
-                    created_at: now,
-                    updated_at: now
-                };
-                await docClient.send(new PutCommand({
-                    TableName: TABLES.USER,
-                    Item: user
-                }));
-            } else {
-                return res.status(404).json({ error: 'User not found' });
-            }
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const callerUserId = (req as any).user?.sub;
@@ -352,12 +334,12 @@ export const updateUser = async (req: Request, res: Response) => {
         if (profile_visibility !== undefined) {
             updateExpr.push('profile_visibility = :profile_visibility');
             exprVals[':profile_visibility'] = profile_visibility;
-            
-            // Increment profile_version safely if visibility changed
-            updateExpr.push('profile_version = if_not_exists(profile_version, :zero) + :inc');
-            exprVals[':inc'] = 1;
-            exprVals[':zero'] = 0;
         }
+
+        // Increment profile_version safely for any profile update
+        updateExpr.push('profile_version = if_not_exists(profile_version, :zero) + :inc');
+        exprVals[':inc'] = 1;
+        exprVals[':zero'] = 0;
 
         if (updateExpr.length === 0) {
             return res.status(400).json({ error: 'No fields to update' });

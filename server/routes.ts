@@ -76,7 +76,7 @@ router.post('/media/resolve', authMiddleware, resolveMedia);
 router.post('/media/manual', authMiddleware, createManualMedia);
 router.patch('/media/:id', authMiddleware, updateMedia);
 router.put('/media/:id', authMiddleware, updateMedia);
-router.post('/media/batch-get', batchGetMedia);
+router.post('/media/batch-get', optionalAuthMiddleware, batchGetMedia);
 
 // Experience routes
 router.post('/experiences', authMiddleware, createExperience);
