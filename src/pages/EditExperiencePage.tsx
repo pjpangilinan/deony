@@ -128,6 +128,11 @@ export function EditExperiencePage() {
     e.preventDefault();
     if (!experience || !id) return;
 
+    if (experience.started_on && experience.ended_on && experience.started_on > experience.ended_on) {
+      setErrorMsg('Start date cannot be after end date');
+      return;
+    }
+
     try {
       setSaving(true);
       await api.patch(`/experiences/${id}`, {

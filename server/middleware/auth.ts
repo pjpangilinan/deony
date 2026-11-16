@@ -53,9 +53,10 @@ const verifyJwt = async (token: string) => {
         throw new Error('Token expired');
     }
 
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isLocalDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
-    // In production with Cognito, enforce strict cryptographic RS256 signature verification & claims
+    // Enforce strict cryptographic RS256 signature verification & claims whenever Cognito is configured,
+    // and fail-closed outside explicit local development/test environments.
     if (jwksUrl) {
         const kid = decoded.header?.kid;
         if (!kid || decoded.header?.alg !== 'RS256') {
@@ -83,9 +84,9 @@ const verifyJwt = async (token: string) => {
                 throw new Error('Token audience does not match configured Cognito client ID');
             }
         }
-    } else if (isProduction) {
-        // Fail-closed in production if Cognito User Pool ID is not configured
-        throw new Error('COGNITO_USER_POOL_ID configuration required in production');
+    } else if (!isLocalDev) {
+        // Fail-closed outside local development/test if Cognito User Pool ID is not configured
+        throw new Error('COGNITO_USER_POOL_ID configuration required');
     }
 
     return payload;

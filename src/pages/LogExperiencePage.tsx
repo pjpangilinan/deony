@@ -56,6 +56,7 @@ export function LogExperiencePage() {
   // Categories
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   // Step 1: Search / Select Media state
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -65,12 +66,20 @@ export function LogExperiencePage() {
   const [selectedMediaId, setSelectedMediaId] = useState('');
 
   // Step 2: Details & Reflection state
-  const today = new Date().toISOString().split('T')[0];
+  const getLocalToday = () => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+  const today = getLocalToday();
   const [status, setStatus] = useState('Completed');
   const [rating, setRating] = useState<number | undefined>(undefined);
   const [hoverRating, setHoverRating] = useState<number | undefined>(undefined);
   const [endedOn, setEndedOn] = useState(today);
   const [startedOn, setStartedOn] = useState(today);
+  const [startDateTouched, setStartDateTouched] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [thoughts, setThoughts] = useState('');
@@ -148,38 +157,49 @@ export function LogExperiencePage() {
   };
 
   // Fetch categories on mount
+  const initCategoriesRef = React.useRef(false);
   useEffect(() => {
+    if (initCategoriesRef.current) return;
+    initCategoriesRef.current = true;
+
     api.get<{ items: Category[] }>('/categories')
-      .then((res) => {
+      .then(async (res) => {
         const items = res.items || [];
         if (items.length > 0) {
           setCategories(items);
-          setSelectedCategory(items[0].id);
+          setSelectedCategory((prev) => prev || items[0].id);
         } else {
-          // Fallback if empty (user skipped onboarding)
-          const fallback = [
-            { id: 'cat-film', name: 'Films', media_type: 'movie' },
-            { id: 'cat-books', name: 'Books', media_type: 'book' },
-            { id: 'cat-games', name: 'Games', media_type: 'game' },
-            { id: 'cat-shows', name: 'Shows', media_type: 'tv' },
+          // Create default categories for first-time users who skipped onboarding
+          const defaults = [
+            { name: 'Films', media_type: 'movie' },
+            { name: 'Books', media_type: 'book' },
+            { name: 'Games', media_type: 'game' },
+            { name: 'Shows', media_type: 'tv' },
           ];
-          setCategories(fallback);
-          setSelectedCategory(fallback[0].id);
-          // Optionally, create them in the background
-          fallback.forEach(cat => {
-            api.post('/categories', { name: cat.name, media_type: cat.media_type }).catch(() => {});
-          });
+          try {
+            const created = await Promise.all(
+              defaults.map((cat, idx) =>
+                api.post<Category>('/categories', {
+                  name: cat.name,
+                  media_type: cat.media_type,
+                  sort_order: idx,
+                })
+              )
+            );
+            setCategories(created);
+            if (created.length > 0) {
+              setSelectedCategory((prev) => prev || created[0].id);
+            }
+          } catch (createErr) {
+            console.error('Failed to initialize default categories', createErr);
+          }
         }
       })
       .catch((err) => {
         console.error('Failed to load categories', err);
-        const fallback = [
-          { id: 'cat-film', name: 'Film', media_type: 'movie' },
-          { id: 'cat-books', name: 'Literature', media_type: 'book' },
-          { id: 'cat-games', name: 'Games', media_type: 'game' },
-        ];
-        setCategories(fallback);
-        setSelectedCategory(fallback[0].id);
+      })
+      .finally(() => {
+        setIsLoadingCategories(false);
       });
   }, []);
 
@@ -312,9 +332,20 @@ export function LogExperiencePage() {
         finalStartedOn = startedOn || today;
       } else if (expStatus === 'Completed') {
         finalEndedOn = endedOn || today;
-        finalStartedOn = startedOn || undefined;
+        finalStartedOn = startDateTouched ? (startedOn || undefined) : finalEndedOn;
+        if (finalStartedOn && finalEndedOn && finalStartedOn > finalEndedOn) {
+          setErrorMsg('Start date cannot be after completion date');
+          setIsSubmitting(false);
+          return;
+        }
       } else if (expStatus === 'Dropped') {
         finalEndedOn = endedOn || today;
+        finalStartedOn = startDateTouched ? (startedOn || undefined) : undefined;
+        if (finalStartedOn && finalEndedOn && finalStartedOn > finalEndedOn) {
+          setErrorMsg('Start date cannot be after drop date');
+          setIsSubmitting(false);
+          return;
+        }
       }
       // 'Want to Experience' leaves dates absent
 
@@ -332,8 +363,8 @@ export function LogExperiencePage() {
 
       showToast('Experience recorded in your archive!', 'success');
       navigate(`/experience/${res.id}`);
-    } catch (e) {
-      setErrorMsg('Failed to log experience');
+    } catch (e: any) {
+      setErrorMsg(e?.message || 'Failed to log experience');
     } finally {
       setIsSubmitting(false);
     }
@@ -585,10 +616,11 @@ export function LogExperiencePage() {
                   </div>
                   <button
                     type="button"
+                    disabled={isLoadingCategories}
                     onClick={handleManualAdd}
-                    className="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary hover:bg-surface-variant transition-colors"
+                    className="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary hover:bg-surface-variant transition-colors disabled:opacity-50"
                   >
-                    Add Manually
+                    {isLoadingCategories ? 'Loading...' : 'Add Manually'}
                   </button>
                 </div>
               )}
@@ -605,10 +637,11 @@ export function LogExperiencePage() {
               </button>
               <button
                 type="button"
+                disabled={isLoadingCategories}
                 onClick={handleManualAdd}
-                className="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary/30 hover:bg-surface-variant transition-colors focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                className="font-label-md text-label-md text-on-surface-variant px-lg py-sm rounded-md border border-tertiary/30 hover:bg-surface-variant transition-colors focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer disabled:opacity-50"
               >
-                Add Manually
+                {isLoadingCategories ? 'Loading...' : 'Add Manually'}
               </button>
             </footer>
           </>
@@ -876,30 +909,63 @@ export function LogExperiencePage() {
                       </span>
                     </div>
                   </div>
+                  {status !== 'Want to Experience' && (
+                    <div className="flex flex-col gap-xs">
+                      <label
+                        className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide"
+                        htmlFor="date-field"
+                      >
+                        {status === 'Currently Experiencing'
+                          ? 'Date Started'
+                          : status === 'Dropped'
+                          ? 'Date Dropped'
+                          : 'Date Completed'}
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="date-field"
+                          className="w-full bg-transparent border-0 border-b border-tertiary/30 rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-text"
+                          type="date"
+                          value={status === 'Currently Experiencing' ? startedOn : endedOn}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (status === 'Currently Experiencing') {
+                              setStartedOn(val);
+                              setStartDateTouched(true);
+                            } else {
+                              setEndedOn(val);
+                              if (!startDateTouched) {
+                                setStartedOn(val);
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {(status === 'Completed' || status === 'Dropped') && (
                   <div className="flex flex-col gap-xs">
                     <label
                       className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wide"
-                      htmlFor="date-field"
+                      htmlFor="started-on-field"
                     >
-                      {status === 'Currently Experiencing' ? 'Date Started' : 'Date Completed'}
+                      Date Started {status === 'Completed' ? '(Defaults to completion date)' : '(Optional)'}
                     </label>
                     <div className="relative">
                       <input
-                        id="date-field"
+                        id="started-on-field"
                         className="w-full bg-transparent border-0 border-b border-tertiary/30 rounded-none py-sm px-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:border-primary cursor-text"
                         type="date"
-                        value={status === 'Currently Experiencing' ? startedOn : endedOn}
+                        value={startedOn}
                         onChange={(e) => {
-                          if (status === 'Currently Experiencing') {
-                            setStartedOn(e.target.value);
-                          } else {
-                            setEndedOn(e.target.value);
-                          }
+                          setStartedOn(e.target.value);
+                          setStartDateTouched(true);
                         }}
                       />
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Tags */}
                 <div className="flex flex-col gap-xs">

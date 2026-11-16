@@ -32,7 +32,7 @@ const allAllowedOrigins = [...new Set([...defaultAllowedOrigins, ...allowedOrigi
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
-        if (allAllowedOrigins.includes(origin) || origin.endsWith('.cloudfront.net')) {
+        if (allAllowedOrigins.includes(origin)) {
             return callback(null, true);
         }
         return callback(new Error('CORS origin not allowed'), false);

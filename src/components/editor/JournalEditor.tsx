@@ -26,7 +26,7 @@ export const JournalEditor: React.FC<JournalEditorProps> = ({
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Markdown,
+      Markdown.configure({ html: false }),
       Placeholder.configure({
         placeholder,
         emptyEditorClass: 'is-editor-empty',

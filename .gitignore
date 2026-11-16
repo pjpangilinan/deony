@@ -4,6 +4,7 @@ dist-ssr
 *.local
 .env.local
 .env
+.env.production
 local-data
 tools/dynamodb_local
 dynamodb-local-metadata.json
@@ -63,7 +64,7 @@ CLAUDE.md
 .gemini/
 
 # Scratch scripts and documentation not needed for code execution
-scripts/
+/scripts/
 docs/*
 !docs/screenshots/
 !docs/screenshots/*

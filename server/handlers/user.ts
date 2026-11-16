@@ -1,6 +1,13 @@
 import { Request, Response } from 'express';
 import { docClient, TABLES } from '../lib/db';
-import { GetCommand, PutCommand, UpdateCommand, QueryCommand, DeleteCommand, ScanCommand, BatchGetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, PutCommand, UpdateCommand, QueryCommand, DeleteCommand, BatchGetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+
+function isValidAvatarUrl(url: string): boolean {
+    if (url.startsWith('https://') || url.startsWith('http://')) {
+        return url.length <= 2048;
+    }
+    return /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(url);
+}
 
 export const createUser = async (req: Request, res: Response) => {
     try {
@@ -90,19 +97,19 @@ export const getUser = async (req: Request, res: Response) => {
             Key: { id }
         }));
 
-        if (!result.Item) {
+        if (!result.Item || (req.params.id === 'me' && !result.Item.username)) {
             if (req.params.id === 'me' && (req as any).user) {
                 const now = new Date().toISOString();
                 const username = (req as any).user?.username || `user_${id.slice(0, 8)}`;
                 const newUser = {
                     id,
                     username,
-                    display_name: username,
-                    profile_visibility: 'private',
-                    profile_version: 1,
-                    search_indexing: true,
-                    avatar_url: null,
-                    created_at: now,
+                    display_name: result.Item?.display_name || username,
+                    profile_visibility: result.Item?.profile_visibility || 'private',
+                    profile_version: result.Item?.profile_version || 1,
+                    search_indexing: result.Item?.search_indexing ?? true,
+                    avatar_url: result.Item?.avatar_url || null,
+                    created_at: result.Item?.created_at || now,
                     updated_at: now
                 };
                 await docClient.send(new PutCommand({
@@ -241,25 +248,21 @@ export const updateUser = async (req: Request, res: Response) => {
 
         const { username, display_name, bio, profile_visibility, search_indexing, avatar_url } = req.body;
 
+        let cleanUsername: string | undefined = undefined;
+        let existingUserItem: any = null;
         if (username !== undefined) {
-            const cleanUsername = typeof username === 'string' ? username.trim().replace(/^@/, '') : '';
+            cleanUsername = typeof username === 'string' ? username.trim().replace(/^@/, '') : '';
             if (!cleanUsername || !/^[a-zA-Z0-9_-]{3,30}$/.test(cleanUsername)) {
                 return res.status(400).json({ error: 'Username must be 3-30 characters containing only letters, numbers, underscores, or hyphens' });
             }
 
-            // Check if username is already taken by another user
-            const existingQuery = await docClient.send(new QueryCommand({
+            const existingUserRes = await docClient.send(new GetCommand({
                 TableName: TABLES.USER,
-                IndexName: 'UsernameIndex',
-                KeyConditionExpression: 'username = :username',
-                ExpressionAttributeValues: {
-                    ':username': cleanUsername
-                }
+                Key: { id }
             }));
-
-            const conflict = existingQuery.Items?.find(item => item.id !== id);
-            if (conflict) {
-                return res.status(400).json({ error: 'Username already taken' });
+            existingUserItem = existingUserRes.Item;
+            if (!existingUserItem) {
+                return res.status(404).json({ error: 'User not found' });
             }
         }
 
@@ -291,8 +294,8 @@ export const updateUser = async (req: Request, res: Response) => {
             if (typeof avatar_url !== 'string') {
                 return res.status(400).json({ error: 'avatar_url must be a string or null' });
             }
-            if (!avatar_url.startsWith('https://') && !avatar_url.startsWith('http://') && !avatar_url.startsWith('data:image/')) {
-                return res.status(400).json({ error: 'avatar_url must start with https://, http://, or data:image/' });
+            if (!isValidAvatarUrl(avatar_url)) {
+                return res.status(400).json({ error: 'avatar_url must be a valid http(s) URL or raster image data URL (jpeg, png, webp, gif)' });
             }
             if (avatar_url.length > 600000) {
                 return res.status(400).json({ error: 'avatar_url exceeds maximum allowed length' });
@@ -345,6 +348,53 @@ export const updateUser = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'No fields to update' });
         }
 
+        const isUsernameChanging = cleanUsername !== undefined && existingUserItem && cleanUsername !== existingUserItem.username;
+
+        if (isUsernameChanging) {
+            const transactItems: any[] = [
+                {
+                    Put: {
+                        TableName: TABLES.USER,
+                        Item: { id: `USERNAME#${cleanUsername}`, locked_by: id },
+                        ConditionExpression: 'attribute_not_exists(id)'
+                    }
+                },
+                {
+                    Update: {
+                        TableName: TABLES.USER,
+                        Key: { id },
+                        UpdateExpression: `SET ${updateExpr.join(', ')}, #updated_at = :updated_at`,
+                        ExpressionAttributeValues: exprVals,
+                        ExpressionAttributeNames: exprNames
+                    }
+                }
+            ];
+
+            if (existingUserItem.username) {
+                transactItems.push({
+                    Delete: {
+                        TableName: TABLES.USER,
+                        Key: { id: `USERNAME#${existingUserItem.username}` }
+                    }
+                });
+            }
+
+            try {
+                await docClient.send(new TransactWriteCommand({ TransactItems: transactItems }));
+                const updatedRes = await docClient.send(new GetCommand({
+                    TableName: TABLES.USER,
+                    Key: { id }
+                }));
+                return res.json(updatedRes.Item);
+            } catch (err: any) {
+                const isCondCheckFailed = err.name === 'ConditionalCheckFailedException' || (err.name === 'TransactionCanceledException' && err.CancellationReasons?.some((r: any) => r.Code === 'ConditionalCheckFailed'));
+                if (isCondCheckFailed) {
+                    return res.status(400).json({ error: 'Username already taken' });
+                }
+                throw err;
+            }
+        }
+
         const result = await docClient.send(new UpdateCommand({
             TableName: TABLES.USER,
             Key: { id },
@@ -371,26 +421,38 @@ export const deleteUser = async (req: Request, res: Response) => {
             return res.status(403).json({ error: 'Forbidden' });
         }
 
-        // Delete user's experiences
-        const expResult = await docClient.send(new QueryCommand({
-            TableName: TABLES.EXPERIENCE,
-            KeyConditionExpression: 'PK = :pk',
-            ExpressionAttributeValues: {
-                ':pk': `USER#${id}`
-            }
+        // Fetch user first to clean up username lock
+        const userRes = await docClient.send(new GetCommand({
+            TableName: TABLES.USER,
+            Key: { id }
         }));
 
-        for (const exp of expResult.Items || []) {
-            await docClient.send(new DeleteCommand({
+        // Delete user's experiences (paginated)
+        let expStartKey: Record<string, any> | undefined = undefined;
+        do {
+            const expResult: any = await docClient.send(new QueryCommand({
                 TableName: TABLES.EXPERIENCE,
-                Key: { PK: exp.PK, SK: exp.SK }
+                KeyConditionExpression: 'PK = :pk',
+                ExpressionAttributeValues: {
+                    ':pk': `USER#${id}`
+                },
+                ExclusiveStartKey: expStartKey
             }));
-        }
 
-        // Soft-delete user's custom categories
-        const catResult = await docClient.send(new ScanCommand({
+            for (const exp of expResult.Items || []) {
+                await docClient.send(new DeleteCommand({
+                    TableName: TABLES.EXPERIENCE,
+                    Key: { PK: exp.PK, SK: exp.SK }
+                }));
+            }
+            expStartKey = expResult.LastEvaluatedKey;
+        } while (expStartKey);
+
+        // Soft-delete user's custom categories via GSI
+        const catResult = await docClient.send(new QueryCommand({
             TableName: TABLES.CATEGORY,
-            FilterExpression: 'user_id = :userId',
+            IndexName: 'UserCategoriesIndex',
+            KeyConditionExpression: 'user_id = :userId',
             ExpressionAttributeValues: {
                 ':userId': id
             }
@@ -403,6 +465,14 @@ export const deleteUser = async (req: Request, res: Response) => {
                 Key: { id: cat.id },
                 UpdateExpression: 'SET deleted_at = :now, updated_at = :now',
                 ExpressionAttributeValues: { ':now': now }
+            }));
+        }
+
+        // Delete username lock if present
+        if (userRes.Item?.username) {
+            await docClient.send(new DeleteCommand({
+                TableName: TABLES.USER,
+                Key: { id: `USERNAME#${userRes.Item.username}` }
             }));
         }
 

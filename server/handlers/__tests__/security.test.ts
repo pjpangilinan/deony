@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { updateMedia, resolveMedia, batchGetMedia } from '../media';
+import { updateMedia, resolveMedia, batchGetMedia, createManualMedia } from '../media';
 import { getUser, createUser } from '../user';
+import { createCategory, updateCategory } from '../category';
+import { createExperience, updateExperience } from '../experience';
 import { getUploadUrl } from '../upload';
 import { searchMedia } from '../search';
 import { evaluateSafetyGuardrails } from '../deonysus';
@@ -263,6 +265,71 @@ describe('Security Audit Fixes & Vulnerability Mitigations', () => {
       const result = evaluateSafetyGuardrails(overrideInput);
       expect(result.evaluation.status).toBe('INTERVENED');
       expect(result.evaluation.action).toBe('BLOCKED');
+    });
+  });
+
+  describe('Category & Media & Experience Hardening', () => {
+    it('ignores client-supplied is_builtin=true on createCategory', async () => {
+      mockReq.body = { name: 'Spoofed', media_type: 'movie', is_builtin: true };
+      vi.mocked(docClient.send).mockResolvedValueOnce({} as any);
+
+      await createCategory(mockReq, mockRes);
+      expect(mockRes.status).toHaveBeenCalledWith(201);
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ is_builtin: false }));
+    });
+
+    it('rejects updateCategory on soft-deleted category', async () => {
+      mockReq.params = { id: 'cat-del' };
+      mockReq.body = { name: 'Revived' };
+      vi.mocked(docClient.send).mockResolvedValueOnce({
+        Item: { id: 'cat-del', user_id: aliceId, deleted_at: '2026-01-01T00:00:00Z' },
+      } as any);
+
+      await updateCategory(mockReq, mockRes);
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+    });
+
+    it('rejects SVG data URLs on createManualMedia to prevent stored XSS', async () => {
+      mockReq.body = {
+        title: 'Evil SVG',
+        media_type: 'book',
+        cover_image: 'data:image/svg+xml;base64,PHN2ZyBvbmxvYWQ9YWxlcnQoMSk+PC9zdmc+',
+      };
+
+      await createManualMedia(mockReq, mockRes);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+
+    it('rejects createExperience when started_on is after ended_on', async () => {
+      mockReq.body = {
+        idempotency_key: 'idem-date-order-1',
+        media_id: 'PROVIDER#tmdb#1',
+        category_id: 'cat-1',
+        status: 'Completed',
+        started_on: '2026-11-16',
+        ended_on: '2026-06-12',
+      };
+
+      await createExperience(mockReq, mockRes);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ error: 'started_on cannot be after ended_on' });
+    });
+
+    it('rejects updateExperience when changing category_id to mismatched media_type', async () => {
+      mockReq.params = { id: 'exp-1' };
+      mockReq.body = { version: 1, category_id: 'cat-books' };
+
+      vi.mocked(docClient.send)
+        .mockResolvedValueOnce({
+          Item: { id: 'exp-1', user_id: aliceId, category_id: 'cat-movies', media_type: 'movie', status: 'Completed', version: 1 },
+        } as any)
+        .mockResolvedValueOnce({
+          Item: { id: 'cat-books', user_id: aliceId, media_type: 'book', deleted_at: null },
+        } as any);
+
+      await updateExperience(mockReq, mockRes);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Category media_type does not match media item type' });
     });
   });
 });

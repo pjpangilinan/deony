@@ -3,6 +3,13 @@ import { docClient, TABLES } from '../lib/db';
 import { PutCommand, GetCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
+function isValidImageUrl(url: string): boolean {
+    if (url.startsWith('https://') || url.startsWith('http://')) {
+        return url.length <= 2048;
+    }
+    return /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(url);
+}
+
 export const resolveMedia = async (req: Request, res: Response) => {
     try {
         const { source, external_id, title, media_type, description, cover_image, release_date } = req.body;
@@ -25,7 +32,7 @@ export const resolveMedia = async (req: Request, res: Response) => {
 
         let finalTitle = title;
         let finalDescription = description;
-        let finalCover = cover_image;
+        let finalCover = (typeof cover_image === 'string' && isValidImageUrl(cover_image)) ? cover_image : null;
         let finalReleaseDate = release_date;
 
         try {
@@ -118,8 +125,8 @@ export const createManualMedia = async (req: Request, res: Response) => {
         }
 
         if (cover_image && typeof cover_image === 'string') {
-            if (!cover_image.startsWith('https://') && !cover_image.startsWith('http://') && !cover_image.startsWith('data:image/')) {
-                return res.status(400).json({ error: 'Cover image must start with https://, http://, or data:image/' });
+            if (!isValidImageUrl(cover_image)) {
+                return res.status(400).json({ error: 'Cover image must be a valid http(s) URL or raster image data URL (jpeg, png, webp, gif)' });
             }
         }
 
@@ -184,8 +191,8 @@ export const updateMedia = async (req: Request, res: Response) => {
         }
 
         if (cover_image && typeof cover_image === 'string') {
-            if (!cover_image.startsWith('https://') && !cover_image.startsWith('http://') && !cover_image.startsWith('data:image/')) {
-                return res.status(400).json({ error: 'Cover image must start with https://, http://, or data:image/' });
+            if (!isValidImageUrl(cover_image)) {
+                return res.status(400).json({ error: 'Cover image must be a valid http(s) URL or raster image data URL (jpeg, png, webp, gif)' });
             }
         }
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createExperience, updateExperience, getExperience, deleteExperience } from '../experience';
 import { docClient } from '../../lib/db';
-import { PutCommand, UpdateCommand, TransactWriteCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 
 vi.mock('../../lib/db', () => ({
   docClient: {
@@ -54,6 +54,7 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
         idempotency_key: 'idem-key-1',
         media_id: 'PROVIDER#tmdb#999',
         category_id: 'cat-films',
+        status: 'Completed',
       };
 
       vi.mocked(docClient.send)
@@ -206,7 +207,8 @@ describe('Experience Handler — Architectural Invariants (TICK-001)', () => {
 
       vi.mocked(docClient.send)
         .mockResolvedValueOnce({ Item: existingItem } as any) // GetCommand
-        .mockResolvedValueOnce({ Attributes: { ...existingItem, status: 'Want to Experience', version: 3 } } as any); // UpdateCommand
+        .mockResolvedValueOnce({} as any) // TransactWriteCommand
+        .mockResolvedValueOnce({ Item: { ...existingItem, status: 'Want to Experience', version: 3 } } as any); // Re-fetch GetCommand
 
       await updateExperience(mockReq, mockRes);
 

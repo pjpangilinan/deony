@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getSession, signOut as authSignOut } from '../services/auth';
+import { api } from '../services/api';
 
 interface AuthContextType {
   user: any;
@@ -24,6 +25,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const session = await getSession();
       setUser(session);
+      if (session) {
+        // Ensure User record is initialized in DynamoDB on first sign-in
+        api.get('/users/me').catch(() => {});
+      }
     } catch (err) {
       setUser(null);
     } finally {

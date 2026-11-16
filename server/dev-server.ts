@@ -6,6 +6,7 @@ import path from 'path';
 import apiRoutes from './routes';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const app = express();
 const port = 3001;

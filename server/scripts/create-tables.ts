@@ -30,8 +30,22 @@ const tables = [
     {
         TableName: 'Category',
         KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
-        AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
-        BillingMode: 'PAY_PER_REQUEST'
+        AttributeDefinitions: [
+            { AttributeName: 'id', AttributeType: 'S' },
+            { AttributeName: 'user_id', AttributeType: 'S' },
+            { AttributeName: 'sort_order', AttributeType: 'N' }
+        ],
+        BillingMode: 'PAY_PER_REQUEST',
+        GlobalSecondaryIndexes: [
+            {
+                IndexName: 'UserCategoriesIndex',
+                KeySchema: [
+                    { AttributeName: 'user_id', KeyType: 'HASH' },
+                    { AttributeName: 'sort_order', KeyType: 'RANGE' }
+                ],
+                Projection: { ProjectionType: 'ALL' }
+            }
+        ]
     },
     {
         TableName: 'Media',

@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import { docClient, TABLES } from '../lib/db';
-import { PutCommand, ScanCommand, UpdateCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, UpdateCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
 export const createCategory = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.sub;
-        const { name, media_type, icon, color, sort_order, is_builtin } = req.body;
+        const { name, media_type, icon, color, sort_order } = req.body;
 
-        const VALID_MEDIA_TYPES = ['movie', 'tv', 'book', 'game', 'music', 'podcast', 'other'];
+        const VALID_MEDIA_TYPES = ['movie', 'tv', 'book', 'game', 'anime', 'music', 'podcast', 'manual', 'other'];
         if (!media_type || !VALID_MEDIA_TYPES.includes(media_type)) {
             return res.status(400).json({ error: `Invalid media_type. Must be one of: ${VALID_MEDIA_TYPES.join(', ')}` });
         }
@@ -16,21 +16,33 @@ export const createCategory = async (req: Request, res: Response) => {
         if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 100) {
             return res.status(400).json({ error: 'Category name must be between 1 and 100 characters' });
         }
+
+        if (icon !== undefined && (typeof icon !== 'string' || icon.length > 50)) {
+            return res.status(400).json({ error: 'Icon must be a string up to 50 characters' });
+        }
+
+        if (color !== undefined && (typeof color !== 'string' || color.length > 30)) {
+            return res.status(400).json({ error: 'Color must be a string up to 30 characters' });
+        }
+
+        if (sort_order !== undefined && (typeof sort_order !== 'number' || !Number.isFinite(sort_order))) {
+            return res.status(400).json({ error: 'sort_order must be a finite number' });
+        }
         
         const id = uuidv4();
         const now = new Date().toISOString();
-        const normalized_name = (name || '').toLowerCase().trim();
+        const normalized_name = name.toLowerCase().trim();
 
         const category = {
             id,
             user_id: userId,
-            name,
+            name: name.trim(),
             normalized_name,
             media_type,
             icon,
             color,
             sort_order: sort_order || 0,
-            is_builtin: is_builtin || false,
+            is_builtin: false,
             deleted_at: null,
             created_at: now,
             updated_at: now
@@ -52,9 +64,11 @@ export const listCategories = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user.sub;
         
-        const result = await docClient.send(new ScanCommand({
+        const result = await docClient.send(new QueryCommand({
             TableName: TABLES.CATEGORY,
-            FilterExpression: 'user_id = :userId AND (attribute_not_exists(deleted_at) OR deleted_at = :nullValue)',
+            IndexName: 'UserCategoriesIndex',
+            KeyConditionExpression: 'user_id = :userId',
+            FilterExpression: 'attribute_not_exists(deleted_at) OR deleted_at = :nullValue',
             ExpressionAttributeValues: {
                 ':userId': userId,
                 ':nullValue': null
@@ -101,7 +115,7 @@ export const updateCategory = async (req: Request, res: Response) => {
             Key: { id }
         }));
 
-        if (!getRes.Item || getRes.Item.user_id !== userId) {
+        if (!getRes.Item || getRes.Item.user_id !== userId || (getRes.Item.deleted_at !== null && getRes.Item.deleted_at !== undefined)) {
             return res.status(404).json({ error: 'Category not found' });
         }
 
@@ -163,7 +177,7 @@ export const softDeleteCategory = async (req: Request, res: Response) => {
             Key: { id }
         }));
 
-        if (!getRes.Item || getRes.Item.user_id !== userId) {
+        if (!getRes.Item || getRes.Item.user_id !== userId || (getRes.Item.deleted_at !== null && getRes.Item.deleted_at !== undefined)) {
             return res.status(404).json({ error: 'Category not found' });
         }
 

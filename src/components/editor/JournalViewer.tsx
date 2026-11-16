@@ -12,7 +12,7 @@ export const JournalViewer: React.FC<JournalViewerProps> = ({ content }) => {
     editable: false,
     extensions: [
       StarterKit,
-      Markdown,
+      Markdown.configure({ html: false }),
     ],
     content,
   });
