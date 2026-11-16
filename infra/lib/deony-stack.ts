@@ -327,7 +327,7 @@ function handler(event) {
           override: true,
         },
         contentSecurityPolicy: {
-          contentSecurityPolicy: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://image.tmdb.org https://covers.openlibrary.org https://media.rawg.io https://*.cloudfront.net https://*.amazonaws.com; connect-src 'self' https://cognito-idp.${this.region}.amazonaws.com https://*.amazonaws.com https://*.cloudfront.net; frame-ancestors 'none';`,
+          contentSecurityPolicy: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://cognito-idp.${this.region}.amazonaws.com https://*.amazonaws.com https://*.cloudfront.net; frame-ancestors 'none';`,
           override: true,
         },
       },
